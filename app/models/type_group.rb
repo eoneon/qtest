@@ -1,0 +1,2 @@
+class TypeGroup < ApplicationRecord
+end

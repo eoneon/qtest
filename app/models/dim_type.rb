@@ -1,0 +1,2 @@
+class DimType < ApplicationRecord
+end
