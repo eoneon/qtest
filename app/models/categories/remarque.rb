@@ -1,2 +1,0 @@
-class Remarque < Category
-end

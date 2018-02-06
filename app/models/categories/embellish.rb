@@ -1,2 +1,0 @@
-class Embellish < Category
-end
