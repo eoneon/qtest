@@ -1,6 +1,6 @@
 <p id="notice"><%= notice %></p>
 
-<h2><%= @element.class.to_s.pluralize.underscore.to_sym %>: <%= @element.name %></h2>
+<h2><%= @category.class.to_s.pluralize.underscore.to_sym %>: <%= @category.name %></h2>
 
-<%= link_to 'Edit', [:edit, @element] %> |
-<%= link_to 'Back', @element.class.to_s.pluralize.underscore.to_sym %>
+<%= link_to 'Edit', [:edit, @category] %> |
+<%= link_to 'Back', @category.class.to_s.pluralize.underscore.to_sym %>

@@ -1,20 +1,20 @@
 <p id="notice"><%= notice %></p>
 
-<h1><%#= @elements.klass.to_s.pluralize.humanize %></h1>
-<h1><%= class_to_string(@elements) %></h1>
-<% if @elements.empty? %>
-  <p><strong>No Elements</strong></p>
+<h1><%= @categories.klass.to_s.pluralize.humanize %></h1>
+<h1><%= class_to_string(@categories) %></h1>
+<% if @categories.empty? %>
+  <p><strong>No Categories</strong></p>
 <% end %>
 
-<h4>Export Elements</h4>
+<h4>Export Categories</h4>
 <p>
   Download:
-  <%= link_to "CSV", elements_path(format: "csv") %> |
-  <%= link_to "Excel", elements_path(format: "xls") %>
+  <%= link_to "CSV", categories_path(format: "csv") %> |
+  <%= link_to "Excel", categories_path(format: "xls") %>
 </p>
 
-<h4>Import Item Types</h4>
-<%= form_tag import_elements_path, multipart: true do %>
+<h4>Import Categories</h4>
+<%= form_tag import_categories_path, multipart: true do %>
   <%= file_field_tag :file %>
   <%= submit_tag "Import" %>
 <% end %>
@@ -27,11 +27,11 @@
     </tr>
   </thead>
   <tbody>
-    <% @elements.each do |element| %>
-    <%= render 'elements/element', element: element %>
+    <% @categories.each do |category| %>
+    <%= render 'categories/category', category: category %>
     <% end %>
   </tbody>
 </table>
 
 <br>
-<%= link_to "New #{class_to_string(@elements)}", [:new, relation_to_class(@elements)] %>
+<%= link_to "New #{class_to_string(@categories)}", [:new, relation_to_class(@categories)] %>
