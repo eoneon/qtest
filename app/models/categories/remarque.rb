@@ -1,0 +1,2 @@
+class Remarque < Category
+end

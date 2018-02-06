@@ -1,0 +1,2 @@
+class Substrate < Category
+end

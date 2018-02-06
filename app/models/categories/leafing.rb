@@ -1,0 +1,2 @@
+class Leafing < Category
+end

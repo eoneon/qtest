@@ -1,0 +1,2 @@
+class Exclusive < Category
+end
