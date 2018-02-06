@@ -1,0 +1,36 @@
+<p id="notice"><%= notice %></p>
+
+<h1>ItemType#index</h1>
+<% if @item_types.empty? %>
+  <p><strong>No ItemTypes</strong></p>
+<% end %>
+
+<h4>Export ItemTypes</h4>
+<p>
+  Download:
+  <%= link_to "CSV", item_types_path(format: "csv") %> |
+  <%= link_to "Excel", item_types_path(format: "xls") %>
+</p>
+
+<h4>Import ItemTypes</h4>
+<%= form_tag import_item_types_path, multipart: true do %>
+  <%= file_field_tag :file %>
+  <%= submit_tag "Import" %>
+<% end %>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @item_types.each do |item_type| %>
+    <%= render 'item_types/item_type', item_type: item_type %>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+<%= link_to "New item_type", new_item_type_path %>

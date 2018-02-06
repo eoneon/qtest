@@ -1,0 +1,9 @@
+<fieldset>
+  <%= f.label :sub_element_name %><br>
+  <%= f.collection_select( :sub_element_id, SubElement.all, :id, :name, include_blank: true) %>
+  <%#= f.text_field :kind %>
+  <%#= f.collection_select( :sub_element_id, @element.name.split("_"), :id, :name, include_blank: true) %>
+  <%= f.hidden_field :sub_element_ids %>
+  <%= f.hidden_field :_destroy %>
+  <%= link_to "remove", '#', class: "remove_fields" %>
+</fieldset>
