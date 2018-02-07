@@ -4,6 +4,9 @@ Rails.application.routes.draw do
   resources :media, controller: "categories", type: "Medium"
   resources :substrates, controller: "categories", type: "Substrate"
 
+  resources :item_fields
+  resources :field_values
+
   resources :item_types do
     collection do
       post :import
@@ -11,6 +14,18 @@ Rails.application.routes.draw do
   end
 
   resources :categories do
+    collection do
+      post :import
+    end
+  end
+
+  resources :item_fields do
+    collection do
+      post :import
+    end
+  end
+
+  resources :field_values do
     collection do
       post :import
     end
