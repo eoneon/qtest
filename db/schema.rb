@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180206231314) do
+ActiveRecord::Schema.define(version: 20180207001927) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -41,6 +41,31 @@ ActiveRecord::Schema.define(version: 20180206231314) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "field_groups", force: :cascade do |t|
+    t.bigint "item_fields_id"
+    t.string "classifiable_type"
+    t.bigint "classifiable_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["classifiable_type", "classifiable_id"], name: "index_field_groups_on_classifiable_type_and_classifiable_id"
+    t.index ["item_fields_id"], name: "index_field_groups_on_item_fields_id"
+  end
+
+  create_table "field_values", force: :cascade do |t|
+    t.string "name"
+    t.string "kind"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "item_fields", force: :cascade do |t|
+    t.string "name"
+    t.string "field_type"
+    t.string "kind"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "item_types", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", null: false
@@ -62,6 +87,15 @@ ActiveRecord::Schema.define(version: 20180206231314) do
     t.datetime "updated_at", null: false
     t.index ["classifiable_type", "classifiable_id"], name: "index_type_groups_on_classifiable_type_and_classifiable_id"
     t.index ["typeable_type", "typeable_id"], name: "index_type_groups_on_typeable_type_and_typeable_id"
+  end
+
+  create_table "value_groups", force: :cascade do |t|
+    t.bigint "item_fields_id"
+    t.bigint "field_values_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["field_values_id"], name: "index_value_groups_on_field_values_id"
+    t.index ["item_fields_id"], name: "index_value_groups_on_item_fields_id"
   end
 
 end

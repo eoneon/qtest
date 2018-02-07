@@ -8,6 +8,9 @@ class Category < ApplicationRecord
   has_many :cert_types, through: :type_groups, source: :typeable, source_type: 'CertType'
   has_many :dim_types, through: :type_groups, source: :typeable, source_type: 'DimType'
 
+  has_many :field_groups, as: :classifiable, dependent: :destroy
+  has_many :item_fields, through: :field_groups
+
   def classifiable_type=(sType)
      super(sType.to_s.classify.constantize.base_class.to_s)
   end
