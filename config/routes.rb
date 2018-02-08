@@ -1,9 +1,6 @@
 Rails.application.routes.draw do
   resources :item_types
   resources :categories
-  resources :media, controller: "categories", type: "Medium"
-  resources :substrates, controller: "categories", type: "Substrate"
-
   resources :item_fields
   resources :field_values
 
