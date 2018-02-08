@@ -1,0 +1,42 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Field Values</h1>
+<% if @field_values.empty? %>
+  <p><strong>No Field Value</strong></p>
+<% end %>
+
+<h4>Export Field Values</h4>
+<p>
+  Download:
+  <%= link_to "CSV", field_values_path(format: "csv") %> |
+  <%= link_to "Excel", field_values_path(format: "xls") %>
+</p>
+
+<h4>Import Field Value</h4>
+<%= form_tag import_field_values_path, multipart: true do %>
+  <%= file_field_tag :file %>
+  <%= submit_tag "Import" %>
+<% end %>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>id</th>
+      <th>name</th>
+      <th>kind</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @field_values.each do |field_value| %>
+      <tr>
+        <td><%= field_value.id %></td>
+        <td><%= field_value.name %></td>
+        <td><%= field_value.kind %></td>
+        <td><%= link_to 'show', field_value_path(field_value) %> | <%= link_to 'Edit', edit_field_value_path(field_value) %> | <%= link_to 'Delete', field_value, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  <tbody>
+</table>
+<br>
+
+<%= link_to 'New Field Value', new_field_value_path %>

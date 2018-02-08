@@ -1,0 +1,11 @@
+<%= form_for parent do |f| %>
+<div class="field">
+  <%= f.label :kind %><br>
+  <%= f.text_field :kind %>
+</div>
+  <div class="field">
+    <%= f.label :name %><br>
+    <%= f.text_field :name %>
+  </div>
+  <%= f.submit "Save" %>
+<% end %>

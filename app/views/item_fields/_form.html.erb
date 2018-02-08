@@ -17,10 +17,12 @@
     <div class="col-md-12">
       <div class="field">
         <%= hidden_field_tag "item_field[field_value_ids][]", nil %>
-        <% FieldValue.where(kind: parent.name.split("_").first).each do |field_value| %>
-          <br>
-          <%= check_box_tag "item_field[field_value_ids][]", field_value.id, parent.field_value_ids.include?(field_value.id), id: dom_id(field_value) %>
-          <%= label_tag dom_id(field_value), field_value.name %>
+        <% if parent.categories.present? %>
+          <% FieldValue.where(kind: parent.name.split("_").first).each do |field_value| %>
+            <br>
+            <%= check_box_tag "item_field[field_value_ids][]", field_value.id, parent.field_value_ids.include?(field_value.id), id: dom_id(field_value) %>
+            <%= label_tag dom_id(field_value), field_value.name %>
+          <% end %>
         <% end %>
       </div>
     </div>
