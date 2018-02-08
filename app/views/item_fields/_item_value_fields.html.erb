@@ -1,0 +1,7 @@
+<fieldset>
+  <%= f.label :value_name %><br>
+  <%= f.select :item_field_id, options_for_select(FieldValue.pluck(:name), :id)  %>
+  <%#= f.collection_select( :item_field_id, ItemValue.all, :id, :name, include_blank: true) %>
+  <%= f.hidden_field :_destroy %>
+  <%= link_to "remove", '#', class: "remove_fields" %>
+</fieldset>

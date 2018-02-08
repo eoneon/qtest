@@ -1,0 +1,29 @@
+<p>Note:</p>
+<!-- <ul>
+  <li>item_field.sub_item.name == field_value.kind: a field's parent's name is equal to a value's kind attribute</li>
+  <li>item_field.name.split("_").first == field_value.sub_kind: a field's name-prefix is equal to a value's sub_kind attribute</li>
+</ul> -->
+<%= form_for parent do |f| %>
+<%#= parent.field_values.map {|value| value.kind if value.kind == parent.name.split("_").first} %>
+  <div class="field">
+    <%= f.label :field_type %><br>
+    <%= f.select :field_type, %w[text_field check_box number_field text_area], include_blank: true %>
+  </div>
+  <div class="field">
+    <%= f.label :name %><br>
+    <%= f.text_field :name %>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="field">
+        <%= hidden_field_tag "item_field[field_value_ids][]", nil %>
+        <% FieldValue.where(kind: parent.name.split("_").first).each do |field_value| %>
+          <br>
+          <%= check_box_tag "item_field[field_value_ids][]", field_value.id, parent.field_value_ids.include?(field_value.id), id: dom_id(field_value) %>
+          <%= label_tag dom_id(field_value), field_value.name %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  <%= f.submit "Save" %>
+<% end %>

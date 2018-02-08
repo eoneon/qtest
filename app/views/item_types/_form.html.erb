@@ -6,21 +6,21 @@
 
   <div class="row">
     <div class="col-md-12">
-      <h4>Sub Elements:</h4>
-      <%= f.fields_for :type_groups do |builder| %>
-        <%= render 'item_types/type_group_fields', f: builder %>
+      <h4>Fields:</h4>
+      <%= f.fields_for :field_groups do |builder| %>
+        <%= render 'item_fields/field_group_fields', f: builder %>
       <% end %>
-      <%= link_to_add_fields "Add Field", f, :type_groups, "item_types" %>
+      <%= link_to_add_fields "Add Field", f, :field_groups, "categories" %>
     </div>
   </div>
 
-  <div class="col-md-12">
+  <!-- <div class="col-md-12">
     <h4>Properties for Elements:</h4>
     <%# parent.sub_elements.each do |sub_element| %>
       <%# sub_element.element_fields.each do |field| %>
         <%#= render 'elements/properties', f: f, parent: parent, field: field %>
       <%# end %>
     <%# end %>
-  </div>
+  </div> -->
   <%= f.submit "Save" %>
 <% end %>
