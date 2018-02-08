@@ -10,14 +10,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180207034737) do
+ActiveRecord::Schema.define(version: 20180208025347) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+  enable_extension "hstore"
 
   create_table "categories", force: :cascade do |t|
     t.string "name"
-    t.string "type"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "kind"
@@ -42,12 +42,12 @@ ActiveRecord::Schema.define(version: 20180207034737) do
   end
 
   create_table "field_groups", force: :cascade do |t|
-    t.string "classifiable_type"
-    t.bigint "classifiable_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "item_field_id"
-    t.index ["classifiable_type", "classifiable_id"], name: "index_field_groups_on_classifiable_type_and_classifiable_id"
+    t.bigint "category_id"
+    t.integer "sort"
+    t.index ["category_id"], name: "index_field_groups_on_category_id"
     t.index ["item_field_id"], name: "index_field_groups_on_item_field_id"
   end
 
@@ -70,6 +70,10 @@ ActiveRecord::Schema.define(version: 20180207034737) do
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "category_id"
+    t.hstore "properties"
+    t.index ["category_id"], name: "index_item_types_on_category_id"
+    t.index ["properties"], name: "index_item_types_on_properties", using: :gist
   end
 
   create_table "sign_types", force: :cascade do |t|
@@ -78,20 +82,13 @@ ActiveRecord::Schema.define(version: 20180207034737) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "type_groups", force: :cascade do |t|
-    t.string "classifiable_type"
-    t.bigint "classifiable_id"
-    t.string "typeable_type"
-    t.bigint "typeable_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["classifiable_type", "classifiable_id"], name: "index_type_groups_on_classifiable_type_and_classifiable_id"
-    t.index ["typeable_type", "typeable_id"], name: "index_type_groups_on_typeable_type_and_typeable_id"
-  end
-
   create_table "value_groups", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "item_field_id"
+    t.bigint "field_value_id"
+    t.index ["field_value_id"], name: "index_value_groups_on_field_value_id"
+    t.index ["item_field_id"], name: "index_value_groups_on_item_field_id"
   end
 
 end
