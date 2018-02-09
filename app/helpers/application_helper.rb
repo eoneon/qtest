@@ -13,6 +13,6 @@ module ApplicationHelper
   end
 
   def class_to_string(class_name)
-    class_name.klass.to_s.underscore.humanize.pluralize
+    class_name.class.to_s.underscore
   end
 end

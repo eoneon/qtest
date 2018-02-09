@@ -37,10 +37,11 @@ class ItemFieldsController < ApplicationController
 
     if @item_field.save
       flash[:notice] = "item_field was updated successfully."
+      redirect_to action: :index
     else
       flash.now[:alert] = "Error updated item_field. Please try again."
+      render :edit
     end
-    render :edit
   end
 
   def destroy

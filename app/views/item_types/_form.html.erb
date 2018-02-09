@@ -1,26 +1,35 @@
 <%= form_for parent do |f| %>
-  <div class="field">
+  <%= f.hidden_field :category_id %>
+  <%= "item on Parade".titlecase %>
+  <!-- <div class="field">
     <%= f.label :name %><br>
     <%= f.text_field :name %>
+  </div> -->
+
+  <div class="field">
+    <%= f.label :kind %><br>
+    <%= f.collection_select(:category_id, Category.where(kind: class_to_string(parent)), :id, :name, { :include_blank => true }) %>
   </div>
 
-  <div class="row">
+  <!-- <div class="row">
     <div class="col-md-12">
       <h4>Fields:</h4>
-      <%= f.fields_for :field_groups do |builder| %>
-        <%= render 'item_fields/field_group_fields', f: builder %>
-      <% end %>
-      <%= link_to_add_fields "Add Field", f, :field_groups, "categories" %>
-    </div>
-  </div>
-
-  <!-- <div class="col-md-12">
-    <h4>Properties for Elements:</h4>
-    <%# parent.sub_elements.each do |sub_element| %>
-      <%# sub_element.element_fields.each do |field| %>
-        <%#= render 'elements/properties', f: f, parent: parent, field: field %>
+      <%#= f.fields_for :field_groups do |builder| %>
+        <%#= render 'item_fields/field_group_fields', f: builder %>
       <%# end %>
-    <%# end %>
+      <%#= link_to_add_fields "Add Field", f, :field_groups, "categories" %>
+    </div>
   </div> -->
+
+  <div class="col-md-12">
+    <h4>Properties:</h4>
+    <% if parent.category_id? %>
+      <%# parent.categories.each do |category| %>
+        <% parent.category.item_fields.each do |field| %>
+          <%= render 'item_types/properties', f: f, parent: parent, field: field %>
+        <% end %>
+      <%# end %>
+    <% end %>
+  </div>
   <%= f.submit "Save" %>
 <% end %>

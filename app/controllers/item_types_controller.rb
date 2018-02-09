@@ -1,11 +1,6 @@
 class ItemTypesController < ApplicationController
   def index
     @item_types = ItemType.all
-    respond_to do |format|
-      format.html
-      format.csv { send_data @item_types.to_csv }
-      format.xls { send_data @item_types.to_csv(col_sep: "\t") }
-    end
   end
 
   def show
@@ -13,7 +8,7 @@ class ItemTypesController < ApplicationController
   end
 
   def new
-    @item_type = ItemType.new
+    @item_type = ItemType.new(category_id: params[:category_id])
   end
 
   def edit
@@ -43,11 +38,6 @@ class ItemTypesController < ApplicationController
       flash.now[:alert] = "Error updated item_type. Please try again."
       render :edit
     end
-  end
-
-  def import
-    ItemType.import(params[:file])
-    redirect_to item_types_path, notice: 'ItemType imported.'
   end
 
   def destroy
