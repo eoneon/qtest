@@ -7,10 +7,10 @@
   <div class="row">
     <div class="col-md-12">
       <h4>Categories:</h4>
-      <%#= f.fields_for :field_groups do |builder| %>
-        <%#= render 'categories/field_group_fields', f: builder %>
-      <%# end %>
-      <%#= link_to_add_fields "Add Field", f, :field_groups, "categories" %>
+      <%= f.fields_for :field_groups do |builder| %>
+        <%= render 'categories/field_group_fields', f: builder %>
+      <% end %>
+      <%= link_to_add_fields "Add Field", f, :field_groups, "categories" %>
     </div>
   </div>
 

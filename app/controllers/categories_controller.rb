@@ -42,7 +42,7 @@ class CategoriesController < ApplicationController
 
   def import
     Category.import(params[:file])
-    redirect_to categorys_path, notice: 'Category imported.'
+    redirect_to categories_path, notice: 'Category imported.'
   end
 
   def destroy
