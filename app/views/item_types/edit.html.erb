@@ -1,5 +1,6 @@
 <h1>ItemType#Edit</h1>
-
+<%= @item_type.item_description %>
+<%#= @item_type.substrate %>
 <%= render 'item_types/form', parent: @item_type %>
 
 <%= link_to 'Show', item_type_path(@item_type) %> |

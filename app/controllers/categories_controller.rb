@@ -33,11 +33,10 @@ class CategoriesController < ApplicationController
 
     if @category.save
       flash[:notice] = "category was updated successfully."
-      render :edit
     else
       flash.now[:alert] = "Error updated category. Please try again."
-      render :edit
     end
+    redirect_to edit_category_path #category
   end
 
   def import

@@ -11,4 +11,8 @@ class Category < ApplicationRecord
   has_many :item_fields, through: :field_groups
 
   accepts_nested_attributes_for :field_groups, reject_if: proc {|attrs| attrs['item_field_id'].blank?}, allow_destroy: true
+
+  def category_names
+    name.split("_")
+  end
 end

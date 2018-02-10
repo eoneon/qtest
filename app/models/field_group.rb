@@ -6,6 +6,6 @@ class FieldGroup < ApplicationRecord
   before_save :set_sort
 
   def set_sort
-    self.sort = category.name.split("_").index(item_field.name) #if elementable.present?
+    self.sort = category.name.split("_").index(item_field.name)
   end
 end
