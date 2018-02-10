@@ -1,14 +1,9 @@
 Rails.application.routes.draw do
   resources :item_types
+  resources :edition_types
   resources :categories
   resources :item_fields
   resources :field_values
-
-  resources :item_types do
-    collection do
-      post :import
-    end
-  end
 
   resources :categories do
     collection do

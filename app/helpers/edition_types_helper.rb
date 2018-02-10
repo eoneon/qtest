@@ -1,0 +1,2 @@
+module EditionTypesHelper
+end
