@@ -8,14 +8,21 @@ class ItemType < ApplicationRecord
   end
 
   def substrates
-    substrate = category_names & FieldValue.all_substrate.pluck(:name) #["canvas", "paper", "panel", "sericel"]
+    substrate = category_names & FieldValue.all_substrate.pluck(:name)
     substrate.join("")
+  end
+
+  def medium2
+    [properties["leafing"], properties["remarque"]].reject {|m| m.blank?}.count
   end
 
   def format_values(name)
     case
     when name == substrates then "on #{properties[name]}"
     when name == "painting" &&  properties[name] != "painting" then "#{properties[name]} painting"
+    when medium2 == 2 && name == "leafing" then "with #{properties[name]}"
+    when medium2 == 2 && name == "remarque" then "and #{properties[name]}"
+    when medium2 == 1 && name == "remarque" || name == "leafing" then "with #{properties[name]}"
     else properties[name]
     end
   end
