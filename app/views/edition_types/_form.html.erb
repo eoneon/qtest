@@ -1,0 +1,16 @@
+<%= form_for parent do |f| %>
+  <%= f.hidden_field :category_id %>
+  <div class="field">
+    <%= f.label :kind %><br>
+    <%= f.collection_select(:category_id, Category.where(kind: "edition_type"), :id, :name, { :include_blank => true }) %>
+  </div>
+  <div class="col-md-12">
+    <h4>Properties!:</h4>
+    <% if parent.category_id? %>
+      <% parent.category.item_fields.each do |field| %>
+        <%= render 'edition_types/properties', f: f, parent: parent, field: field %>
+      <% end %>
+    <% end %>
+  </div>
+  <%= f.submit "Save" %>
+<% end %>
