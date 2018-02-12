@@ -1,6 +1,6 @@
 <h1>ItemType#Edit</h1>
-<%= @item_type.item_description %>
-<%= @item_type.medium2 %>
+<p><%= @item_type.item_description %></p>
+<p><%= @item_type.art_type %></p>
 <%= render 'item_types/form', parent: @item_type %>
 
 <%= link_to 'Show', item_type_path(@item_type) %> |

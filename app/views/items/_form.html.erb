@@ -1,0 +1,51 @@
+<%= form_for @item, :html => {:id => 'item_form'} do |f| %>
+  <%= render "items/hidden", f: f %>
+  <script type="text/javascript">
+    function submitform(){
+      $('#redirect_location').val(':edit');
+      $('#item_form').submit();
+    }
+  </script>
+  <script type="text/javascript">
+    function reload(){
+      var item_type_id = $('#selectItemtype').val();
+      $('#item_item_type_id').val('item_type_id');
+    }
+  </script>
+
+  <div class="row">
+    <div class="col-md-2">
+      <%= f.label :sku %><br>
+      <%= f.text_field :sku %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-2">
+      <%= f.label :medium %><br>
+      <%= f.collection_select :item_type_id, ItemType.all, :id, :item_description, {:include_blank => true} %>
+    </div>
+  </div><br>
+
+  <div class="row">
+    <div class="col-md-2">
+      <%= f.label :edition %><br>
+      <%#= f.collection_select :edition_type_id, EditionType.all, :id, :edition_description, {:include_blank => true} %>
+    </div>
+  </div><br>
+
+  <div class="col-md-12">
+    <h4>Properties for Items:</h4>
+
+      <%= f.label :item %><br>
+      <%#= f.collection_select :item_type_id, ItemType.all, :id, :item_description, {:include_blank => true} %>
+      <%# if @item.itemizable.present? %>
+      <%# @item.itemizable.sub_elements.each do |sub_element| %>
+        <%# sub_element.element_fields.each do |field| %>
+          <%#= render 'items/properties', f: f, parent: @item, field: field %>
+        <%# end %>
+      <%# end %>
+    <%# end %>
+  </div>
+  <%= f.submit "Save" %>
+<% end %>

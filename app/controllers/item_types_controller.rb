@@ -11,10 +11,6 @@ class ItemTypesController < ApplicationController
     @item_type = ItemType.new(category_id: params[:category_id])
   end
 
-  def edit
-    @item_type = ItemType.find(params[:id])
-  end
-
   def create
     @item_type = ItemType.new(item_type_params)
 
@@ -27,6 +23,10 @@ class ItemTypesController < ApplicationController
     end
   end
 
+  def edit
+    @item_type = ItemType.find(params[:id])
+  end
+  
   def update
     @item_type = ItemType.find(params[:id])
     @item_type.assign_attributes(item_type_params)

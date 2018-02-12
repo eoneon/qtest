@@ -1,8 +1,16 @@
 class ItemType < ApplicationRecord
   belongs_to :category
+  has_many :items
 
   def category_names
     category.name.split("_")
+  end
+
+  def art_type
+    case
+    when category_names.any? {|name| name == "original"} then "original"
+    when category_names.any? {|name| name == "limited"} then "limited"
+    end
   end
 
   def substrates

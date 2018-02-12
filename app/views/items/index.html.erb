@@ -1,0 +1,26 @@
+<h1>Items#index</h1>
+
+<% if @items.empty? %>
+  <p><strong>No Items</strong></p>
+<% end %>
+<%= link_to "New Item", new_item_path %>
+<table class="table table-striped">
+  <thead>
+    <th>ID</th>
+    <th>Sku</th>
+    <th>Description</th>
+    <th>Properties</th>
+  </thead>
+
+  <tbody>
+    <% @items.each do |item| %>
+      <tr>
+        <td><%= item.id %></td>
+        <td><%= item.sku %></td>
+        <td><%#= item.itemizable.build_sub_elements_description %></td>
+        <td><%= item.properties %></td>
+        <td><%= link_to 'show', item_path(item) %> | <%= link_to 'Edit', edit_item_path(item) %> | <%= link_to 'Delete', item, method: :delete %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
