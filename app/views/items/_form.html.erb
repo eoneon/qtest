@@ -30,7 +30,7 @@
   <div class="row">
     <div class="col-md-2">
       <%= f.label :edition %><br>
-      <%#= f.collection_select :edition_type_id, EditionType.all, :id, :edition_description, {:include_blank => true} %>
+      <%= f.collection_select :edition_type_id, EditionType.all, :id, :edition_description, {:include_blank => true} %>
     </div>
   </div><br>
 
@@ -38,13 +38,12 @@
     <h4>Properties for Items:</h4>
 
       <%= f.label :item %><br>
-      <%#= f.collection_select :item_type_id, ItemType.all, :id, :item_description, {:include_blank => true} %>
-      <%# if @item.itemizable.present? %>
-      <%# @item.itemizable.sub_elements.each do |sub_element| %>
-        <%# sub_element.element_fields.each do |field| %>
-          <%#= render 'items/properties', f: f, parent: @item, field: field %>
-        <%# end %>
-      <%# end %>
+      <% if @item.edition_type.present? %>
+      <% @item.edition_type.properties.each do |field| %>
+        <%# edition.item_fields.each do |field| %>
+          <%= render 'items/properties', f: f, parent: @item, field: field[0] %>
+        <% end %>
+      <% end %>
     <%# end %>
   </div>
   <%= f.submit "Save" %>
