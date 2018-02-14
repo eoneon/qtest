@@ -27,24 +27,14 @@
     </div>
   </div><br>
 
-  <div class="row">
+  <!-- <div class="row">
     <div class="col-md-2">
-      <%= f.label :edition %><br>
-      <%= f.collection_select :edition_type_id, EditionType.all, :id, :edition_description, {:include_blank => true} %>
+      <%#= f.label :edition %><br>
+      <%#= f.collection_select :edition_type_id, EditionType.all, :id, :name, {:include_blank => true} %>
     </div>
-  </div><br>
-
-  <div class="col-md-12">
-    <h4>Properties for Items:</h4>
-
-      <%= f.label :item %><br>
-      <% if @item.edition_type.present? %>
-      <% @item.edition_type.properties.each do |field| %>
-        <%# edition.item_fields.each do |field| %>
-          <%= render 'items/properties', f: f, parent: @item, field: field[0] %>
-        <% end %>
-      <% end %>
-    <%# end %>
-  </div>
+  </div><br> -->
+  <%= render "items/properties", parent: @item, f: f %>
   <%= f.submit "Save" %>
+  </div>
+
 <% end %>

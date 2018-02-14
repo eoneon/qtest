@@ -1,5 +1,19 @@
 <%= f.fields_for :properties, OpenStruct.new(parent.properties) do |builder| %>
-  <%# unless field.field_type.blank? %>
-    <%= render "items/item_fields/number_field", parent: parent, field: field, f: builder %>
-  <%# end %>
+  <% [EditionType].each do |type| %>
+    <div class="row">
+      <div class="col-md-2">
+        <%= f.label :edition_type %><br>
+        <%= f.collection_select :edition_type_id, EditionType.all, :id, :name, {:include_blank => true}, onchange: 'submitform()' %>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-2">
+        <% if parent.edition_type.present? %>
+          <% parent.edition_type.category.item_fields.where(name: parent.edition_type.name.split("_")).each do |field| %>
+          <%= render "items/item_fields/#{field.field_type}", parent: parent, type: type, field: field, f: builder %>
+        <% end %>
+      </div>
+    </div>
+    <% end %>
+  <% end %>
 <% end %>

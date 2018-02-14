@@ -4,6 +4,11 @@
     <%= f.label :kind %><br>
     <%= f.collection_select(:category_id, Category.where(kind: "edition_type"), :id, :name, { :include_blank => true }) %>
   </div>
+
+  <div class="field">
+    <%= f.label :name %><br>
+    <%= f.text_field :name %>
+  </div>
   <div class="col-md-12">
     <h4>Properties!:</h4>
     <% if parent.category_id? %>
