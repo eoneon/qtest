@@ -1,9 +1,9 @@
 <%= f.fields_for :properties, OpenStruct.new(parent.properties) do |builder| %>
-  <% [EditionType].each do |type| %>
+  <% type_list(parent).each do |type| %>
     <div class="row">
       <div class="col-md-2">
-        <%= f.label :edition_type %><br>
-        <%= f.collection_select :edition_type_id, EditionType.all, :id, :name, {:include_blank => true}, onchange: 'submitform()' %>
+        <%= f.label obj_to_s(type) %><br>
+        <%= f.collection_select obj_to_fk(type), value_list(parent, type), :id, :name, {:include_blank => true}, onchange: 'submitform()' %>
       </div>
     </div>
     <div class="row">

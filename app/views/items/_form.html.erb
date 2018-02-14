@@ -23,18 +23,12 @@
   <div class="row">
     <div class="col-md-2">
       <%= f.label :medium %><br>
-      <%= f.collection_select :item_type_id, ItemType.all, :id, :item_description, {:include_blank => true} %>
+      <%= f.collection_select :item_type_id, ItemType.all, :id, :item_description, {:include_blank => true}, onchange: 'submitform()' %>
     </div>
   </div><br>
-
-  <!-- <div class="row">
-    <div class="col-md-2">
-      <%#= f.label :edition %><br>
-      <%#= f.collection_select :edition_type_id, EditionType.all, :id, :name, {:include_blank => true} %>
-    </div>
-  </div><br> -->
-  <%= render "items/properties", parent: @item, f: f %>
+  <% if @item.item_type_id? %>
+    <%= render "items/properties", parent: @item, f: f %>
+  <% end %>
   <%= f.submit "Save" %>
   </div>
-
 <% end %>

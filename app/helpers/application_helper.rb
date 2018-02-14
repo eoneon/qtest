@@ -15,4 +15,23 @@ module ApplicationHelper
   def class_to_string(class_name)
     class_name.class.to_s.underscore
   end
+
+  def obj_to_s(type)
+    type.to_s.underscore
+  end
+
+  def obj_to_fk(type)
+    type.to_s.underscore + "_id"
+  end
+
+  def value_list(parent, type)
+    type.all
+  end
+
+  def type_list(parent)
+    case
+    when parent.item_type.art_type == "limited" then [EditionType]
+    when parent.item_type.art_type == "original" then []
+    end
+  end
 end
