@@ -12,5 +12,5 @@
     <%#= f.select field.name, options_for_select(field.field_values.pluck(:name), parent.properties.try(:[], field.name)), { :include_blank => true }  %>
 
   <%# end %>
-  <%= f.select field.name, options_for_select(field.field_values.pluck(:name)), { :include_blank => true }  %>
+  <%= f.select field.name, options_for_select(field.field_values.pluck(:name), parent.properties.try(:[], field.name)), { :include_blank => true }  %>
 </div>

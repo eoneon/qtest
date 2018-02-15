@@ -1,5 +1,7 @@
 <h1>Edit: Item: <%= @item.sku %></h1>
 <h4>Invoice: <%#= link_to "#{@item.invoice.invoice} | #{@item.invoice.name}", invoice_path(@item.invoice) %></h4><br>
 Prev: <%#= link_to prev_next(@item)[0].sku, edit_invoice_item_path(@item.invoice, prev_next(@item)[0]) %> | Next: <%#= link_to prev_next(@item)[1].sku, edit_invoice_item_path(@item.invoice, prev_next(@item)[1]) %><br>
-<%#= render 'items/tagline', item: @item %>
+<% if @item.edition_type %>
+  <%= @item.edition_description %>
+<% end %>
 <%= render 'items/form' %>
