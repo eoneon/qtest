@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180215061236) do
+ActiveRecord::Schema.define(version: 20180215065538) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -89,9 +89,13 @@ ActiveRecord::Schema.define(version: 20180215061236) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "sku"
+    t.bigint "sign_type_id"
+    t.bigint "cert_type_id"
+    t.index ["cert_type_id"], name: "index_items_on_cert_type_id"
     t.index ["edition_type_id"], name: "index_items_on_edition_type_id"
     t.index ["item_type_id"], name: "index_items_on_item_type_id"
     t.index ["properties"], name: "index_items_on_properties", using: :gist
+    t.index ["sign_type_id"], name: "index_items_on_sign_type_id"
   end
 
   create_table "sign_types", force: :cascade do |t|

@@ -29,7 +29,7 @@ class CertTypesController < ApplicationController
 
   def update
     @cert_type = CertType.find(params[:id])
-    @cert_type.ascert_attributes(cert_type_params)
+    @cert_type.assign_attributes(cert_type_params)
 
     if @cert_type.save
       flash[:notice] = "cert_type was updated successfully."
