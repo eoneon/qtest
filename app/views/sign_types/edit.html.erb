@@ -1,6 +1,5 @@
 <h1>SignatureType#Edit</h1>
-<p><%#= @sign_type.sign_description %></p>
-<p><%#= @sign_type.art_type %></p>
+<p><%= @sign_type.sign_description %></p>
 <%= render 'item_types/form', parent: @sign_type %>
 
 <%= link_to 'Show', sign_type_path(@sign_type) %> |
