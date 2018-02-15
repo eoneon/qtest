@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180215034743) do
+ActiveRecord::Schema.define(version: 20180215061236) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -27,6 +27,9 @@ ActiveRecord::Schema.define(version: 20180215034743) do
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.hstore "properties"
+    t.bigint "category_id"
+    t.index ["category_id"], name: "index_cert_types_on_category_id"
   end
 
   create_table "dim_types", force: :cascade do |t|

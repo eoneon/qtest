@@ -1,0 +1,22 @@
+<p id="notice"><%= notice %></p>
+
+<h1>CertificateType#index</h1>
+<% if @cert_types.empty? %>
+  <p><strong>No ItemTypes</strong></p>
+<% end %>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @cert_types.each do |cert_type| %>
+    <%= render 'cert_types/cert_type', cert_type: cert_type %>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+<%= link_to "New cert_type", new_cert_type_path %>
