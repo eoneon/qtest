@@ -1,6 +1,8 @@
 class Item < ApplicationRecord
   belongs_to :item_type, optional: true
   belongs_to :edition_type, optional: true
+  belongs_to :sign_type, optional: true
+  belongs_to :cert_type, optional: true
 
   def article_list
     ["HC", "AP", "IP", "original", "etching", "animation", "embellished"]

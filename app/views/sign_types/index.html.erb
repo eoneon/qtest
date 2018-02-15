@@ -1,0 +1,22 @@
+<p id="notice"><%= notice %></p>
+
+<h1>SignatureType#index</h1>
+<% if @sign_types.empty? %>
+  <p><strong>No ItemTypes</strong></p>
+<% end %>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @sign_types.each do |sign_type| %>
+    <%= render 'sign_types/sign_type', sign_type: sign_type %>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+<%= link_to "New sign_type", new_sign_type_path %>
