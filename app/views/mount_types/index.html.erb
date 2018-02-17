@@ -1,0 +1,22 @@
+<p id="notice"><%= notice %></p>
+
+<h1>MountingType#index</h1>
+<% if @mount_types.empty? %>
+  <p><strong>No ItemTypes</strong></p>
+<% end %>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @mount_types.each do |mount_type| %>
+    <%= render 'mount_types/mount_type', mount_type: mount_type %>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+<%= link_to "New mount_type", new_mount_type_path %>

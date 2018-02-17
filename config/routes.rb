@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
   resources :items
+  resources :mount_types
   resources :item_types
   resources :edition_types
   resources :sign_types

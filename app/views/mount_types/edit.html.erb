@@ -1,0 +1,7 @@
+<h1>MountingType#Edit</h1>
+<p><%= @mount_type.properties %></p>
+<p><%#= @mount_type.art_type %></p>
+<%= render 'item_types/form', parent: @mount_type %>
+
+<%= link_to 'Show', mount_type_path(@mount_type) %> |
+<%= link_to 'Back', mount_types_path %>

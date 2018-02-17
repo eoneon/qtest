@@ -7,7 +7,7 @@
   <div class="col-md-12">
     <h4>Properties:</h4>
     <% if parent.category_id? %>
-      <% parent.category.item_fields.where(kind: class_to_string(parent)).each do |field| %>
+      <% parent.category.item_fields.each do |field| %>
         <%= render 'item_types/properties', f: f, parent: parent, field: field %>
       <% end %>
     <% end %>
