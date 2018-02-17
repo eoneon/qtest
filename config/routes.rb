@@ -20,6 +20,12 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :item_types do
+    collection do
+      post :import
+    end
+  end
+
   resources :field_values do
     collection do
       post :import

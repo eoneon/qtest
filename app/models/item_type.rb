@@ -1,4 +1,6 @@
 class ItemType < ApplicationRecord
+  include Importable
+  
   belongs_to :category
   has_many :items
 
