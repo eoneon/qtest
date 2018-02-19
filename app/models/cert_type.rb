@@ -14,8 +14,8 @@ class CertType < ApplicationRecord
 
   def cert_clause
     case
-    when authenticity.present? && properties["certissuer"].present? then ["with", authenticity, "from", properties["certissuer"]].join(" ")
-    when authenticity.present? && properties["certissuer"].blank? then ["with", authenticity].join(" ")
+    when authenticity.present? && properties["certissuer"].present? then [authenticity, "from", properties["certissuer"]].join(" ")
+    when authenticity.present? && properties["certissuer"].blank? then authenticity
     end
   end
 

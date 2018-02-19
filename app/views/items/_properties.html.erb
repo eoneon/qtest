@@ -8,7 +8,7 @@
     </div>
     <div class="row">
       <div class="col-md-2">
-        <% if parent.edition_type.present? %>
+        <% if parent.edition_type_id.present? %>
           <% parent.edition_type.category.item_fields.where(name: parent.edition_type.name.split("_")).each do |field| %>
           <%= render "items/item_fields/#{field.field_type}", parent: parent, type: type, field: field, f: builder %>
         <% end %>

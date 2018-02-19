@@ -7,8 +7,14 @@ class MountType < ApplicationRecord
     category.name if properties?
   end
 
-  #description
-  def mount_description
-    properties[mounting] if properties?
+  def description
+    properties[mounting]
+  end
+
+  def context
+    case
+    when mounting == "frame" then "framed"
+    when mounting == "wrapped" then description
+    end
   end
 end

@@ -9,6 +9,9 @@ class Item < ApplicationRecord
     ["HC", "AP", "IP", "original", "etching", "animation", "embellished"]
   end
 
+  def edition_context
+
+  end
   def from_edition
     article = article_list.any? {|word| word == properties["edition"]} ? "an" : "a"
     ["from", article, properties["edition"], "edition"].join(" ")
@@ -30,13 +33,47 @@ class Item < ApplicationRecord
     "This piece is not numbered."
   end
 
-  def edition_description
-    case
-    when edition_type.name == "edition" && properties["edition"].present? then from_edition
-    when edition_type.name == "edition_numbered_number_size" && properties["numbered"].present? && properties["number"].present? && properties["size"].present? then numbered
-    when edition_type.name == "edition_numbered" && properties["numbered"].present? && properties["number"].blank? && properties["size"].blank? then numbered_qty
-    when edition_type.name == "edition_numbered_size" && properties["numbered"].present? && properties["size"].present? then numbered_from
-    when edition_type.name == "not numbered" then not_numbered
+  def build_edition
+    if properties
+      case
+      when edition_type.name == "edition" && properties["edition"].present? then from_edition
+      when edition_type.name == "edition_numbered_number_size" && properties["numbered"].present? && properties["number"].present? && properties["size"].present? then numbered
+      when edition_type.name == "edition_numbered" && properties["numbered"].present? && properties["number"].blank? && properties["size"].blank? then numbered_qty
+      when edition_type.name == "edition_numbered_size" && properties["edition"].present? && properties["numbered"].present? && properties["size"].present? then numbered_from
+      when edition_type.name == "not numbered" then not_numbered
+      end
     end
+  end
+
+  def type_list
+    %w(mount item edition sign cert)
+  end
+
+  def build_list
+    attribute_names.map {|k| k.remove("_type_id") if k.index(/_type_id/) && public_send(k).present?}.reject {|w| w.nil?}
+  end
+
+  def build_mount
+    mount_type.context if mount_type.context == "framed"
+  end
+
+  def build_item
+    if mount_type.context == "gallery wrapped"
+      item_type.item_description.gsub(/canvas/, "#{mount_type.description} canvas")
+    else
+      item_type.item_description
+    end
+  end
+
+  def build_sign
+    sign_type.sign_description
+  end
+
+  def build_cert
+    cert_type.cert_description
+  end
+
+  def build_description
+    type_list.map {|type| public_send("build_" + type) if build_list.include?(type)}
   end
 end

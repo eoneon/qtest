@@ -15,10 +15,11 @@
   <tbody>
     <% @items.each do |item| %>
       <tr>
-        <td><%= item.id %></td>
-        <td><%= item.sku %></td>
-        <td><%#= item.itemizable.build_sub_elements_description %></td>
-        <td><%= item.properties %></td>
+        <td><%= item.build_description %></td>
+        <td><%#= item.attributes.map {|k, v| field.split("_").any? {|word| word == "type"} } %></td>
+        <!-- <td><%#= item.inspect %></td> -->
+        <td><%#= "d_type_id".index(/_de/) %></td>
+        <td><%= item.attributes.map {|k,v| k if k.index(/_type_id/) && v.present?}.reject {|w| w.nil?} %></td>
         <td><%= link_to 'show', item_path(item) %> | <%= link_to 'Edit', edit_item_path(item) %> | <%= link_to 'Delete', item, method: :delete %></td>
       </tr>
     <% end %>
