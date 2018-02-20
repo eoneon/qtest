@@ -46,4 +46,8 @@ class ItemType < ApplicationRecord
       medium.join(" ")
     end
   end
+
+  def dropdown
+    description
+  end
 end

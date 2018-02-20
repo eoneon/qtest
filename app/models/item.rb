@@ -12,6 +12,7 @@ class Item < ApplicationRecord
   def edition_context
 
   end
+
   def from_edition
     article = article_list.any? {|word| word == properties["edition"]} ? "an" : "a"
     ["from", article, properties["edition"], "edition"].join(" ")
@@ -60,6 +61,8 @@ class Item < ApplicationRecord
   def build_item
     if mount_type.context == "gallery wrapped"
       [item_type.description.gsub(/canvas/, "#{mount_type.description} canvas")]
+    elsif mount_type.context == "stretched"
+      [item_type.description, item_type.description.gsub(/canvas/, "#{mount_type.description} canvas")]
     else
       [item_type.description]
     end

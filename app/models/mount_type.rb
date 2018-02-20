@@ -14,7 +14,11 @@ class MountType < ApplicationRecord
   def context
     case
     when mounting == "frame" then "framed"
-    when mounting == "wrapped" then description
+    when mounting != "frame" then description
     end
+  end
+
+  def dropdown
+    description
   end
 end

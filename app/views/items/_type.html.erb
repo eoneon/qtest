@@ -1,0 +1,6 @@
+<div class="row">
+  <div class="col-md-2">
+    <%= f.label obj_to_s(type) %><br>
+    <%= f.collection_select obj_to_fk(type), value_list(type), :id, :dropdown, {:include_blank => true}, onchange: 'submitform()' %>
+  </div>
+</div>

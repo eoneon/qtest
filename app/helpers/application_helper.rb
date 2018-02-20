@@ -24,11 +24,15 @@ module ApplicationHelper
     type.to_s.underscore + "_id"
   end
 
-  def value_list(parent, type)
+  def value_list(type)
     type.all
   end
 
-  def type_list(parent)
+  def type_list
+    [MountType, ItemType, SignType, CertType]
+  end
+
+  def properties_list(parent)
     case
     when parent.item_type.art_type == "limited" then [EditionType]
     when parent.item_type.art_type == "original" then []
