@@ -30,21 +30,21 @@
   <div class="row">
     <div class="col-md-2">
       <%= f.label :medium %><br>
-      <%= f.collection_select :item_type_id, ItemType.all, :id, :item_description, {:include_blank => true}, onchange: 'submitform()' %>
+      <%= f.collection_select :item_type_id, ItemType.all, :id, :description, {:include_blank => true}, onchange: 'submitform()' %>
     </div>
   </div>
 
   <div class="row">
     <div class="col-md-2">
       <%= f.label :signature %><br>
-      <%= f.collection_select :sign_type_id, SignType.all, :id, :sign_description, {:include_blank => true}, onchange: 'submitform()' %>
+      <%= f.collection_select :sign_type_id, SignType.all, :id, :dropdown, {:include_blank => true}, onchange: 'submitform()' %>
     </div>
   </div>
 
   <div class="row">
     <div class="col-md-2">
       <%= f.label :certificate %><br>
-      <%= f.collection_select :cert_type_id, CertType.all, :id, :cert_description, {:include_blank => true}, onchange: 'submitform()' %>
+      <%= f.collection_select :cert_type_id, CertType.all, :id, :dropdown, {:include_blank => true}, onchange: 'submitform()' %>
     </div>
   </div>
 

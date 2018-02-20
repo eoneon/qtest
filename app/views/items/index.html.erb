@@ -8,18 +8,14 @@
   <thead>
     <th>ID</th>
     <th>Sku</th>
-    <th>Description</th>
-    <th>Properties</th>
+    <th>Tagline</th>
   </thead>
 
   <tbody>
     <% @items.each do |item| %>
       <tr>
-        <td><%= item.build_description %></td>
-        <td><%#= item.attributes.map {|k, v| field.split("_").any? {|word| word == "type"} } %></td>
-        <!-- <td><%#= item.inspect %></td> -->
-        <td><%#= "d_type_id".index(/_de/) %></td>
-        <td><%= item.attributes.map {|k,v| k if k.index(/_type_id/) && v.present?}.reject {|w| w.nil?} %></td>
+        <td><%= item.id %></td>
+        <td><%= item.build_tagline %></td>
         <td><%= link_to 'show', item_path(item) %> | <%= link_to 'Edit', edit_item_path(item) %> | <%= link_to 'Delete', item, method: :delete %></td>
       </tr>
     <% end %>

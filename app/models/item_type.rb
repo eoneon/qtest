@@ -1,6 +1,6 @@
 class ItemType < ApplicationRecord
   include Importable
-  
+
   belongs_to :category
   has_many :items
 
@@ -35,15 +35,15 @@ class ItemType < ApplicationRecord
     end
   end
 
-  def item_description
+  def description
     if properties?
-      description = []
-      names = category_names.map {|name| name if properties[name].present?}
+      medium = []
+      names = category_names.map {|name| name if properties[name].present?}.reject {|i| i.nil?}
       names.each do |name|
         format_values(name)
-        description << format_values(name)
+        medium << format_values(name)
       end
-      description.join(" ")
+      medium.join(" ")
     end
   end
 end

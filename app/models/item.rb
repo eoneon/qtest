@@ -36,16 +36,16 @@ class Item < ApplicationRecord
   def build_edition
     if properties
       case
-      when edition_type.name == "edition" && properties["edition"].present? then from_edition
-      when edition_type.name == "edition_numbered_number_size" && properties["numbered"].present? && properties["number"].present? && properties["size"].present? then numbered
-      when edition_type.name == "edition_numbered" && properties["numbered"].present? && properties["number"].blank? && properties["size"].blank? then numbered_qty
-      when edition_type.name == "edition_numbered_size" && properties["edition"].present? && properties["numbered"].present? && properties["size"].present? then numbered_from
-      when edition_type.name == "not numbered" then not_numbered
+      when edition_type.name == "edition" && properties["edition"].present? then [from_edition]
+      when edition_type.name == "edition_numbered_number_size" && properties["numbered"].present? && properties["number"].present? && properties["size"].present? then [numbered]
+      when edition_type.name == "edition_numbered" && properties["numbered"].present? && properties["number"].blank? && properties["size"].blank? then [numbered_qty]
+      when edition_type.name == "edition_numbered_size" && properties["edition"].present? && properties["numbered"].present? && properties["size"].present? then [numbered_from]
+      when edition_type.name == "not numbered" then [not_numbered]
       end
     end
   end
 
-  def type_list
+  def tagline_list
     %w(mount item edition sign cert)
   end
 
@@ -54,26 +54,26 @@ class Item < ApplicationRecord
   end
 
   def build_mount
-    mount_type.context if mount_type.context == "framed"
+    ["Framed", "This piece comes #{mount_type.description}."] if mount_type.context == "framed"
   end
 
   def build_item
     if mount_type.context == "gallery wrapped"
-      item_type.item_description.gsub(/canvas/, "#{mount_type.description} canvas")
+      [item_type.description.gsub(/canvas/, "#{mount_type.description} canvas")]
     else
-      item_type.item_description
+      [item_type.description]
     end
   end
 
   def build_sign
-    sign_type.sign_description
+    sign_type.description
   end
 
   def build_cert
-    cert_type.cert_description
+    cert_type.description
   end
 
-  def build_description
-    type_list.map {|type| public_send("build_" + type) if build_list.include?(type)}
+  def build_tagline
+    tagline_list.map {|type| public_send("build_" + type) if build_list.include?(type)}.reject {|i| i.nil?}
   end
 end
