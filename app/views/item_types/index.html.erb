@@ -17,7 +17,7 @@
   <%= file_field_tag :file %>
   <%= submit_tag "Import" %>
 <% end %>
-
+<td><%= ItemType.canvas_subsrtate.map {|i| i.category.name} %></td>
 <table class="table table-striped">
   <thead>
     <tr>
