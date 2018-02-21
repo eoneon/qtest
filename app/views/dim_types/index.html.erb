@@ -1,0 +1,22 @@
+<p id="notice"><%= notice %></p>
+
+<h1>DimensionType#index</h1>
+<% if @dim_types.empty? %>
+  <p><strong>No DimensionTypes</strong></p>
+<% end %>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @dim_types.each do |dim_type| %>
+      <%= render 'dim_types/dim_type', dim_type: dim_type %>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+<%= link_to "New dim_type", new_dim_type_path %>
