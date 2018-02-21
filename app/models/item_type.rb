@@ -4,8 +4,8 @@ class ItemType < ApplicationRecord
   belongs_to :category
   has_many :items
 
-  scope :paper_subsrtate, -> {where(category: Category.paper_subsrtate)}
-  scope :canvas_subsrtate, -> {where(category: Category.canvas_subsrtate)}
+  scope :paper_items, -> {where(category: Category.paper_subsrtate)}
+  scope :canvas_items, -> {where(category: Category.canvas_subsrtate)}
 
   def category_names
     category.name.split("_")

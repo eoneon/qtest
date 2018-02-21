@@ -18,6 +18,14 @@ class MountType < ApplicationRecord
     end
   end
 
+  def substrate
+    if properties[mounting] == "gallery wrapped" || properties[mounting] == "stretched" || properties[mounting] == "flat canvas"
+      "canvas"
+    elsif properties[mounting] == "flat paper"
+      "paper"
+    end
+  end
+
   def dropdown
     description
   end

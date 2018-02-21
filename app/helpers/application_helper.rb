@@ -25,7 +25,11 @@ module ApplicationHelper
   end
 
   def value_list(type)
-    type.all
+    case
+    when type == ItemType && @item.mount_type.substrate == "canvas" then type.canvas_items
+    when type == ItemType && @item.mount_type.substrate == "paper" then type.paper_items
+    else type.all
+    end
   end
 
   def type_list
