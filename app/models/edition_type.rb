@@ -5,4 +5,8 @@ class EditionType < ApplicationRecord
   def category_names
     category.name.split("_")
   end
+
+  def dropdown
+    category_names.join(" + ")
+  end
 end

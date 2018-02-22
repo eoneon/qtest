@@ -3,13 +3,13 @@
     <div class="row">
       <div class="col-md-2">
         <%= f.label obj_to_s(type) %><br>
-        <%= f.collection_select obj_to_fk(type), value_list(type), :id, :name, {:include_blank => true}, onchange: 'submitform()' %>
+        <%= f.collection_select obj_to_fk(type), value_list(type), :id, :dropdown, {:include_blank => true}, onchange: 'submitform()' %>
       </div>
     </div>
     <div class="row">
       <div class="col-md-2">
         <% if parent.public_send(obj_to_fk(type)).present? %>
-          <% parent.public_send(obj_to_s(type)).category.item_fields.where(name: parent.public_send(obj_to_s(type)).name.split("_")).each do |field| %>
+          <% parent.public_send(obj_to_s(type)).category.item_fields.where(name: parent.public_send(obj_to_s(type)).category_names).each do |field| %>
           <%= render "items/item_fields/#{field.field_type}", parent: parent, type: type, field: field, f: builder %>
         <% end %>
       </div>

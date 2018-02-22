@@ -38,8 +38,8 @@ module ApplicationHelper
 
   def properties_list(parent)
     case
-    when parent.item_type.art_type == "limited" then [EditionType]
-    when parent.item_type.art_type == "original" then []
+    when parent.item_type.art_type == "limited" then [EditionType, DimType]
+    when parent.item_type.art_type == "original" then [DimType]
     end
   end
 end
