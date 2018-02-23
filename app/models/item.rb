@@ -47,6 +47,21 @@ class Item < ApplicationRecord
     end
   end
 
+  def dim_context
+    case
+    when dim_type.category_name_first_last[0] == "framewidth" && dim_type.category_name_first_last[-1] == "imagediameter" then "frame_diameter"
+    when dim_type.category_name_first_last[0] == "framewidth" && dim_type.category_name_first_last[-1] == "imageheight" then "frame_image"
+    when dim_type.category_name_first_last[0] == "borderwidth" && dim_type.category_name_first_last[-1] == "imageheight" then "border_image"
+    when dim_type.category_name_first_last[0] == "imagewidth" && dim_type.category_name_first_last[-1] == "imageheight" then "image"
+    when dim_type.category_name_first_last[0] == "celwidth" && dim_type.category_name_first_last[-1] == "celheight" then "cel"
+    when dim_type.dim_target.present? then "three_d"
+    #plus_size ->inner/outer
+    #target
+    #measurements->inner/outer +two_d/three_d
+    #image_size ->inner
+    end
+  end
+
   def tagline_list
     %w(mount item edition sign cert)
   end
