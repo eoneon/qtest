@@ -24,16 +24,27 @@ module ApplicationHelper
     type.to_s.underscore + "_id"
   end
 
+  def type_list
+    [MountType, ItemType, SignType, CertType]
+  end
+
+  #type_list -> value_list
   def value_list(type)
+    #type.all
     case
-    when type == ItemType && @item.mount_type.substrate == "canvas" then type.canvas_items
-    when type == ItemType && @item.mount_type.substrate == "paper" then type.paper_items
-    else type.all
+    when type == ItemType then filter_item_types(type)
+    when type != ItemType then type.all
     end
   end
 
-  def type_list
-    [MountType, ItemType, SignType, CertType]
+  def filter_item_types(type)
+    if @item.item_type.present? && @item.mount_type.present? && @item.mount_type.substrate == "canvas"
+      type.canvas_items
+    elsif @item.item_type.present? && @item.mount_type.present? && @item.mount_type.substrate == "paper"
+      type.paper_items
+    else
+      type.all
+    end
   end
 
   def properties_list(parent)

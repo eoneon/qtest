@@ -51,7 +51,7 @@ class ItemsController < ApplicationController
     else
       flash.now[:alert] = "There was an error deleting the item."
     end
-    redirect_to :index
+    render :index
   end
 
   private

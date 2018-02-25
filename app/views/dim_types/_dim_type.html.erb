@@ -1,4 +1,5 @@
 <tr>
-    <td><%= dim_type.category.name %></td>
-    <td><%= link_to 'Show', dim_type_path(dim_type) %> | <%= link_to 'Edit', edit_dim_type_path(dim_type) %> | <%= link_to 'Delete', dim_type, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+  <td><%= dim_type.category.id %></td>
+  <td><%= dim_type.dropdown %></td>
+  <td><%= link_to 'Show', dim_type_path(dim_type) %> | <%= link_to 'Edit', edit_dim_type_path(dim_type) %> | <%= link_to 'Delete', dim_type, method: :delete, data: { confirm: 'Are you sure?' } %></td>
 </tr>

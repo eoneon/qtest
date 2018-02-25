@@ -2,41 +2,69 @@ class DimType < ApplicationRecord
   belongs_to :category
   has_many :items
 
-  def name=(name)
-    write_attribute(:name, category.name)
-  end
+  # def name=(name)
+  #   write_attribute(:name, category.name)
+  # end
 
   def category_names
     category.name.split("_")
   end
 
-  def dimension_names
-    %w(width height depth diameter weight)
-  end
-
   def dim_targets
-    %w(width height depth diameter weight)
+    name.split("_")
   end
 
-  def target_names
-    %w(frame image cel border)
+  def outer_target
+    dim_targets[0] if category_names[0].index(/outer/) #frame
   end
 
-  def outer_dims
-    %w(frame border)
+  def inner_target
+    dim_targets[-1] if category_names[-1].index(/inner/) #image
   end
 
-  def inner_dims
-    %w(image cel diameter)
+  def two_d_targets
+    [outer_target, inner_target].reject {|i| i.blank?}
   end
 
-  def category_name_first_last
-    [category_names.first, category_names.first]
+  def three_d_targets
+    dim_targets if name == category.name # [width, height, ...]
   end
 
-  def outer_targets
-    category_names.map {|field| outer_dims.map {|dim| field if field.index(/#{Regexp.quote(dim)}/)}.reject {|i| i.blank?}.join("")}.reject {|i| i.blank?}
+  def targets
+    if two_d_targets.present?
+      two_d_targets
+    elsif three_d_targets.present?
+      three_d_targets
+    end
   end
+
+  # def dimension_names
+  #   %w(width height depth diameter weight)
+  # end
+
+  # def dim_targets
+  #   %w(width height depth diameter weight)
+  # end
+
+  # def target_names
+  #   %w(frame image cel border)
+  # end
+  #
+  # def outer_dims
+  #   %w(frame border)
+  # end
+  #
+  # def inner_dims
+  #   %w(image cel diameter)
+  # end
+  #
+  # def category_name_first_last
+  #   [category_names.first, category_names.first]
+  # end
+  #
+  # def outer_targets
+  #   category_names.map {|field| outer_dims.map {|dim| field if field.index(/#{Regexp.quote(dim)}/)}.reject {|i| i.blank?}.join("")}.reject {|i| i.blank?}
+  # end
 
   # def outer_targets
   #   category_names.map {|field| field if field.index(/frame/) || field.index(/border/)}.reject {|i| i.blank?}
@@ -59,11 +87,11 @@ class DimType < ApplicationRecord
   #   dimension_names.map { |dim| category_names.first.remove(dim) if category_names.first.index(/#{Regexp.quote(dim)}/)}.reject {|i| i.blank?}
   # end
 
-  def dim_target
-    dimension_names.map { |dim| dim if category_names.first == dim}.reject {|i| i.blank?}
-  end
+  # def dim_target
+  #   dimension_names.map { |dim| dim if category_names.first == dim}.reject {|i| i.blank?}
+  # end
 
   def dropdown
-    category_names.join(" + ")
+    dim_targets.join(" + ")
   end
 end
