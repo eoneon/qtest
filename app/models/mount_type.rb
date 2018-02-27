@@ -3,12 +3,28 @@ class MountType < ApplicationRecord
   has_many :items
 
   #for drop down in items forms
+  def category_names
+    category.name.split("_")
+  end
+
   def mounting
-    category.name if properties?
+    category_names & ["framed", "wrapped"]
+  end
+
+  def art_type
+    category_names & ["original", "print"]
+  end
+
+  def substrates
+    category_names & ["canvas", "paper"]
   end
 
   def description
-    properties[mounting]
+    if mounting.present?
+      "#{properties[mounting[0]]} #{art_type[0]}".squish
+    else
+      category_names.join(" ")
+    end
   end
 
   def context

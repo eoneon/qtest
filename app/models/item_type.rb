@@ -4,11 +4,24 @@ class ItemType < ApplicationRecord
   belongs_to :category
   has_many :items
 
-  scope :paper_items, -> {where(category: Category.paper_subsrtate)}
-  scope :canvas_items, -> {where(category: Category.canvas_subsrtate)}
+  #scope :paper_items, -> {where(category: Category.paper_subsrtate)}
+  #scope :canvas_items, -> {where(category: Category.canvas_subsrtate)}
+  #scope :orignal_items, -> {where("properties -> original = :value", value: 'original')}
+  scope :orignal_items, -> {where("properties ? :key", key: "original")}
+  scope :canvas_items, -> {where("properties ? :key", key: "canvas")}
+  scope :paper_items, -> {where("properties ? :key", key: "paper")}
+  scope :panel_items, -> {where("properties ? :key", key: "panel")}
+  scope :sericel_items, -> {where("properties ? :key", key: "sericel")}
+  #scope :flat_items, -> {where("properties ? :key OR properties ? :key OR properties ? :key OR properties ? :key OR properties ? :key", key: "paper", key: "canvas", key: "panel", key: "sericel")}
+  #scope :flat_items, -> {where_any_of("properties ? :key OR properties ? :key", key: "paper", key: "canvas")}
+  #scope :flat_items, -> {canvas_items.or.paper_items}
 
   def category_names
     category.name.split("_")
+  end
+
+  def self.flat_items
+    canvas_items + paper_items + panel_items + sericel_items
   end
 
   def art_type

@@ -1,19 +1,12 @@
-<%#= form_for(parent, as: :category) do |f| %>
 <%= form_for parent do |f| %>
+<div class="field">
+  <%= f.label :kind %><br>
+  <%= f.text_field :kind %>
+</div>
   <div class="field">
     <%= f.label :name %><br>
     <%= f.text_field :name %>
   </div>
-
-  <!-- <div class="row">
-    <div class="col-md-12">
-      <h4>Categories:</h4>
-      <%#= f.fields_for :field_groups do |builder| %>
-        <%#= render 'categories/field_group_fields', f: builder %>
-      <%# end %>
-      <%#= link_to_add_fields "Add Field", f, :field_groups, "categories" %>
-    </div>
-  </div> -->
 
   <div class="row">
     <div class="col-md-12">
@@ -21,7 +14,7 @@
       <div class="field">
         <%= hidden_field_tag "category[item_field_ids][]", nil %>
         <%# if parent.categories.present? %>
-          <% ItemField.where(name: parent.category_names).each do |item_field| %>
+          <% ItemField.where(name: parent.category_names, kind: parent.kind).each do |item_field| %>
             <br>
             <%= check_box_tag "category[item_field_ids][]", item_field.id, parent.item_field_ids.include?(item_field.id), id: dom_id(item_field) %>
             <%= label_tag dom_id(item_field), item_field.name %>
