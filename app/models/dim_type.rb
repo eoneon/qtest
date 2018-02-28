@@ -2,6 +2,10 @@ class DimType < ApplicationRecord
   belongs_to :category
   has_many :items
 
+  scope :framed_dims, -> {where("properties ? :key", key: "framed")}
+  scope :wrapped_dims, -> {where("properties ? :key", key: "wrapped")}
+  scope :canvas_dims, -> {where("properties ? :key", key: "canvas")}
+  scope :paper_dims, -> {where("properties ? :key", key: "paper")}
   # def name=(name)
   #   write_attribute(:name, category.name)
   # end
@@ -92,6 +96,6 @@ class DimType < ApplicationRecord
   # end
 
   def dropdown
-    dim_targets.join(" + ")
+    dim_targets.join(" & ")
   end
 end

@@ -1,4 +1,4 @@
-<h1>Edit: Item: <%= @item.sku %></h1>
+<h1>Edit: Item: <%= @item.build_item %></h1>
 <h4>Invoice: <%#= link_to "#{@item.invoice.invoice} | #{@item.invoice.name}", invoice_path(@item.invoice) %></h4><br>
 Prev: <%#= link_to prev_next(@item)[0].sku, edit_invoice_item_path(@item.invoice, prev_next(@item)[0]) %> | Next: <%#= link_to prev_next(@item)[1].sku, edit_invoice_item_path(@item.invoice, prev_next(@item)[1]) %><br>
 <% if @item.edition_type_id %>

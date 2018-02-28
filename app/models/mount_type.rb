@@ -8,38 +8,47 @@ class MountType < ApplicationRecord
   end
 
   def mounting
-    category_names & ["framed", "wrapped"]
+    arr = category_names & ["framed", "wrapped"]
+    arr[0]
   end
 
   def art_type
-    category_names & ["original", "print"]
+    arr = category_names & ["original", "print"]
+    arr[0]
   end
 
   def substrates
-    category_names & ["canvas", "paper"]
+    arr = category_names & ["canvas", "paper"]
+    arr[0]
   end
 
   def description
     if mounting.present?
-      "#{properties[mounting[0]]} #{art_type[0]}".squish
+      "#{properties[mounting]} #{art_type}".squish
     else
       category_names.join(" ")
     end
   end
 
   def context
-    case
-    when mounting == "frame" then "framed"
-    when mounting != "frame" then description
-    end
+    properties[mounting] if mounting.present?
   end
 
   def substrate
-    if properties[mounting] == "gallery wrapped" || properties[mounting] == "stretched" || properties[mounting] == "flat canvas"
+    # if properties[mounting] == "gallery wrapped" || properties[mounting] == "stretched" || properties[mounting] == "flat canvas"
+    #   "canvas"
+    # elsif properties[mounting] == "flat paper"
+    #   "paper"
+    # end
+    if mounting == "wrapped" || substrates == "canvas"
       "canvas"
-    elsif properties[mounting] == "flat paper"
+    elsif substrates == "paper"
       "paper"
     end
+  end
+
+  def mounting_filter
+    [art_type, substrate].reject {|i| i.blank?}.join("")
   end
 
   def dropdown

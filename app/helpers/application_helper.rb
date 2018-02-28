@@ -37,11 +37,19 @@ module ApplicationHelper
     end
   end
 
+  # def filter_item_types(type)
+  #   if @item.item_type && @item.mount_type && @item.mount_type.substrate == "canvas"
+  #     type.canvas_items
+  #   elsif @item.item_type && @item.mount_type && @item.mount_type.substrate == "paper"
+  #     type.paper_items
+  #   else
+  #     type.all
+  #   end
+  # end
+
   def filter_item_types(type)
-    if @item.item_type.present? && @item.mount_type.present? && @item.mount_type.substrate == "canvas"
-      type.canvas_items
-    elsif @item.item_type.present? && @item.mount_type.present? && @item.mount_type.substrate == "paper"
-      type.paper_items
+    if @item.item_type && @item.mount_type
+      type.public_send(@item.mount_type.mounting_filter + "_items")
     else
       type.all
     end

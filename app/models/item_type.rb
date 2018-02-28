@@ -7,7 +7,14 @@ class ItemType < ApplicationRecord
   #scope :paper_items, -> {where(category: Category.paper_subsrtate)}
   #scope :canvas_items, -> {where(category: Category.canvas_subsrtate)}
   #scope :orignal_items, -> {where("properties -> original = :value", value: 'original')}
-  scope :orignal_items, -> {where("properties ? :key", key: "original")}
+  scope :original_items, -> {where("properties ? :key", key: "original")}
+  scope :printed_items, -> {where("properties ? :key", key: "print")}
+  scope :animation_items, -> {where("properties ? :key", key: "animation")}
+  scope :photo_items, -> {where("properties ? :key", key: "photo")}
+  scope :etching_items, -> {where("properties ? :key", key: "etching")}
+  scope :sculpture_items, -> {where("properties ? :key", key: "sculpturetype")}
+  scope :book_items, -> {where("properties ? :key", key: "booktype")}
+  scope :sport_items, -> {where("properties ? :key", key: "sportitem")}
   scope :canvas_items, -> {where("properties ? :key", key: "canvas")}
   scope :paper_items, -> {where("properties ? :key", key: "paper")}
   scope :panel_items, -> {where("properties ? :key", key: "panel")}
@@ -22,6 +29,10 @@ class ItemType < ApplicationRecord
 
   def self.flat_items
     canvas_items + paper_items + panel_items + sericel_items
+  end
+
+  def self.print_items
+    printed_items + animation_items + photo_items + etching_items
   end
 
   def art_type
