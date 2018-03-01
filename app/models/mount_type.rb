@@ -35,11 +35,6 @@ class MountType < ApplicationRecord
   end
 
   def substrate
-    # if properties[mounting] == "gallery wrapped" || properties[mounting] == "stretched" || properties[mounting] == "flat canvas"
-    #   "canvas"
-    # elsif properties[mounting] == "flat paper"
-    #   "paper"
-    # end
     if mounting == "wrapped" || substrates == "canvas"
       "canvas"
     elsif substrates == "paper"
@@ -47,8 +42,13 @@ class MountType < ApplicationRecord
     end
   end
 
-  def mounting_filter
+  def item_filter
     [art_type, substrate].reject {|i| i.blank?}.join("")
+  end
+
+  def dim_filter
+    framed = mounting if mounting == "framed"
+    [framed, substrate].reject {|i| i.blank?}.join("")
   end
 
   def dropdown

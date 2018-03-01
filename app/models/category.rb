@@ -11,8 +11,9 @@ class Category < ApplicationRecord
   has_many :field_groups, dependent: :destroy
   has_many :item_fields, through: :field_groups
 
-  scope :canvas_subsrtate, -> {where('name LIKE ?', "%canvas%")}
-  scope :paper_subsrtate, -> {where('name LIKE ?', "%paper%")}
+  scope :framed_items, -> {where('name LIKE ?', "%framed%").where(kind: "mount_type")}
+  scope :canvas_items, -> {where('name LIKE ?', "%canvas%").where(kind: "mount_type")}
+  scope :paper_items, -> {where('name LIKE ?', "%paper%").where(kind: "mount_type")}
 
   accepts_nested_attributes_for :field_groups, reject_if: proc {|attrs| attrs['item_field_id'].blank?}, allow_destroy: true
 

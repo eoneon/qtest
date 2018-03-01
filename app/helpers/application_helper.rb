@@ -30,35 +30,30 @@ module ApplicationHelper
 
   #type_list -> value_list
   def value_list(type)
-    #type.all
     case
-    when type == ItemType then filter_item_types(type)
-    when type != ItemType then type.all
+    when @item.mount_type && type == ItemType then filter_item_types(type)
+    when @item.mount_type && type == DimType then filter_dim_types(type)
+    else type.all
     end
   end
 
-  # def filter_item_types(type)
-  #   if @item.item_type && @item.mount_type && @item.mount_type.substrate == "canvas"
-  #     type.canvas_items
-  #   elsif @item.item_type && @item.mount_type && @item.mount_type.substrate == "paper"
-  #     type.paper_items
-  #   else
-  #     type.all
-  #   end
-  # end
+  def filter_dim_types(type)
+    if @item.mount_type
+      type.public_send(@item.mount_type.dim_filter + "_dims")
+    else
+      type.all
+    end
+  end
 
   def filter_item_types(type)
-    if @item.item_type && @item.mount_type
-      type.public_send(@item.mount_type.mounting_filter + "_items")
+    if @item.mount_type
+      type.public_send(@item.mount_type.item_filter + "_items")
     else
       type.all
     end
   end
 
   def properties_list(parent)
-    case
-    when parent.item_type.art_type == "limited" then [EditionType, DimType]
-    when parent.item_type.art_type == "original" then [DimType]
-    end
+    parent.item_type && parent.item_type.art_type == "limited" ? [EditionType, DimType] : [DimType]
   end
 end

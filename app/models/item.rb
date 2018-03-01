@@ -75,11 +75,11 @@ class Item < ApplicationRecord
   end
 
   def build_item
-    if mount_type && mount_type.context == "gallery wrapped"
+    if item_type && mount_type && mount_type.context == "gallery wrapped"
       [item_type.description.gsub(/canvas/, "#{mount_type.description} canvas")]
-    elsif mount_type && mount_type.context == "stretched"
+    elsif item_type && mount_type && mount_type.context == "stretched"
       [item_type.description, item_type.description.gsub(/canvas/, "#{mount_type.description} canvas")]
-    else
+    elsif item_type
       [item_type.description]
     end
   end

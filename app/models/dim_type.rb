@@ -2,13 +2,13 @@ class DimType < ApplicationRecord
   belongs_to :category
   has_many :items
 
-  scope :framed_dims, -> {where("properties ? :key", key: "framed")}
-  scope :wrapped_dims, -> {where("properties ? :key", key: "wrapped")}
-  scope :canvas_dims, -> {where("properties ? :key", key: "canvas")}
-  scope :paper_dims, -> {where("properties ? :key", key: "paper")}
-  # def name=(name)
-  #   write_attribute(:name, category.name)
-  # end
+  scope :framed_dims, -> {where('name LIKE ?', "%frame%")}
+  scope :canvas_dims, -> {where(name: "image")}
+  scope :border_dims, -> {where('name LIKE ?', "%border%")}
+
+  def self.paper_dims
+    canvas_dims + border_dims
+  end
 
   def category_names
     category.name.split("_")

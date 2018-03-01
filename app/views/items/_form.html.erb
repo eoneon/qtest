@@ -1,4 +1,5 @@
 <%= form_for @item, :html => {:id => 'item_form'} do |f| %>
+  <%= @item.mount_type.dim_filter %>
   <%= render "items/hidden", f: f %>
   <script type="text/javascript">
     function submitform(){
@@ -24,9 +25,10 @@
     <%= render "items/type", type: type, f: f %>
   <% end %>
 
-  <% if @item.item_type_id? %>
-    <%= render "items/properties", parent: @item, f: f %>
-  <% end %>
+  <%= render "items/properties", parent: @item, f: f %>
+  <%# if @item.item_type_id? %>
+    <%#= render "items/properties", parent: @item, f: f %>
+  <%# end %>
   <%= f.submit "Save" %>
   </div>
 <% end %>

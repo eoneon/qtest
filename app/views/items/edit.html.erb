@@ -4,4 +4,6 @@ Prev: <%#= link_to prev_next(@item)[0].sku, edit_invoice_item_path(@item.invoice
 <% if @item.edition_type_id %>
   <%= @item.build_edition %>
 <% end %>
+<%#= @item.mount_type.dim_filter %>
+<%#= @item.mount_type.item_filter %>
 <%= render 'items/form' %>

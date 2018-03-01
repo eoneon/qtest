@@ -1,5 +1,5 @@
 <h1><%= @category.name %></h1>
-
+<%#= Category.framed_items.pluck(:id) %>
 <%= render 'categories/form', parent: @category %>
 
 <%= link_to 'Show', [@category] %> |
