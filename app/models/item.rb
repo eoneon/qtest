@@ -6,12 +6,81 @@ class Item < ApplicationRecord
   belongs_to :cert_type, optional: true
   belongs_to :dim_type, optional: true
 
-  def article_list
-    ["HC", "AP", "IP", "original", "etching", "animation", "embellished"]
+  def properties_context
+    if properties
+      properties.keep_if {|k,v| v.present?}.keys
+    end
   end
 
-  def edition_context
+  def inner_dim_arr
+    if properties && properties.try(:[], "innerdiameter").present?
+      [properties.try(:[], "innerdiameter")]
+    elsif properties && properties.try(:[], "innerwidth").present?
+      [properties.try(:[], "innerwidth"), properties.try(:[], "innerheight")].reject {|i| i.blank?}
+    end
+  end
 
+  def outer_dim_arr
+    [properties.try(:[], "outerwidth"), properties.try(:[], "outerheight")].reject {|i| i.blank?} if properties
+  end
+
+  def image_size
+    inner_dim_arr[0].to_i * inner_dim_arr[-1].to_i if inner_dim_arr.count >= 1
+  end
+
+  def frame_size
+    outer_dim_arr[0].to_i * outer_dim_arr[1].to_i if outer_dim_arr.count == 2 && dim_type.outer_target == "frame"
+  end
+
+  def inner_dims
+    if properties.try(:[], "innerdiameter").present?
+      inner_dim_arr[0] + "\""
+    elsif inner_dim_arr.count == 2
+      [inner_dim_arr[0] + "\"", inner_dim_arr[-1] + "\""].join(" x ")
+    end
+  end
+
+  def outer_dims
+    [outer_dim_arr[0] + "\"", outer_dim_arr[-1] + "\""].join(" x ") if outer_dim_arr.present?
+  end
+
+  def plus_size
+    if frame_size && frame_size > 1200
+      "(#{outer_dims})"
+    elsif frame_size.blank? && image_size && image_size > 1200
+      "(#{inner_dims})"
+    end
+  end
+
+  def format_targets
+    dim_type.targets.map {|target| "(#{target})"} if dim_type
+  end
+
+  def dims_arr
+    [inner_dims, outer_dims].reject {|i| i.blank?}
+  end
+
+  def format_dimensions
+    m = ["Measures approx."]
+    i = 0
+    dims_arr.each do |dim|
+      m << dim_punctuation(dim, format_targets[i])
+      i =+ 1
+    end
+    m.join(" ")
+  end
+
+  def dim_punctuation(dim, target)
+    #dim: 24" ; #target: (frame)
+    if outer_dim_arr.present? && target.index(/#{Regexp.quote(dim_type.outer_target)}/)
+      "#{dim} #{target},"
+    elsif inner_dim_arr.present? && target.index(/#{Regexp.quote(dim_type.inner_target)}/)
+      "#{dim} #{target}."
+    end
+  end
+
+  def article_list
+    ["HC", "AP", "IP", "original", "etching", "animation", "embellished"]
   end
 
   def from_edition
@@ -47,18 +116,9 @@ class Item < ApplicationRecord
     end
   end
 
-  # def dim_context
-  #   case
-  #   when dim_type.category_name_first_last[0] == "framewidth" && dim_type.category_name_first_last[-1] == "imagediameter" then "frame_diameter"
-  #   when dim_type.category_name_first_last[0] == "framewidth" && dim_type.category_name_first_last[-1] == "imageheight" then "frame_image"
-  #   when dim_type.category_name_first_last[0] == "borderwidth" && dim_type.category_name_first_last[-1] == "imageheight" then "border_image"
-  #   when dim_type.category_name_first_last[0] == "imagewidth" && dim_type.category_name_first_last[-1] == "imageheight" then "image"
-  #   when dim_type.category_name_first_last[0] == "celwidth" && dim_type.category_name_first_last[-1] == "celheight" then "cel"
-  #   when dim_type.dim_target.present? then "three_d"
-    #plus_size ->inner/outer
-    #target
-    #measurements->inner/outer +two_d/three_d
-    #image_size ->inner
+  # def image_size
+  #   if item_type && dim_type.inner_target
+  #     item_type && dim_type.inner_target ? properties[dim_type.category_names[0]] * properties[dim_type.category_names[1]]
   #   end
   # end
 

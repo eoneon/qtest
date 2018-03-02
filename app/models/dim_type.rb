@@ -42,10 +42,6 @@ class DimType < ApplicationRecord
     end
   end
 
-  # def dimension_names
-  #   %w(width height depth diameter weight)
-  # end
-
   # def dim_targets
   #   %w(width height depth diameter weight)
   # end
