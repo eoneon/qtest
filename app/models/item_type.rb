@@ -51,9 +51,9 @@ class ItemType < ApplicationRecord
     [properties["leafing"], properties["remarque"]].reject {|m| m.blank?}.count
   end
 
-  def plus_size_pos
-    description.index(/#{Regexp.quote(properties[substrates])}/) #+ properties[substrates].length if properties && description && properties[substrates]
-  end
+  # def plus_size_pos
+  #   description.index(/#{Regexp.quote(properties[substrates])}/) if properties && properties[substrates] && description
+  # end
 
   def format_values(name)
     case
@@ -74,8 +74,15 @@ class ItemType < ApplicationRecord
         format_values(name)
         medium << format_values(name)
       end
-      m = medium.join(" ")
+      medium.join(" ")
       #m.insert(plus_size_pos, "dog")
+    end
+  end
+
+  def plus_size_pos
+    if properties && properties[substrates] && description
+      description.index(/#{Regexp.quote(properties[substrates])}/) + properties[substrates].length
+      #description.insert(pos, " dog")
     end
   end
 

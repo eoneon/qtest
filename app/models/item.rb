@@ -57,9 +57,9 @@ class Item < ApplicationRecord
 
   def plus_size
     if frame_size && frame_size > 1200
-      "(#{outer_dims})"
+      " (#{outer_dims})"
     elsif frame_size.blank? && image_size && image_size > 1200
-      "(#{inner_dims})"
+      " (#{inner_dims})"
     end
   end
 
@@ -164,7 +164,9 @@ class Item < ApplicationRecord
   end
 
   def build_item
-    if item_type && mount_type && mount_type.context == "gallery wrapped"
+    if item_type && plus_size
+      [item_type.description.insert(item_type.plus_size_pos, plus_size)]
+    elsif item_type && mount_type && mount_type.context == "gallery wrapped"
       [item_type.description.gsub(/canvas/, "#{mount_type.description} canvas")]
     elsif item_type && mount_type && mount_type.context == "stretched"
       [item_type.description, item_type.description.gsub(/canvas/, "#{mount_type.description} canvas")]
