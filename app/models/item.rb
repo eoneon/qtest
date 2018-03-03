@@ -13,11 +13,11 @@ class Item < ApplicationRecord
   end
 
   def inner_dim_arr
-    if properties && properties.try(:[], "innerdiameter").present?
-      [properties.try(:[], "innerdiameter")]
-    elsif properties && properties.try(:[], "innerwidth").present?
-      [properties.try(:[], "innerwidth"), properties.try(:[], "innerheight")].reject {|i| i.blank?}
-    end
+    # if properties && properties.try(:[], "innerdiameter").present?
+    #   [properties.try(:[], "innerdiameter")]
+    # elsif properties && properties.try(:[], "innerwidth").present?
+    [properties.try(:[], "innerwidth"), properties.try(:[], "innerheight"), properties.try(:[], "innerdiameter")].reject {|i| i.blank?} if properties
+    # end
   end
 
   def outer_dim_arr
@@ -35,13 +35,28 @@ class Item < ApplicationRecord
   def inner_dims
     if properties.try(:[], "innerdiameter").present?
       inner_dim_arr[0] + "\""
-    elsif inner_dim_arr.count == 2
+    elsif inner_dim_arr && inner_dim_arr.count == 2
       [inner_dim_arr[0] + "\"", inner_dim_arr[-1] + "\""].join(" x ")
     end
   end
 
   def outer_dims
     [outer_dim_arr[0] + "\"", outer_dim_arr[-1] + "\""].join(" x ") if outer_dim_arr.present?
+  end
+
+  def three_d_dims
+    #dim_type.three_d_targets.map {|target| properties[target] + "\"" if properties[target].present? && }.reject {|i| i.blank?} if dim_type.three_d_targets
+    if dim_type && dim_type.three_d_targets
+      dims = []
+      dim_type.three_d_targets.each do |target|
+        if target == "weight"
+          dims << properties[target] + "lbs"
+        else
+          dims << properties[target] + "\""
+        end
+      end
+    end
+    dims
   end
 
   def plus_size
@@ -56,18 +71,39 @@ class Item < ApplicationRecord
     dim_type.targets.map {|target| "(#{target})"} if dim_type
   end
 
+  def colon_target
+    format_targets[-2] if properties["weight"].present?
+  end
+
+  # def format_targets(dim, target)
+  #   dim_type.targets.each do |target|
+  #     case
+  #     when outer_dim_arr.present? && target.index(/#{Regexp.quote(dim_type.outer_target)}/) then "(#{target}),"
+  #     when inner_dim_arr.present? && target.index(/#{Regexp.quote(dim_type.inner_target)}/) then "(#{target})."
+  #     when target == "weight" then "(#{target})."
+  #     else "(#{target}) x"
+  #     end
+  #   end
+  # end
+
   def dims_arr
-    [inner_dims, outer_dims].reject {|i| i.blank?}
+    if inner_dims || outer_dims
+      [outer_dims, inner_dims].reject {|i| i.blank?}
+    elsif three_d_dims
+      three_d_dims.reject {|i| i.blank?}
+    end
   end
 
   def format_dimensions
-    m = ["Measures approx."]
-    i = 0
-    dims_arr.each do |dim|
-      m << dim_punctuation(dim, format_targets[i])
-      i =+ 1
+    if dims_arr.present?
+      m = ["Measures approx."]
+      i = 0
+      dims_arr.each do |dim|
+        m << dim_punctuation(dim, format_targets[i])
+        i += 1
+      end
+      m.join(" ")
     end
-    m.join(" ")
   end
 
   def dim_punctuation(dim, target)
@@ -75,6 +111,12 @@ class Item < ApplicationRecord
     if outer_dim_arr.present? && target.index(/#{Regexp.quote(dim_type.outer_target)}/)
       "#{dim} #{target},"
     elsif inner_dim_arr.present? && target.index(/#{Regexp.quote(dim_type.inner_target)}/)
+      "#{dim} #{target}."
+    elsif three_d_dims.present? && target != format_targets[-1] && target != colon_target
+      "#{dim} #{target} x"
+    elsif three_d_dims.present? && target == colon_target
+      "#{dim} #{target};"
+    elsif three_d_dims.present? && target == format_targets[-1]
       "#{dim} #{target}."
     end
   end
@@ -126,6 +168,10 @@ class Item < ApplicationRecord
     %w(mount item edition sign cert)
   end
 
+  def description_list
+    %w(item edition sign cert dim)
+  end
+
   def build_list
     attribute_names.map {|k| k.remove("_type_id") if k.index(/_type_id/) && public_send(k).present?}.reject {|w| w.nil?}
   end
@@ -152,7 +198,14 @@ class Item < ApplicationRecord
     cert_type.description
   end
 
+  def build_dim
+  end
+
   def build_tagline
     tagline_list.map {|type| public_send("build_" + type) if build_list.include?(type)}.reject {|i| i.nil?}
+  end
+
+  def build_description
+    description_list.map {|type| public_send("build_" + type) if build_list.include?(type)}.reject {|i| i.nil?}
   end
 end

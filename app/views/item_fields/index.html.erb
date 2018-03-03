@@ -17,7 +17,8 @@
   <%= file_field_tag :file %>
   <%= submit_tag "Import" %>
 <% end %>
-
+<br>
+<%= link_to 'New Field', new_item_field_path %>
 <table class="table table-striped">
   <thead>
     <tr>
@@ -40,5 +41,3 @@
   </tbody>
 </table>
 <br>
-
-<%= link_to 'New Field', new_item_field_path %>
