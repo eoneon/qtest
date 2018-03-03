@@ -51,6 +51,10 @@ class ItemType < ApplicationRecord
     [properties["leafing"], properties["remarque"]].reject {|m| m.blank?}.count
   end
 
+  def plus_size_pos
+    description.index(/#{Regexp.quote(properties[substrates])}/) #+ properties[substrates].length if properties && description && properties[substrates]
+  end
+
   def format_values(name)
     case
     when name == substrates then "on #{properties[name]}"
@@ -70,7 +74,8 @@ class ItemType < ApplicationRecord
         format_values(name)
         medium << format_values(name)
       end
-      medium.join(" ")
+      m = medium.join(" ")
+      #m.insert(plus_size_pos, "dog")
     end
   end
 

@@ -1,5 +1,5 @@
 <%= form_for @item, :html => {:id => 'item_form'} do |f| %>
-  <%= @item.format_dimensions %>
+  <%= @item.build_list %>
   <%= render "items/hidden", f: f %>
   <script type="text/javascript">
     function submitform(){

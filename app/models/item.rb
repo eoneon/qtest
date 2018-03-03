@@ -13,11 +13,7 @@ class Item < ApplicationRecord
   end
 
   def inner_dim_arr
-    # if properties && properties.try(:[], "innerdiameter").present?
-    #   [properties.try(:[], "innerdiameter")]
-    # elsif properties && properties.try(:[], "innerwidth").present?
     [properties.try(:[], "innerwidth"), properties.try(:[], "innerheight"), properties.try(:[], "innerdiameter")].reject {|i| i.blank?} if properties
-    # end
   end
 
   def outer_dim_arr
@@ -74,17 +70,6 @@ class Item < ApplicationRecord
   def colon_target
     format_targets[-2] if properties["weight"].present?
   end
-
-  # def format_targets(dim, target)
-  #   dim_type.targets.each do |target|
-  #     case
-  #     when outer_dim_arr.present? && target.index(/#{Regexp.quote(dim_type.outer_target)}/) then "(#{target}),"
-  #     when inner_dim_arr.present? && target.index(/#{Regexp.quote(dim_type.inner_target)}/) then "(#{target})."
-  #     when target == "weight" then "(#{target})."
-  #     else "(#{target}) x"
-  #     end
-  #   end
-  # end
 
   def dims_arr
     if inner_dims || outer_dims
@@ -158,11 +143,9 @@ class Item < ApplicationRecord
     end
   end
 
-  # def image_size
-  #   if item_type && dim_type.inner_target
-  #     item_type && dim_type.inner_target ? properties[dim_type.category_names[0]] * properties[dim_type.category_names[1]]
-  #   end
-  # end
+  def build_dim
+    [plus_size, format_dimensions].reject {|i| i.blank?}
+  end
 
   def tagline_list
     %w(mount item edition sign cert)
@@ -196,9 +179,6 @@ class Item < ApplicationRecord
 
   def build_cert
     cert_type.description
-  end
-
-  def build_dim
   end
 
   def build_tagline
