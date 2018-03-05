@@ -148,7 +148,7 @@ class Item < ApplicationRecord
   end
 
   def tagline_list
-    %w(mount item edition sign cert)
+    %w(mount item edition sign cert) & build_list
   end
 
   def description_list
@@ -183,8 +183,47 @@ class Item < ApplicationRecord
     cert_type.description
   end
 
+  # def build_tagline
+  #   tagline_list.map {|type| public_send("build_" + type) if build_list.include?(type)}.reject {|i| i.nil?}
+  # end
+
+  # def build_tagline
+  #   tagline_list.map {|type| public_send("build_" + type)}
+  # end
+
   def build_tagline
-    tagline_list.map {|type| public_send("build_" + type) if build_list.include?(type)}.reject {|i| i.nil?}
+    tagline_list.map {|type| format_clauses(type)}.join(" ")
+  end
+
+  def format_clauses(type)
+    if type == "item"
+      if tagline_list[-1] == "item"
+        "#{public_send("build_" + type)[0]}."
+      elsif tagline_list[-1] != "item" && build_list.include?("edition") || build_list.include?("sign")
+        "#{public_send("build_" + type)[0]},"
+      #when tagline_list[-1] == "cert" && build_list.exclude?("edition") && build_list.exclude?("sign") then "#{public_send("build_" + type)},"
+      else
+        "#{public_send("build_" + type)[0]}"
+      end
+    elsif type == "edition" && build_edition
+      if tagline_list[-1] == "edition"
+        "#{public_send("build_" + type)[0]}."
+      elsif tagline_list[-1] != "edition" && build_list.include?("sign")
+        "#{public_send("build_" + type)[0]} and"
+      else
+        "#{public_send("build_" + type)[0]}"
+      end
+    elsif type == "sign" && sign_type.description
+      if tagline_list[-1] == "sign"
+        "#{public_send("build_" + type)[0]}."
+      else
+        "#{public_send("build_" + type)[0]}"
+      end
+    elsif type == "cert"
+      "#{public_send("build_" + type)[0]}."
+    else
+      "#{public_send("build_" + type)}"
+    end
   end
 
   def build_description
