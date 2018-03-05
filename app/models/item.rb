@@ -134,11 +134,11 @@ class Item < ApplicationRecord
   def build_edition
     if properties
       case
-      when edition_type.name == "edition" && properties["edition"].present? then [from_edition]
-      when edition_type.name == "edition_numbered_number_size" && properties["numbered"].present? && properties["number"].present? && properties["size"].present? then [numbered]
-      when edition_type.name == "edition_numbered" && properties["numbered"].present? && properties["number"].blank? && properties["size"].blank? then [numbered_qty]
-      when edition_type.name == "edition_numbered_size" && properties["edition"].present? && properties["numbered"].present? && properties["size"].present? then [numbered_from]
-      when edition_type.name == "not numbered" then [not_numbered]
+      when edition_type.category_names == ["edition"] && properties["edition"].present? then [from_edition]
+      when edition_type.category_names.count == 4 && properties["numbered"].present? && properties["number"].present? && properties["size"].present? then [numbered]
+      when edition_type.category_names.count == 2 && properties["numbered"].present? && properties["number"].blank? && properties["size"].blank? then [numbered_qty]
+      when edition_type.category_names.count == 3 && properties["edition"].present? && properties["numbered"].present? && properties["size"].present? then [numbered_from]
+      when properties["unnumbered"].present? && properties["unnumbered"] == "not numbered" then [not_numbered]
       end
     end
   end

@@ -28,15 +28,26 @@ module ApplicationHelper
     [MountType, ItemType, SignType, CertType]
   end
 
-  #type_list -> value_list
+  #scopes
   def value_list(type)
     case
     when @item.mount_type && type == ItemType then filter_item_types(type)
     when @item.mount_type && type == DimType then filter_dim_types(type)
+    #when @item.edition_type && type == EditionType then filter_edition_types(type)
     else type.all
     end
   end
 
+  #scope
+  def filter_item_types(type)
+    if @item.mount_type
+      type.public_send(@item.mount_type.item_filter + "_items")
+    else
+      type.all
+    end
+  end
+
+  #scope
   def filter_dim_types(type)
     if @item.mount_type
       type.public_send(@item.mount_type.dim_filter + "_dims")
@@ -45,13 +56,15 @@ module ApplicationHelper
     end
   end
 
-  def filter_item_types(type)
-    if @item.mount_type
-      type.public_send(@item.mount_type.item_filter + "_items")
-    else
-      type.all
-    end
-  end
+  #not a scope
+  # def filter_edition_types(type)
+  #   if @item.filter_edition_types
+  #     type.public_send(@item.edition_type.edtion_filter + "_editions")
+  #   else
+  #     type.all
+  #   end
+  # end
+
 
   def properties_list(parent)
     parent.item_type && parent.item_type.art_type == "limited" ? [EditionType, DimType] : [DimType]

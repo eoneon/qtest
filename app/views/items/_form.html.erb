@@ -1,5 +1,4 @@
 <%= form_for @item, :html => {:id => 'item_form'} do |f| %>
-  <%= @item.build_tagline %>
   <%= render "items/hidden", f: f %>
   <script type="text/javascript">
     function submitform(){
