@@ -110,36 +110,37 @@ class Item < ApplicationRecord
     ["HC", "AP", "IP", "original", "etching", "animation", "embellished"]
   end
 
-  def from_edition
+  def from_an_edition
     article = article_list.any? {|word| word == properties["edition"]} ? "an" : "a"
-    ["from", article, properties["edition"], "edition"].join(" ")
+    ["from", article, properties["edition"], "edition"].join(" ") if properties["edition"].present?
   end
 
   def numbered
-    [properties["edition"], properties["numbered"], "#{properties["number"]}/#{properties["size"]}"].join(" ")
+    [properties["edition"], properties["numbered"], "#{properties["number"]}/#{properties["size"]}"].join(" ") if properties["numbered"].present? && properties["number"].present? && properties["size"].present?
   end
 
   def numbered_qty
-    [properties["edition"], properties["numbered"]].join(" ")
+    [properties["edition"], properties["numbered"]].join(" ") if properties["numbered"].present? && properties["number"].blank? && properties["size"].blank?
   end
 
-  def numbered_from
-    [properties["edition"], properties["numbered"], "out of", properties["size"]].join(" ")
+  def numbered_from_edition_size
+    [properties["edition"], properties["numbered"], "out of", properties["size"]].join(" ") if properties["edition"].present? && properties["numbered"].present? && properties["size"].present?
   end
 
   def not_numbered
-    "This piece is not numbered."
+    "This piece is not numbered." if properties["unnumbered"].present? && properties["unnumbered"] == "not numbered"
   end
 
   def build_edition
     if properties
-      case
-      when edition_type.category_names == ["edition"] && properties["edition"].present? then [from_edition]
-      when edition_type.category_names.count == 4 && properties["numbered"].present? && properties["number"].present? && properties["size"].present? then [numbered]
-      when edition_type.category_names.count == 2 && properties["numbered"].present? && properties["number"].blank? && properties["size"].blank? then [numbered_qty]
-      when edition_type.category_names.count == 3 && properties["edition"].present? && properties["numbered"].present? && properties["size"].present? then [numbered_from]
-      when properties["unnumbered"].present? && properties["unnumbered"] == "not numbered" then [not_numbered]
-      end
+      [public_send(edition_type.dropdown.split(" ").join("_"))]
+      # case
+      # when edition_type.category_names == ["edition"] && properties["edition"].present? then [from_edition]
+      # when edition_type.category_names.count == 4 && properties["numbered"].present? && properties["number"].present? && properties["size"].present? then [numbered]
+      # when edition_type.category_names.count == 2 && properties["numbered"].present? && properties["number"].blank? && properties["size"].blank? then [numbered_qty]
+      # when edition_type.category_names.count == 3 && properties["edition"].present? && properties["numbered"].present? && properties["size"].present? then [numbered_from]
+      # when properties["unnumbered"].present? && properties["unnumbered"] == "not numbered" then [not_numbered]
+      # end
     end
   end
 
