@@ -148,32 +148,66 @@ class Item < ApplicationRecord
     [plus_size, format_dimensions].reject {|i| i.blank?}
   end
 
-  def tagline_list
-    %w(mount item edition sign cert) & build_list
+  def substrate
+    item_type.substrates if item_type
   end
 
-  def description_list
-    %w(item edition sign cert dim)
+  def substrate_pos(description)
+    description.index(/#{Regexp.quote(substrate)}/)
+  end
+
+  def frame
+    "framed" if mount_type.mounting == "framed"
+  end
+
+  def frame_pos(description)
+    pos = 0
+    description[0].insert(pos, "#{frame} ")
+  end
+
+  def wrapped
+    mount_type.context if mount_type.mounting == "wrapped"
+  end
+
+  def wrapped_pos(description)
+    pos = substrate_pos(description[0])
+    description[0].insert(pos, "#{wrapped} ")
+  end
+
+  def punctuate_item
+    tagline_list[-1] == "item" ? "." : ","
+  end
+
+  def plus_size_pos(description)
+    if plus_size
+      pos = description[0].index(/#{Regexp.quote(substrate)}/) + substrate.length
+      description[0].insert(pos, " #{plus_size}")
+    end
+  end
+
+  def punctuate_pos(description)
+    pos = description[0].length
+    description[0].insert(pos, punctuate_item)
   end
 
   def build_list
     attribute_names.map {|k| k.remove("_type_id") if k.index(/_type_id/) && public_send(k).present?}.reject {|w| w.nil?}
   end
 
+  def tagline_list
+    %w(item edition sign cert) & build_list
+  end
+
+  def description_list
+    %w(item edition sign cert dim) & build_list
+  end
+
   def build_mount
-    ["Framed", "This piece comes #{mount_type.description}."] if mount_type.context == "framed"
+    [frame, "This piece comes #{mount_type.description}."] if mount_type.mounting == "framed"  || mount_type.mounting == "wrapped"
   end
 
   def build_item
-    if item_type && plus_size
-      [item_type.description.insert(item_type.plus_size_pos, plus_size)]
-    elsif item_type && mount_type && mount_type.context == "gallery wrapped"
-      [item_type.description.gsub(/canvas/, "#{mount_type.description} canvas")]
-    elsif item_type && mount_type && mount_type.context == "stretched"
-      [item_type.description, item_type.description.gsub(/canvas/, "#{mount_type.description} canvas")]
-    elsif item_type
-      [item_type.description]
-    end
+    [item_type.description]
   end
 
   def build_sign
@@ -184,19 +218,25 @@ class Item < ApplicationRecord
     cert_type.description
   end
 
-  # def build_tagline
-  #   tagline_list.map {|type| public_send("build_" + type) if build_list.include?(type)}.reject {|i| i.nil?}
-  # end
-
-  # def build_tagline
-  #   tagline_list.map {|type| public_send("build_" + type)}
-  # end
-
   def build_tagline
-    tagline_list.map {|type| format_clauses(type)}.join(" ")
+    tagline_list.map {|type| format_type(type, public_send("build_" + type)[0])}.reject {|i| i.blank?}.join(" ")
+  end
+
+  def format_type(type, description)
+    public_send("format_" + type, [description]) if type == "item" && description.present?
+  end
+
+  def format_item(description)
+    description = description[0]
+    [["frame_pos", frame], ["wrapped_pos", wrapped], ["plus_size_pos", plus_size], ["punctuate_pos", punctuate_item]].each do |i|
+      description = public_send(i[0], [description]) #if i[-1]
+    end
+    description
   end
 
   def format_clauses(type)
+    # if type == "mount"
+    #   "#{public_send("build_" + type)[0]}."
     if type == "item"
       if tagline_list[-1] == "item"
         "#{public_send("build_" + type)[0]}."
@@ -231,3 +271,15 @@ class Item < ApplicationRecord
     description_list.map {|type| public_send("build_" + type) if build_list.include?(type)}.reject {|i| i.nil?}
   end
 end
+
+# def build_item
+#   if item_type && plus_size
+#     [item_type.description.insert(item_type.plus_size_pos, plus_size)]
+#   elsif item_type && mount_type && mount_type.context == "gallery wrapped"
+#     [item_type.description.gsub(/canvas/, "#{mount_type.description} canvas")]
+#   elsif item_type && mount_type && mount_type.context == "stretched"
+#     [item_type.description, item_type.description.gsub(/canvas/, "#{mount_type.description} canvas")]
+#   elsif item_type
+#     [item_type.description]
+#   end
+# end

@@ -82,7 +82,11 @@ class ItemType < ApplicationRecord
   def plus_size_pos
     if properties && properties[substrates] && description
       description.index(/#{Regexp.quote(properties[substrates])}/) + properties[substrates].length
-      #description.insert(pos, " dog")
+    end
+  end
+
+  def canvas_pos
+    if properties && properties[substrates] == "canvas"
     end
   end
 

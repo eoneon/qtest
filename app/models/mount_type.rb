@@ -23,11 +23,7 @@ class MountType < ApplicationRecord
   end
 
   def description
-    if mounting.present?
-      "#{properties[mounting]} #{art_type}".squish
-    else
-      category_names.join(" ")
-    end
+    "#{properties[mounting]}" if mounting.present?
   end
 
   def context
@@ -52,6 +48,11 @@ class MountType < ApplicationRecord
   end
 
   def dropdown
-    description
+    # description
+    if mounting.present?
+      "#{properties[mounting]} #{art_type}".squish
+    else
+      category_names.join(" ")
+    end
   end
 end
