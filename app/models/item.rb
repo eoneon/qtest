@@ -21,11 +21,11 @@ class Item < ApplicationRecord
   end
 
   def image_size
-    inner_dim_arr[0].to_i * inner_dim_arr[-1].to_i if inner_dim_arr.count >= 1
+    inner_dim_arr[0].to_i * inner_dim_arr[-1].to_i if inner_dim_arr.present? && inner_dim_arr.count >= 1
   end
 
   def frame_size
-    outer_dim_arr[0].to_i * outer_dim_arr[1].to_i if outer_dim_arr.count == 2 && dim_type.outer_target == "frame"
+    outer_dim_arr[0].to_i * outer_dim_arr[1].to_i if outer_dim_arr.present? && outer_dim_arr.count == 2 && dim_type.outer_target == "frame"
   end
 
   def inner_dims
@@ -134,13 +134,6 @@ class Item < ApplicationRecord
   def build_edition
     if properties
       [public_send(edition_type.dropdown.split(" ").join("_"))]
-      # case
-      # when edition_type.category_names == ["edition"] && properties["edition"].present? then [from_edition]
-      # when edition_type.category_names.count == 4 && properties["numbered"].present? && properties["number"].present? && properties["size"].present? then [numbered]
-      # when edition_type.category_names.count == 2 && properties["numbered"].present? && properties["number"].blank? && properties["size"].blank? then [numbered_qty]
-      # when edition_type.category_names.count == 3 && properties["edition"].present? && properties["numbered"].present? && properties["size"].present? then [numbered_from]
-      # when properties["unnumbered"].present? && properties["unnumbered"] == "not numbered" then [not_numbered]
-      # end
     end
   end
 
@@ -157,7 +150,9 @@ class Item < ApplicationRecord
   end
 
   def frame
-    "framed" if mount_type.mounting == "framed"
+    if mount_type.present?
+      "framed" if mount_type.mounting == "framed"
+    end
   end
 
   def frame_pos(description)
@@ -166,7 +161,9 @@ class Item < ApplicationRecord
   end
 
   def wrapped
-    mount_type.context if mount_type.mounting == "wrapped"
+    if mount_type.present?
+      mount_type.context if mount_type.mounting == "wrapped"
+    end
   end
 
   def wrapped_pos(description)
@@ -178,6 +175,14 @@ class Item < ApplicationRecord
     tagline_list[-1] == "item" ? "." : ","
   end
 
+  def punctuate_edition
+    if tagline_list[-1] == "edition"
+      "."
+    elsif sign_type
+      " and"
+    end
+  end
+
   def plus_size_pos(description)
     if plus_size
       pos = description[0].index(/#{Regexp.quote(substrate)}/) + substrate.length
@@ -185,9 +190,34 @@ class Item < ApplicationRecord
     end
   end
 
-  def punctuate_pos(description)
+  def punctuate_item_pos(description)
     pos = description[0].length
     description[0].insert(pos, punctuate_item)
+  end
+
+  def punctuate_edition_pos(description)
+    pos = description[0].length
+    description[0].insert(pos, punctuate_edition)
+  end
+
+  def punctuate_cert_pos(description)
+    pos = description[0].length
+    description[0].insert(pos, punctuate_cert)
+  end
+
+  def punctuate_sign
+    if tagline_list[-1] == "sign"
+      "."
+    end
+  end
+
+  def punctuate_cert
+    "."
+  end
+
+  def punctuate_sign_pos(description)
+    pos = description[0].length
+    description[0].insert(pos, punctuate_sign)
   end
 
   def build_list
@@ -223,63 +253,44 @@ class Item < ApplicationRecord
   end
 
   def format_type(type, description)
-    public_send("format_" + type, [description]) if type == "item" && description.present?
+    if description && description[0].present?
+      public_send("format_" + type, [description])
+    end
   end
 
   def format_item(description)
     description = description[0]
-    [["frame_pos", frame], ["wrapped_pos", wrapped], ["plus_size_pos", plus_size], ["punctuate_pos", punctuate_item]].each do |i|
-      description = public_send(i[0], [description]) #if i[-1]
+    [["frame_pos", frame], ["wrapped_pos", wrapped], ["plus_size_pos", plus_size], ["punctuate_item_pos", punctuate_item]].each do |i|
+      description = public_send(i[0], [description]) if i[-1]
     end
     description
   end
 
-  def format_clauses(type)
-    # if type == "mount"
-    #   "#{public_send("build_" + type)[0]}."
-    if type == "item"
-      if tagline_list[-1] == "item"
-        "#{public_send("build_" + type)[0]}."
-      elsif tagline_list[-1] != "item" && build_list.include?("edition") || build_list.include?("sign")
-        "#{public_send("build_" + type)[0]},"
-      #when tagline_list[-1] == "cert" && build_list.exclude?("edition") && build_list.exclude?("sign") then "#{public_send("build_" + type)},"
-      else
-        "#{public_send("build_" + type)[0]}"
-      end
-    elsif type == "edition" && build_edition
-      if tagline_list[-1] == "edition"
-        "#{public_send("build_" + type)[0]}."
-      elsif tagline_list[-1] != "edition" && build_list.include?("sign")
-        "#{public_send("build_" + type)[0]} and"
-      else
-        "#{public_send("build_" + type)[0]}"
-      end
-    elsif type == "sign" && sign_type.description
-      if tagline_list[-1] == "sign"
-        "#{public_send("build_" + type)[0]}."
-      else
-        "#{public_send("build_" + type)[0]}"
-      end
-    elsif type == "cert"
-      "#{public_send("build_" + type)[0]}."
-    else
-      "#{public_send("build_" + type)}"
+  def format_edition(description)
+    description = description[0]
+    [["punctuate_edition_pos", punctuate_edition]].each do |i|
+      description = public_send(i[0], [description]) if i[-1]
     end
+    description
+  end
+
+  def format_sign(description)
+    description = description[0]
+    [["punctuate_sign_pos", punctuate_sign]].each do |i|
+      description = public_send(i[0], [description]) if i[-1]
+    end
+    description
+  end
+
+  def format_cert(description)
+    description = description[0]
+    [["punctuate_cert_pos", punctuate_cert]].each do |i|
+      description = public_send(i[0], [description]) if i[-1]
+    end
+    description
   end
 
   def build_description
     description_list.map {|type| public_send("build_" + type) if build_list.include?(type)}.reject {|i| i.nil?}
   end
 end
-
-# def build_item
-#   if item_type && plus_size
-#     [item_type.description.insert(item_type.plus_size_pos, plus_size)]
-#   elsif item_type && mount_type && mount_type.context == "gallery wrapped"
-#     [item_type.description.gsub(/canvas/, "#{mount_type.description} canvas")]
-#   elsif item_type && mount_type && mount_type.context == "stretched"
-#     [item_type.description, item_type.description.gsub(/canvas/, "#{mount_type.description} canvas")]
-#   elsif item_type
-#     [item_type.description]
-#   end
-# end
