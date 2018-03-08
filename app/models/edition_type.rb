@@ -6,6 +6,10 @@ class EditionType < ApplicationRecord
     category.name.split("_")
   end
 
+  def required_fields
+    category_names.count == 1 ? category_names : category_names - ["edition"]
+  end
+
   def dropdown
     case
     when category_names.count == 4 then "numbered"

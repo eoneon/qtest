@@ -6,12 +6,68 @@ class Item < ApplicationRecord
   belongs_to :cert_type, optional: true
   belongs_to :dim_type, optional: true
 
-  def properties_context
-    if properties
-      properties.keep_if {|k,v| v.present?}.keys
+
+  def valid_types
+    attribute_names.map {|k| validate_types(k) if k.index(/_type_id/) && public_send(k).present?}.reject {|i| i.blank?}
+  end
+
+  def validate_types(k)
+    if k == "edition_type_id" || k == "dim_type_id"
+      #filter_properties_list(k)
+      validate_properties_types(k)
+    elsif public_send(k.remove("_id")) && public_send(k.remove("_id")).properties.present?
+      k.remove("_type_id")
     end
   end
 
+  def validate_properties_types(k)
+    k.remove("_type_id") if public_send(k.remove("_id")).required_fields.keep_if {|field| valid_properties_keys.include?(field)} == public_send(k.remove("_id")).required_fields
+  end
+
+  def valid_properties_keys
+    properties.keep_if {|k,v| v.present?}.keys if properties
+  end
+
+  # def validate_field(field)
+  #   #=> [true]; if false nothing
+  #   field valid_properties_keys.include?(field)}.reject {|i| i.blank?}
+  # end
+
+  # def filter_properties_list(k)
+  #   k.remove("_type_id") if valid_properties_keys.present? && public_send(k.remove("_id")).category_names.map {|n| valid_properties_keys.include?(n)}.reject {|i| i.blank?}
+  # end
+  #
+  #
+  #
+  # def validate_edition
+  #   #=> [true]; if false nothing
+  #   edition_type.category_names.map {|n| n if valid_properties_keys.include?(n)}.reject {|i| i.blank?}
+  # end
+  #
+  # def validate_dim
+  #   #=> [true]; if false nothing
+  #   dim_type.category_names.map {|n| n if valid_properties_keys.include?(n)}.reject {|i| i.blank?}
+  # end
+  #
+  # def method_validation
+  #   edition_type.required_fields.keep_if {|i| validate_edition.include?(i)}
+  # end
+  #
+  # def method_validations
+  #   dim_type.required_fields.keep_if {|i| validate_dim.include?(i)}
+  # end
+
+
+
+  def tagline_list
+    %w(item edition sign cert) & valid_types
+  end
+
+  def description_list
+    %w(item edition sign cert dim) & valid_types
+  end
+
+  ###
   def inner_dim_arr
     [properties.try(:[], "innerwidth"), properties.try(:[], "innerheight"), properties.try(:[], "innerdiameter")].reject {|i| i.blank?} if properties
   end
@@ -220,17 +276,7 @@ class Item < ApplicationRecord
     description[0].insert(pos, punctuate_sign)
   end
 
-  def build_list
-    attribute_names.map {|k| k.remove("_type_id") if k.index(/_type_id/) && public_send(k).present?}.reject {|w| w.nil?}
-  end
 
-  def tagline_list
-    %w(item edition sign cert) & build_list
-  end
-
-  def description_list
-    %w(item edition sign cert dim) & build_list
-  end
 
   def build_mount
     [frame, "This piece comes #{mount_type.description}."] if mount_type.mounting == "framed"  || mount_type.mounting == "wrapped"
@@ -291,6 +337,6 @@ class Item < ApplicationRecord
   end
 
   def build_description
-    description_list.map {|type| public_send("build_" + type) if build_list.include?(type)}.reject {|i| i.nil?}
+    description_list.map {|type| public_send("build_" + type) if valid_types.include?(type)}.reject {|i| i.nil?}
   end
 end

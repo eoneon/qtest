@@ -1,7 +1,5 @@
 <%= form_for parent do |f| %>
   <%= f.hidden_field :category_id %>
-  <%#= ItemType.flat_items.pluck(:id) %>
-  <%= parent.plus_size_pos %>
   <div class="field">
     <%= f.label :kind %><br>
     <%= f.collection_select(:category_id, Category.where(kind: class_to_string(parent)), :id, :name, { :include_blank => true }) %>

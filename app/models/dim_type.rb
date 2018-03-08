@@ -14,6 +14,10 @@ class DimType < ApplicationRecord
     category.name.split("_")
   end
 
+  def required_fields
+    category_names
+  end
+
   def dim_targets
     name.split("_")
   end
