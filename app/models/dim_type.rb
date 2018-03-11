@@ -64,7 +64,9 @@ class DimType < ApplicationRecord
   end
 
   def weight_index
-    three_d_targets.index("weight") -1 if three_d_targets
+    if three_d_targets.present? && three_d_targets.index("weight")
+      three_d_targets.index("weight")
+    end
   end
 
   def targets

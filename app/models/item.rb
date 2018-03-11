@@ -65,35 +65,25 @@ class Item < ApplicationRecord
   end
 
   def reformat_three_d(d)
-    dim_set = insert_targets(d).take(dim_type.weight_index)
-    dim_set = join_dims(dim_set).concat(weight)
-    dims.map {|dims| dims.join(" ")}
+    [d.take(dim_type.weight_index), d.drop(dim_type.weight_index)]
+    #dims = d.take(dim_type.weight_index)
+    #weight = d.drop(dim_type.weight_index)
   end
 
   def dim_branch
     if dim_type.two_d_targets.present?
       d = join_dims(dim_set, " x ")
       d = insert_targets(d)
-      #["12\" x 12\" (frame)", "22\" x 22\" (image)"]
-      #d = join_dims(dim_set, " ")
-          #=> [["12\" x 12\" (image)"], ["24\" x 24\" (frame)"]]
     elsif dim_type.three_d_targets.present?
-      dim_type.three_d_targets
-      #dim_set
-      #d = insert_targets(dim_set)
-
-          #=> [["5/", (width)"], ["7/", (height)"], ["3lbs, (weight)"]]
-      #d = join_dims(dim_set, " ")
-          #=> [["5/" (width)"], ["7/" (height)"], ["3lbs (weight)"]]
-      #d = reformat_three_d(d)
-          #=> [["5/" (width)", "7/" (height)"], ["3lbs (weight)"]]
-      #d = join_dims(d, " x ")
-          #=> [["5/" (width)" x "7/" (height)"], ["3lbs (weight)"]]
+      d = insert_targets(dim_set)
+      d = reformat_three_d(d)
+      #=> [["5\" (width)", "6\" (height)"], ["7lbs (weight)"]]
+      d = join_dims(d, " x ")
+      #=> ["5\" (width) x 6\" (height)", "7lbs (weight)"]
     end
-    #delim = dim_type.three_d_targets ? "; " : ", "
-    #d.join(delim)
-
-    #join_dims(d, delim)
+    delim = dim_type.three_d_targets ? "; " : ", "
+    d.join(delim)
+    #join_dims(d, delim) #wont work here because of different levels?
   end
 
   ##
