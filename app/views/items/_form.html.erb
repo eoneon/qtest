@@ -1,5 +1,6 @@
 <%= form_for @item, :html => {:id => 'item_form'} do |f| %>
-<%= @item.valid_types %>
+<%= @item.dim_type.dimensions %>
+<%#= "valid_type_id"[-8..-1] %>
   <%= render "items/hidden", f: f %>
   <script type="text/javascript">
     function submitform(){

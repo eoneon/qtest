@@ -18,6 +18,31 @@ class DimType < ApplicationRecord
     category_names
   end
 
+  def inner_dims
+    category_names.keep_if {|name| name.index(/inner/)}
+  end
+
+  def outer_dims
+    category_names.keep_if {|name| name.index(/outer/)}
+  end
+
+  def grouped_2d_dims
+    [inner_dims, outer_dims].keep_if {|arr| arr.present?}
+  end
+
+  def grouped_3d_dims
+    three_d_targets.combination(1).to_a if three_d_targets
+  end
+
+  def dimensions
+    #accounting for differning number of nested levels
+    if grouped_2d_dims.present?
+      grouped_2d_dims
+    elsif grouped_3d_dims.present?
+      grouped_3d_dims
+    end
+  end
+
   def dim_targets
     name.split("_")
   end
@@ -31,11 +56,15 @@ class DimType < ApplicationRecord
   end
 
   def two_d_targets
-    [outer_target, inner_target].reject {|i| i.blank?}
+    [outer_target, inner_target].compact
   end
 
   def three_d_targets
     dim_targets if name == category.name # [width, height, ...]
+  end
+
+  def weight_index
+    three_d_targets.index("weight") -1 if three_d_targets
   end
 
   def targets
@@ -44,6 +73,10 @@ class DimType < ApplicationRecord
     elsif three_d_targets.present?
       three_d_targets
     end
+  end
+
+  def formatted_targets
+    targets.map {|t| "(#{t})"}
   end
 
   # def dim_targets

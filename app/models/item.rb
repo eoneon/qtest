@@ -6,6 +6,13 @@ class Item < ApplicationRecord
   belongs_to :cert_type, optional: true
   belongs_to :dim_type, optional: true
 
+  def to_method(k)
+    public_send(k.remove("_id"))
+  end
+
+  def to_clause(k)
+    k[-8..-1] == "_type_id" ? k.remove("_type_id") : k.remove("_id")
+  end
 
   def valid_types
     attribute_names.map {|k| validate_types(k) if k.index(/_type_id/) && public_send(k).present?}.reject {|i| i.blank?}
@@ -13,51 +20,19 @@ class Item < ApplicationRecord
 
   def validate_types(k)
     if k == "edition_type_id" || k == "dim_type_id"
-      #filter_properties_list(k)
       validate_properties_types(k)
-    elsif public_send(k.remove("_id")) && public_send(k.remove("_id")).properties.present?
-      k.remove("_type_id")
+    elsif to_method(k) && to_method(k).properties.present?
+      to_clause(k)
     end
   end
 
   def validate_properties_types(k)
-    k.remove("_type_id") if public_send(k.remove("_id")).required_fields.keep_if {|field| valid_properties_keys.include?(field)} == public_send(k.remove("_id")).required_fields
+    to_clause(k) if to_method(k).required_fields.keep_if {|field| valid_properties_keys.include?(field)} == to_method(k).required_fields
   end
 
   def valid_properties_keys
     properties.keep_if {|k,v| v.present?}.keys if properties
   end
-
-  # def validate_field(field)
-  #   #=> [true]; if false nothing
-  #   field valid_properties_keys.include?(field)}.reject {|i| i.blank?}
-  # end
-
-  # def filter_properties_list(k)
-  #   k.remove("_type_id") if valid_properties_keys.present? && public_send(k.remove("_id")).category_names.map {|n| valid_properties_keys.include?(n)}.reject {|i| i.blank?}
-  # end
-  #
-  #
-  #
-  # def validate_edition
-  #   #=> [true]; if false nothing
-  #   edition_type.category_names.map {|n| n if valid_properties_keys.include?(n)}.reject {|i| i.blank?}
-  # end
-  #
-  # def validate_dim
-  #   #=> [true]; if false nothing
-  #   dim_type.category_names.map {|n| n if valid_properties_keys.include?(n)}.reject {|i| i.blank?}
-  # end
-  #
-  # def method_validation
-  #   edition_type.required_fields.keep_if {|i| validate_edition.include?(i)}
-  # end
-  #
-  # def method_validations
-  #   dim_type.required_fields.keep_if {|i| validate_dim.include?(i)}
-  # end
-
-
 
   def tagline_list
     %w(item edition sign cert) & valid_types
@@ -68,6 +43,61 @@ class Item < ApplicationRecord
   end
 
   ###
+  def dim_set
+    dim_type.dimensions.map {|d| format_dims(d)}
+  end
+
+  def format_dims(d)
+    d.map {|d| format_metric(d)}
+  end
+
+  def format_metric(d)
+    d == "weight" ? "#{properties[d]}lbs" : "#{properties[d]}\""
+  end
+
+  def join_dims(dim_set, delim)
+    dim_set.map {|d| d.join(delim)}
+  end
+
+  def insert_targets(d)
+    dims = d.zip(dim_type.formatted_targets)
+    dims.map {|dims| dims.join(" ")}
+  end
+
+  def reformat_three_d(d)
+    dim_set = insert_targets(d).take(dim_type.weight_index)
+    dim_set = join_dims(dim_set).concat(weight)
+    dims.map {|dims| dims.join(" ")}
+  end
+
+  def dim_branch
+    if dim_type.two_d_targets.present?
+      d = join_dims(dim_set, " x ")
+      d = insert_targets(d)
+      #["12\" x 12\" (frame)", "22\" x 22\" (image)"]
+      #d = join_dims(dim_set, " ")
+          #=> [["12\" x 12\" (image)"], ["24\" x 24\" (frame)"]]
+    elsif dim_type.three_d_targets.present?
+      dim_type.three_d_targets
+      #dim_set
+      #d = insert_targets(dim_set)
+
+          #=> [["5/", (width)"], ["7/", (height)"], ["3lbs, (weight)"]]
+      #d = join_dims(dim_set, " ")
+          #=> [["5/" (width)"], ["7/" (height)"], ["3lbs (weight)"]]
+      #d = reformat_three_d(d)
+          #=> [["5/" (width)", "7/" (height)"], ["3lbs (weight)"]]
+      #d = join_dims(d, " x ")
+          #=> [["5/" (width)" x "7/" (height)"], ["3lbs (weight)"]]
+    end
+    #delim = dim_type.three_d_targets ? "; " : ", "
+    #d.join(delim)
+
+    #join_dims(d, delim)
+  end
+
+  ##
+
   def inner_dim_arr
     [properties.try(:[], "innerwidth"), properties.try(:[], "innerheight"), properties.try(:[], "innerdiameter")].reject {|i| i.blank?} if properties
   end
