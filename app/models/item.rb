@@ -70,7 +70,7 @@ class Item < ApplicationRecord
     #weight = d.drop(dim_type.weight_index)
   end
 
-  def dim_branch
+  def branching_dim
     if dim_type.two_d_targets.present?
       d = join_dims(dim_set, " x ")
       d = insert_targets(d)
@@ -82,18 +82,20 @@ class Item < ApplicationRecord
       #=> ["5\" (width) x 6\" (height)", "7lbs (weight)"]
     end
     delim = dim_type.three_d_targets ? "; " : ", "
-    d.join(delim)
+    "Measures approx. #{d.join(delim)}."
     #join_dims(d, delim) #wont work here because of different levels?
   end
 
   ##
 
   def inner_dim_arr
-    [properties.try(:[], "innerwidth"), properties.try(:[], "innerheight"), properties.try(:[], "innerdiameter")].reject {|i| i.blank?} if properties
+    dim_type.inner_dims.map {|d| properties[d]}
+    #[properties.try(:[], "innerwidth"), properties.try(:[], "innerheight"), properties.try(:[], "innerdiameter")].reject {|i| i.blank?} if properties
   end
 
   def outer_dim_arr
-    [properties.try(:[], "outerwidth"), properties.try(:[], "outerheight")].reject {|i| i.blank?} if properties
+    dim_type.outer_dims.map {|d| properties[d]}
+    #[properties.try(:[], "outerwidth"), properties.try(:[], "outerheight")].reject {|i| i.blank?} if properties
   end
 
   def image_size
@@ -104,32 +106,32 @@ class Item < ApplicationRecord
     outer_dim_arr[0].to_i * outer_dim_arr[1].to_i if outer_dim_arr.present? && outer_dim_arr.count == 2 && dim_type.outer_target == "frame"
   end
 
-  def inner_dims
-    if properties.try(:[], "innerdiameter").present?
-      inner_dim_arr[0] + "\""
-    elsif inner_dim_arr && inner_dim_arr.count == 2
-      [inner_dim_arr[0] + "\"", inner_dim_arr[-1] + "\""].join(" x ")
-    end
-  end
-
-  def outer_dims
-    [outer_dim_arr[0] + "\"", outer_dim_arr[-1] + "\""].join(" x ") if outer_dim_arr.present?
-  end
-
-  def three_d_dims
-    #dim_type.three_d_targets.map {|target| properties[target] + "\"" if properties[target].present? && }.reject {|i| i.blank?} if dim_type.three_d_targets
-    if dim_type && dim_type.three_d_targets
-      dims = []
-      dim_type.three_d_targets.each do |target|
-        if target == "weight"
-          dims << properties[target] + "lbs"
-        else
-          dims << properties[target] + "\""
-        end
-      end
-    end
-    dims
-  end
+  # def inner_dims
+  #   if properties.try(:[], "innerdiameter").present?
+  #     inner_dim_arr[0] + "\""
+  #   elsif inner_dim_arr && inner_dim_arr.count == 2
+  #     [inner_dim_arr[0] + "\"", inner_dim_arr[-1] + "\""].join(" x ")
+  #   end
+  # end
+  #
+  # def outer_dims
+  #   [outer_dim_arr[0] + "\"", outer_dim_arr[-1] + "\""].join(" x ") if outer_dim_arr.present?
+  # end
+  #
+  # def three_d_dims
+  #   #dim_type.three_d_targets.map {|target| properties[target] + "\"" if properties[target].present? && }.reject {|i| i.blank?} if dim_type.three_d_targets
+  #   if dim_type && dim_type.three_d_targets
+  #     dims = []
+  #     dim_type.three_d_targets.each do |target|
+  #       if target == "weight"
+  #         dims << properties[target] + "lbs"
+  #       else
+  #         dims << properties[target] + "\""
+  #       end
+  #     end
+  #   end
+  #   dims
+  # end
 
   def plus_size
     if frame_size && frame_size > 1200
@@ -139,48 +141,48 @@ class Item < ApplicationRecord
     end
   end
 
-  def format_targets
-    dim_type.targets.map {|target| "(#{target})"} if dim_type
-  end
-
-  def colon_target
-    format_targets[-2] if properties["weight"].present?
-  end
-
-  def dims_arr
-    if inner_dims || outer_dims
-      [outer_dims, inner_dims].reject {|i| i.blank?}
-    elsif three_d_dims
-      three_d_dims.reject {|i| i.blank?}
-    end
-  end
-
-  def format_dimensions
-    if dims_arr.present?
-      m = ["Measures approx."]
-      i = 0
-      dims_arr.each do |dim|
-        m << dim_punctuation(dim, format_targets[i])
-        i += 1
-      end
-      m.join(" ")
-    end
-  end
-
-  def dim_punctuation(dim, target)
-    #dim: 24" ; #target: (frame)
-    if outer_dim_arr.present? && target.index(/#{Regexp.quote(dim_type.outer_target)}/)
-      "#{dim} #{target},"
-    elsif inner_dim_arr.present? && target.index(/#{Regexp.quote(dim_type.inner_target)}/)
-      "#{dim} #{target}."
-    elsif three_d_dims.present? && target != format_targets[-1] && target != colon_target
-      "#{dim} #{target} x"
-    elsif three_d_dims.present? && target == colon_target
-      "#{dim} #{target};"
-    elsif three_d_dims.present? && target == format_targets[-1]
-      "#{dim} #{target}."
-    end
-  end
+  # def format_targets
+  #   dim_type.targets.map {|target| "(#{target})"} if dim_type
+  # end
+  #
+  # def colon_target
+  #   format_targets[-2] if properties["weight"].present?
+  # end
+  #
+  # def dims_arr
+  #   if inner_dims || outer_dims
+  #     [outer_dims, inner_dims].reject {|i| i.blank?}
+  #   elsif three_d_dims
+  #     three_d_dims.reject {|i| i.blank?}
+  #   end
+  # end
+  #
+  # def format_dimensions
+  #   if dims_arr.present?
+  #     m = ["Measures approx."]
+  #     i = 0
+  #     dims_arr.each do |dim|
+  #       m << dim_punctuation(dim, format_targets[i])
+  #       i += 1
+  #     end
+  #     m.join(" ")
+  #   end
+  # end
+  #
+  # def dim_punctuation(dim, target)
+  #   #dim: 24" ; #target: (frame)
+  #   if outer_dim_arr.present? && target.index(/#{Regexp.quote(dim_type.outer_target)}/)
+  #     "#{dim} #{target},"
+  #   elsif inner_dim_arr.present? && target.index(/#{Regexp.quote(dim_type.inner_target)}/)
+  #     "#{dim} #{target}."
+  #   elsif three_d_dims.present? && target != format_targets[-1] && target != colon_target
+  #     "#{dim} #{target} x"
+  #   elsif three_d_dims.present? && target == colon_target
+  #     "#{dim} #{target};"
+  #   elsif three_d_dims.present? && target == format_targets[-1]
+  #     "#{dim} #{target}."
+  #   end
+  # end
 
   def article_list
     ["HC", "AP", "IP", "original", "etching", "animation", "embellished"]
@@ -211,10 +213,6 @@ class Item < ApplicationRecord
     if properties
       [public_send(edition_type.dropdown.split(" ").join("_"))]
     end
-  end
-
-  def build_dim
-    [plus_size, format_dimensions].reject {|i| i.blank?}
   end
 
   def substrate
@@ -296,8 +294,6 @@ class Item < ApplicationRecord
     description[0].insert(pos, punctuate_sign)
   end
 
-
-
   def build_mount
     [frame, "This piece comes #{mount_type.description}."] if mount_type.mounting == "framed"  || mount_type.mounting == "wrapped"
   end
@@ -312,6 +308,10 @@ class Item < ApplicationRecord
 
   def build_cert
     cert_type.description
+  end
+
+  def build_dim
+    [plus_size, branching_dim].reject {|i| i.blank?}
   end
 
   def build_tagline

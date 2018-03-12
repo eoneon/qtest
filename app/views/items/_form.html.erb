@@ -1,5 +1,5 @@
 <%= form_for @item, :html => {:id => 'item_form'} do |f| %>
-<%= @item.dim_branch %>
+<%= @item.build_dim %>
 <%#= "valid_type_id"[-8..-1] %>
   <%= render "items/hidden", f: f %>
   <script type="text/javascript">
