@@ -70,6 +70,7 @@ class Item < ApplicationRecord
     #weight = d.drop(dim_type.weight_index)
   end
 
+  #dim_description
   def branching_dim
     if dim_type.two_d_targets.present?
       d = join_dims(dim_set, " x ")
@@ -89,12 +90,12 @@ class Item < ApplicationRecord
   ##
 
   def inner_dim_arr
-    dim_type.inner_dims.map {|d| properties[d]}
+    dim_type.inner_dims.map {|d| properties[d]} if dim_type && dim_type.inner_dims
     #[properties.try(:[], "innerwidth"), properties.try(:[], "innerheight"), properties.try(:[], "innerdiameter")].reject {|i| i.blank?} if properties
   end
 
   def outer_dim_arr
-    dim_type.outer_dims.map {|d| properties[d]}
+    dim_type.outer_dims.map {|d| properties[d]} if dim_type && dim_type.outer_dims
     #[properties.try(:[], "outerwidth"), properties.try(:[], "outerheight")].reject {|i| i.blank?} if properties
   end
 
@@ -106,83 +107,13 @@ class Item < ApplicationRecord
     outer_dim_arr[0].to_i * outer_dim_arr[1].to_i if outer_dim_arr.present? && outer_dim_arr.count == 2 && dim_type.outer_target == "frame"
   end
 
-  # def inner_dims
-  #   if properties.try(:[], "innerdiameter").present?
-  #     inner_dim_arr[0] + "\""
-  #   elsif inner_dim_arr && inner_dim_arr.count == 2
-  #     [inner_dim_arr[0] + "\"", inner_dim_arr[-1] + "\""].join(" x ")
-  #   end
-  # end
-  #
-  # def outer_dims
-  #   [outer_dim_arr[0] + "\"", outer_dim_arr[-1] + "\""].join(" x ") if outer_dim_arr.present?
-  # end
-  #
-  # def three_d_dims
-  #   #dim_type.three_d_targets.map {|target| properties[target] + "\"" if properties[target].present? && }.reject {|i| i.blank?} if dim_type.three_d_targets
-  #   if dim_type && dim_type.three_d_targets
-  #     dims = []
-  #     dim_type.three_d_targets.each do |target|
-  #       if target == "weight"
-  #         dims << properties[target] + "lbs"
-  #       else
-  #         dims << properties[target] + "\""
-  #       end
-  #     end
-  #   end
-  #   dims
-  # end
-
   def plus_size
     if frame_size && frame_size > 1200
-      " (#{outer_dims})"
+      "(#{join_dims(dim_set, " x ")[-1]})"
     elsif frame_size.blank? && image_size && image_size > 1200
-      " (#{inner_dims})"
+      "(#{join_dims(dim_set, " x ")[0]})"
     end
   end
-
-  # def format_targets
-  #   dim_type.targets.map {|target| "(#{target})"} if dim_type
-  # end
-  #
-  # def colon_target
-  #   format_targets[-2] if properties["weight"].present?
-  # end
-  #
-  # def dims_arr
-  #   if inner_dims || outer_dims
-  #     [outer_dims, inner_dims].reject {|i| i.blank?}
-  #   elsif three_d_dims
-  #     three_d_dims.reject {|i| i.blank?}
-  #   end
-  # end
-  #
-  # def format_dimensions
-  #   if dims_arr.present?
-  #     m = ["Measures approx."]
-  #     i = 0
-  #     dims_arr.each do |dim|
-  #       m << dim_punctuation(dim, format_targets[i])
-  #       i += 1
-  #     end
-  #     m.join(" ")
-  #   end
-  # end
-  #
-  # def dim_punctuation(dim, target)
-  #   #dim: 24" ; #target: (frame)
-  #   if outer_dim_arr.present? && target.index(/#{Regexp.quote(dim_type.outer_target)}/)
-  #     "#{dim} #{target},"
-  #   elsif inner_dim_arr.present? && target.index(/#{Regexp.quote(dim_type.inner_target)}/)
-  #     "#{dim} #{target}."
-  #   elsif three_d_dims.present? && target != format_targets[-1] && target != colon_target
-  #     "#{dim} #{target} x"
-  #   elsif three_d_dims.present? && target == colon_target
-  #     "#{dim} #{target};"
-  #   elsif three_d_dims.present? && target == format_targets[-1]
-  #     "#{dim} #{target}."
-  #   end
-  # end
 
   def article_list
     ["HC", "AP", "IP", "original", "etching", "animation", "embellished"]
@@ -190,23 +121,23 @@ class Item < ApplicationRecord
 
   def from_an_edition
     article = article_list.any? {|word| word == properties["edition"]} ? "an" : "a"
-    ["from", article, properties["edition"], "edition"].join(" ") if properties["edition"].present?
+    ["from", article, properties["edition"], "edition"].join(" ") #if properties["edition"].present?
   end
 
   def numbered
-    [properties["edition"], properties["numbered"], "#{properties["number"]}/#{properties["size"]}"].join(" ") if properties["numbered"].present? && properties["number"].present? && properties["size"].present?
+    [properties["edition"], properties["numbered"], "#{properties["number"]}/#{properties["size"]}"].join(" ") #if properties["numbered"].present? && properties["number"].present? && properties["size"].present?
   end
 
   def numbered_qty
-    [properties["edition"], properties["numbered"]].join(" ") if properties["numbered"].present? && properties["number"].blank? && properties["size"].blank?
+    [properties["edition"], properties["numbered"]].join(" ") #if properties["numbered"].present? && properties["number"].blank? && properties["size"].blank?
   end
 
   def numbered_from_edition_size
-    [properties["edition"], properties["numbered"], "out of", properties["size"]].join(" ") if properties["edition"].present? && properties["numbered"].present? && properties["size"].present?
+    [properties["edition"], properties["numbered"], "out of", properties["size"]].join(" ") #if properties["edition"].present? && properties["numbered"].present? && properties["size"].present?
   end
 
   def not_numbered
-    "This piece is not numbered." if properties["unnumbered"].present? && properties["unnumbered"] == "not numbered"
+    "This piece is not numbered." #if properties["unnumbered"].present? && properties["unnumbered"] == "not numbered"
   end
 
   def build_edition
@@ -223,21 +154,22 @@ class Item < ApplicationRecord
     description.index(/#{Regexp.quote(substrate)}/)
   end
 
+  #:mounting
   def frame
     if mount_type.present?
-      "framed" if mount_type.mounting == "framed"
+      "framed" if mount_type.context == "framed"
+    end
+  end
+
+  def wrapped
+    if mount_type.present?
+      mount_type.tagline_mounting if mount_type.context == "wrapped"
     end
   end
 
   def frame_pos(description)
     pos = 0
     description[0].insert(pos, "#{frame} ")
-  end
-
-  def wrapped
-    if mount_type.present?
-      mount_type.context if mount_type.mounting == "wrapped"
-    end
   end
 
   def wrapped_pos(description)
@@ -295,7 +227,8 @@ class Item < ApplicationRecord
   end
 
   def build_mount
-    [frame, "This piece comes #{mount_type.description}."] if mount_type.mounting == "framed"  || mount_type.mounting == "wrapped"
+    mount_type.description
+    #[frame, "This piece comes #{mount_type.description}."] if mount_type.mounting == "framed"  || mount_type.mounting == "wrapped"
   end
 
   def build_item
@@ -319,11 +252,12 @@ class Item < ApplicationRecord
   end
 
   def format_type(type, description)
-    if description && description[0].present?
+    if type && description && description[0].present?
       public_send("format_" + type, [description])
     end
   end
 
+  ##here
   def format_item(description)
     description = description[0]
     [["frame_pos", frame], ["wrapped_pos", wrapped], ["plus_size_pos", plus_size], ["punctuate_item_pos", punctuate_item]].each do |i|
