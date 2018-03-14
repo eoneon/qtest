@@ -1,6 +1,6 @@
 <%= form_for @item, :html => {:id => 'item_form'} do |f| %>
+<%= @item.remove_values %><br>
 <%= @item.build_tagline %>
-<%#= "valid_type_id"[-8..-1] %>
   <%= render "items/hidden", f: f %>
   <script type="text/javascript">
     function submitform(){

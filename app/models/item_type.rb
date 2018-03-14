@@ -79,6 +79,7 @@ class ItemType < ApplicationRecord
     end
   end
 
+  #kill
   def plus_size_pos
     if properties && properties[substrates] && description
       description.index(/#{Regexp.quote(properties[substrates])}/) + properties[substrates].length
