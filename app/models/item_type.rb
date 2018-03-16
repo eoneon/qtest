@@ -71,16 +71,15 @@ class ItemType < ApplicationRecord
         medium << format_values(name)
       end
       [medium.join(" ")]
-      #m.insert(plus_size_pos, "dog")
     end
   end
 
-  def canvas_pos
-    if properties && properties[substrates] == "canvas"
-    end
-  end
+  # def canvas_pos
+  #   if properties && properties[substrates] == "canvas"
+  #   end
+  # end
 
   def dropdown
-    description
+    description[0]
   end
 end

@@ -114,11 +114,39 @@ class Item < ApplicationRecord
   end
 
   def article_list
-    ["HC", "AP", "IP", "original", "etching", "animation", "embellished"].drop(1)
+    ["HC", "AP", "IP", "original", "etching", "animation", "embellished"]
   end
 
   #edition methods
   #required list? then iterate?
+  #new - rename "edition_description"
+  def ed_description #
+    edition_type.category_names.map {|k| properties[k]}.compact.join(" ") if edition_type && edition_type.required_fields
+  end
+
+  def split_pos(str, target)
+    pos = [after_pos(str, target) -1, after_pos(str, target) + 1]
+    #[[0..split_pos], [split_pos..-1]].join(insert_value)
+  end
+
+  #position methods
+  def prepend_pos(str, target)
+    0
+  end
+
+  def append_pos(str, target)
+    -1
+  end
+
+  def before_pos(str, target)
+    str.index(/#{target}/)
+  end
+
+  def after_pos(str, target)
+    before_pos(str, target) + target.length
+  end
+
+ #working but soon to be replaced edition methods
   def from_an_edition
     article = article_list.any? {|word| word == properties["edition"]} ? "an" : "a"
     ["from", article, properties["edition"], "edition"].join(" ") #if properties["edition"].present?
@@ -132,7 +160,7 @@ class Item < ApplicationRecord
     [properties["edition"], properties["numbered"]].join(" ") #if properties["numbered"].present? && properties["number"].blank? && properties["size"].blank?
   end
 
-  def numbered_from_edition_size
+  def numbered_out_of
     [properties["edition"], properties["numbered"], "out of", properties["size"]].join(" ") #if properties["edition"].present? && properties["numbered"].present? && properties["size"].present?
   end
 
