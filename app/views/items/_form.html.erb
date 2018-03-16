@@ -1,5 +1,5 @@
 <%= form_for @item, :html => {:id => 'item_form'} do |f| %>
-<%= @item.remove_values %><br>
+<%= @item.article_list %><br>
 <%= @item.build_tagline %>
   <%= render "items/hidden", f: f %>
   <script type="text/javascript">

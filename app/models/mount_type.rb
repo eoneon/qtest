@@ -33,6 +33,6 @@ class MountType < ApplicationRecord
   end
 
   def description
-    [tagline_mounting, description_mounting].compact
+    [description_mounting]
   end
 end

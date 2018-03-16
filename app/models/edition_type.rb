@@ -20,3 +20,7 @@ class EditionType < ApplicationRecord
     end
   end
 end
+
+#:after_number_pos #=> "/"
+#:after_numbered_pos #=>" out of "
+#=> pos -> 0 ; "from " + " #{article} " & pos -> description.length; "edition"

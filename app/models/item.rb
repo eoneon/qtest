@@ -91,12 +91,10 @@ class Item < ApplicationRecord
 
   def inner_dim_arr
     dim_type.inner_dims.map {|d| properties[d]} if dim_type && dim_type.inner_dims
-    #[properties.try(:[], "innerwidth"), properties.try(:[], "innerheight"), properties.try(:[], "innerdiameter")].reject {|i| i.blank?} if properties
   end
 
   def outer_dim_arr
     dim_type.outer_dims.map {|d| properties[d]} if dim_type && dim_type.outer_dims
-    #[properties.try(:[], "outerwidth"), properties.try(:[], "outerheight")].reject {|i| i.blank?} if properties
   end
 
   def image_size
@@ -116,9 +114,11 @@ class Item < ApplicationRecord
   end
 
   def article_list
-    ["HC", "AP", "IP", "original", "etching", "animation", "embellished"]
+    ["HC", "AP", "IP", "original", "etching", "animation", "embellished"].drop(1)
   end
 
+  #edition methods
+  #required list? then iterate?
   def from_an_edition
     article = article_list.any? {|word| word == properties["edition"]} ? "an" : "a"
     ["from", article, properties["edition"], "edition"].join(" ") #if properties["edition"].present?
@@ -140,129 +140,52 @@ class Item < ApplicationRecord
     "This piece is not numbered." #if properties["unnumbered"].present? && properties["unnumbered"] == "not numbered"
   end
 
-  def substrate
-    item_type.substrates if item_type
+  def edition_description
+    [public_send(edition_type.dropdown.split(" ").join("_"))]
   end
 
-  ##replace with refactored: :format_item(description), :insert_mounting(type, description), :insert_plus_size(description), :insert_punctuation(type, description)
-  #kill: or refactor to replace hardcoded version below
-  def substrate_pos(build)
-    mount_type.context == "framed" ? 0 : build.index(/#{Regexp.quote(substrate_kind)}/) + substrate_kind.length
-  end
-
+  ##
   def substrate_kind
     item_type.substrates if item_type
   end
 
-  #kill
-  def frame
-    if mount_type.present?
-      "framed" if mount_type.context == "framed"
-    end
+  def before_substrate_pos(build)
+    build.index(/#{Regexp.quote(substrate_kind)}/)
+    #mount_type.context == "framed" ? 0 : build.index(/#{Regexp.quote(substrate_kind)}/) + substrate_kind.length
+  end
+
+  def after_substrate_pos(build)
+    before_substrate_pos(build) + substrate_kind.length
+  end
+
+  def mounting_pos(build)
+    mount_type.context == "framed" ? 0 : before_substrate_pos(build)
+  end
+
+  def plus_size_pos(build)
+    after_substrate_pos(build)
   end
 
   #kill
-  def wrapped
-    if mount_type.present?
-      mount_type.tagline_mounting if mount_type.context == "wrapped"
-    end
+  def substrate_pos(build)
+    mount_type.context == "framed" ? 0 : build.index(/#{Regexp.quote(substrate_kind)}/) + substrate_kind.length
   end
 
-  #kill
-  def frame_pos(description)
-    pos = 0
-    description[0].insert(pos, "#{frame} ")
+  def substrate_value
+    "on #{item_type.properties[substrate_kind]}" if substrate_kind == "paper"
   end
 
-  #kill
-  def wrapped_pos(description)
-    pos = substrate_pos(description[0])
-    description[0].insert(pos, "#{wrapped} ")
-  end
-
-  #kill
-  def punctuate_item
-    tagline_list[-1] == "item" ? "." : ","
-  end
-
-  #kill
-  def punctuate_edition
-    if tagline_list[-1] == "edition"
-      "."
-    elsif sign_type
-      " and"
-    end
-  end
-
-  #kill & replace with :insert_punctuation
-  def plus_size_pos(description)
-    if plus_size
-      pos = description[0].index(/#{Regexp.quote(substrate)}/) + substrate.length
-      description[0].insert(pos, " #{plus_size}")
-    end
-  end
-
-  #kill & replace with :insert_punctuation
-  def punctuate_item_pos(description)
-    pos = description[0].length
-    description[0].insert(pos, punctuate_item)
-    #description[0].insert(description[0].length, punctuate_item)
-  end
-
-  #kill & replace with :insert_punctuation
-  def punctuate_edition_pos(description)
-    pos = description[0].length
-    description[0].insert(pos, punctuate_edition)
-  end
-
-  #kill & replace with :insert_punctuation
-  def punctuate_cert_pos(description)
-    pos = description[0].length
-    description[0].insert(pos, punctuate_cert)
-  end
-
-  #kill & replace with :insert_punctuation
-  def punctuate_sign
-    if tagline_list[-1] == "sign"
-      "."
-    end
-  end
-
-  #kill & replace with :insert_punctuation
-  def punctuate_cert
-    "."
-  end
-
-  #kill & replace with :insert_punctuation
-  def punctuate_sign_pos(description)
-    pos = description[0].length
-    description[0].insert(pos, punctuate_sign)
-  end
-
-  #refactor: already handling with tagline_mounting
+  #build methods
   def build_mount
     mount_type.description
-    #[frame, "This piece comes #{mount_type.description}."] if mount_type.mounting == "framed"  || mount_type.mounting == "wrapped"
   end
 
-  #test
-  # def dogs
-  #   "colored"
-  # end
-
-  # def remove_values
-  #   ["sold", "gold", /#{Regexp.quote(dogs)}/ ]
-  #   #["sold", "gold", dogs]
-  # end
-
   def build_item
-    [item_type.description]
+    item_type.description
   end
 
   def build_edition
-    if properties
-      [public_send(edition_type.dropdown.split(" ").join("_"))]
-    end
+    edition_description
   end
 
   def build_sign
@@ -294,13 +217,12 @@ class Item < ApplicationRecord
     ["mounting", "plus_size"].each do |m|
       build = insert_element(build, m) if public_send(m)
     end
-    #build
     build.remove(*remove_values)
   end
 
   #new
   def insert_element(build, m)
-    build.insert(substrate_pos(build), " #{public_send(m)} ").strip
+    build.insert(public_send(m + "_pos", build), " #{public_send(m)} ").strip
   end
 
   def mounting
@@ -313,12 +235,6 @@ class Item < ApplicationRecord
     arr + [/#{Regexp.quote(substrate_value)}/] if substrate_value
   end
 
-  def substrate_value
-    if substrate_kind == "paper"
-      "on #{item_type.properties[substrate_kind]}"
-    end
-  end
-
   #new
   def insert_punctuation(type, build)
     case
@@ -327,51 +243,6 @@ class Item < ApplicationRecord
     when type == "edition" && tagline_list.include?("sign") then punct = " and"
     end
     punct ? build.insert(build.length, punct) : build
-  end
-
-  #kill
-  def format_type(type, description)
-    if type && description && description[0].present?
-      public_send("format_" + type, [description])
-    end
-  end
-
-  ##refactored
-
-
-  # def format_item(description)
-  #   description = description[0]
-  #   [["frame_pos", frame], ["wrapped_pos", wrapped], ["plus_size_pos", plus_size], ["punctuate_item_pos", punctuate_item]].each do |i|
-  #     description = public_send(i[0], [description]) if i[-1]
-  #   end
-  #   description
-  # end
-
-  #kill
-  def format_edition(description)
-    description = description[0]
-    [["punctuate_edition_pos", punctuate_edition]].each do |i|
-      description = public_send(i[0], [description]) if i[-1]
-    end
-    description
-  end
-
-  #kill
-  def format_sign(description)
-    description = description[0]
-    [["punctuate_sign_pos", punctuate_sign]].each do |i|
-      description = public_send(i[0], [description]) if i[-1]
-    end
-    description
-  end
-
-  #kill
-  def format_cert(description)
-    description = description[0]
-    [["punctuate_cert_pos", punctuate_cert]].each do |i|
-      description = public_send(i[0], [description]) if i[-1]
-    end
-    description
   end
 
   def build_description
