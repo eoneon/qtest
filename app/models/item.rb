@@ -124,19 +124,23 @@ class Item < ApplicationRecord
     edition_type.category_names.map {|k| properties[k]}.compact.join(" ") if edition_type && edition_type.required_fields
   end
 
-  def split_pos(str, target)
-    pos = [after_pos(str, target) -1, after_pos(str, target) + 1]
-    #[[0..split_pos], [split_pos..-1]].join(insert_value)
-  end
-
   #position methods
-  def prepend_pos(str, target)
-    0
+  def test_sym
+    #works
+    #h = {edition: [properties, "edition"]}
+    #h = h.assoc(:edition).drop(1)[0]
+    #h[0][h[1]]
   end
 
-  def append_pos(str, target)
-    -1
-  end
+
+
+  # def prepend_pos(str, target)
+  #   0
+  # end
+  #
+  # def append_pos(str, target)
+  #   -1
+  # end
 
   def before_pos(str, target)
     str.index(/#{target}/)
@@ -146,10 +150,93 @@ class Item < ApplicationRecord
     before_pos(str, target) + target.length
   end
 
+  def split_pos(str, target)
+    [after_pos(str, target) -1, after_pos(str, target) + 1]
+  end
+
+  def format_type(obj)
+    case
+    when obj.class == String then obj
+    when obj.class == Symbol then public_send(obj)
+    when obj.class == Array then public_send(obj[0], *obj.drop(1))
+    #when obj.class == Hash then
+    end
+  end
+
+  #dynamically forat as(data_type) methods:
+  def format_by_type(args)
+    args.map {|arg| public_send("format_as_" + class_to_str(arg), arg)}
+    # [
+    #   ["CP", "from "],
+    #   ["CP", [:article, {"edition"=>["properties", "edition"]}] ]
+    # ]
+  end
+
+  def format_as_string(str_arg)
+    str_arg
+  end
+
+  def format_as_symbol(sym_arg)
+    public_send(sym_arg)
+  end
+
+  def format_as_array(arr_arg)
+    #arr_arg
+    #public_send(arr_arg[0], *arr_args.drop(1))
+    public_send(arr_arg[0], public_send("format_as_" + class_to_str(arr_arg[1]), arr_arg[1]))
+  end
+
+  def format_as_hash(hsh_arg)
+    #hsh_arg["edition"]
+    h = public_send(hsh_arg.assoc("edition").drop(1)[0][0])
+    h = hsh_arg.assoc("edition").drop(1)[0]
+    public_send(h[0])[h[1]]
+    #h[hsh_arg.assoc("edition").drop(1)[0][1]]
+    # h[0][h[1]]
+  end
+
+  def class_to_str(obj)
+    obj.class.to_s.downcase
+  end
+
+  def fetch_rules
+    if ed_description #stringified collection of item.properties[edition]
+      d = ed_description #assign to var so we can update
+      test_args = []
+      if edition_type.edition_rules.assoc(edition_type.dropdown) #must be a better way...
+        rules = edition_type.edition_rules.assoc(edition_type.dropdown).drop(1) #retrieve rule_set if one exists
+        rules.each do |rule|
+          #idx = public_send(rule[0], d, properties[rule[1]]) #-> format_as
+          #idx = public_send(rule[0], d, public_send("format_as_" + rule[1].class.to_s.downcase, *rule[1]))
+          #args = rule[1].assoc("edition").drop(1)[0][1] #public_send("format_as_" + class_to_str(rule[1]), rule[1])
+          #idx = public_send(rule[0], d, public_send("format_as_" + class_to_str(rule[1]), rule[1]))
+          #idx = public_send(rule[0], d, public_send("format_as_" + class_to_str(rule[1]), rule[1]))
+          test_args << format_by_type(rule.drop(1))
+          #idx = public_send(rule[0], d, args[0])
+
+          #d = args
+          #d.index(/#{args}/)
+          # if rule[0] == :split_pos
+          #   d = [d[0..idx[0]], d[idx[1]..-1]].join(format_type(rule[2])) #here: check whether :symbol or str
+          # else
+          #   #d = d.insert(idx, format_type(rule[2]))
+          #   d = d.insert(idx, public_send("format_as_" + class_to_str(rule[2]), rule[2]))
+          # end
+        end
+      end
+      #d
+      test_args
+    end
+  end
+
  #working but soon to be replaced edition methods
+  def article(target)
+    article_list.any? {|word| word == target} ? "an" : "a"
+  end
+
   def from_an_edition
-    article = article_list.any? {|word| word == properties["edition"]} ? "an" : "a"
-    ["from", article, properties["edition"], "edition"].join(" ") #if properties["edition"].present?
+    #article = article_list.any? {|word| word == properties["edition"]} ? "an" : "a"
+    ["from", article(properties["edition"]), properties["edition"], "edition"].join(" ") #if properties["edition"].present?
   end
 
   def numbered

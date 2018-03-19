@@ -24,15 +24,15 @@ class EditionType < ApplicationRecord
   def edition_rules
     [
       ["numbered",
-        ["split", "number", "/"]
+        [:split_pos, "number", "/"]
       ],
-      ["from_an_edition",
-        ["before", "edition", "from "],
-        ["before", "edition", :article],
-        ["after", "edition"," edition"]
+      ["from an edition",
+        [:before_pos, h = {"edition" => ["properties", "edition"]}, "from "],
+        [:before_pos, h = {"edition" => ["properties", "edition"]}, [ :article, h = {"edition" => ["properties", "edition"] }]]
+        #[:after_pos, "edition"," edition"]
       ],
       ["numbered_out_of",
-        ["after", "number", " edition"]
+        [:after_pos, "number", " edition"]
       ]
     ]
   end

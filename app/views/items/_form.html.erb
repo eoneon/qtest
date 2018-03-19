@@ -1,5 +1,6 @@
 <%= form_for @item, :html => {:id => 'item_form'} do |f| %>
-<%= @item.ed_description %><br>
+<%#= @item.test_sym %><br>
+<%= @item.fetch_rules %><br>
 <%= @item.build_tagline %>
   <%= render "items/hidden", f: f %>
   <script type="text/javascript">
