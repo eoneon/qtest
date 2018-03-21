@@ -13,7 +13,6 @@ class EditionType < ApplicationRecord
   def dropdown
     case
     when category_names.count == 4 then "numbered"
-    #when category_names.count == 3 then "numbered from edition size"
     when category_names.count == 3 then "numbered out of"
     when category_names.count == 2 then "numbered qty"
     when category_names == ["edition"] then "from an edition"
@@ -21,18 +20,25 @@ class EditionType < ApplicationRecord
     end
   end
 
-  def edition_rules
+  def rule_names
+    dropdown.gsub(/ /, "_")
+  end
+
+  def rule_set
+    #refactor Hash rules
     [
       ["numbered",
-        [:split_pos, "number", "/"]
+        #[:split_pos, h = {"edition" => ["properties", "number"]}, "/"]
+        #[ [:split_insert, :d, [:split_pos, :d, h = {"edition" => ["properties", "number"]}], "/"] ]
+        [ [:split_insert, :d, [:split_pos, :d, h = {"edition" => ["properties", "number"]}], "/"] ]
       ],
-      ["from an edition",
-        [:before_pos, h = {"edition" => ["properties", "edition"]}, "from "],
-        [:before_pos, h = {"edition" => ["properties", "edition"]}, [ :article, h = {"edition" => ["properties", "edition"] }]]
-        #[:after_pos, "edition"," edition"]
+      ["from_an_edition",
+        [:before_pos, h = {"edition" => ["properties", "edition"]}, " from "],
+        [:before_pos, h = {"edition" => ["properties", "edition"]}, [ :article, h = {"edition" => ["properties", "edition"]}]],
+        [:after_pos, h = {"edition" => ["properties", "edition"]}, " edition "]
       ],
       ["numbered_out_of",
-        [:after_pos, "number", " edition"]
+        [:after_pos, h = {"edition" => ["properties", "numbered"]}, " out of "]
       ]
     ]
   end

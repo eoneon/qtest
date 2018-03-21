@@ -84,4 +84,8 @@ class DimType < ApplicationRecord
   def dropdown
     dim_targets.join(" & ")
   end
+
+  def rule_names
+    category.name
+  end
 end

@@ -1,6 +1,6 @@
 <%= form_for @item, :html => {:id => 'item_form'} do |f| %>
-<%#= @item.test_sym %><br>
-<%= @item.fetch_rules %><br>
+<%#= @item.dog.class %><br>
+<%= @item.fetch_rules("edition") %><br>
 <%= @item.build_tagline %>
   <%= render "items/hidden", f: f %>
   <script type="text/javascript">

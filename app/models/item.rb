@@ -14,14 +14,16 @@ class Item < ApplicationRecord
     k[-8..-1] == "_type_id" ? k.remove("_type_id") : k.remove("_id")
   end
 
+  #valid_type_assocs
   def valid_types
-    attribute_names.map {|k| validate_types(k) if k.index(/_type_id/) && public_send(k).present?}.reject {|i| i.blank?}
+    attribute_names.map {|k| validate_types(k) if k.index(/_type_id/) && public_send(k).present?}.compact
+    #to_method(k) -> use this here and remove: public_send(k).present? and to_method(k) below
   end
 
   def validate_types(k)
     if k == "edition_type_id" || k == "dim_type_id"
       validate_properties_types(k)
-    elsif to_method(k) && to_method(k).properties.present?
+    elsif to_method(k) && to_method(k).properties.present? #to_method neccessary?
       to_clause(k)
     end
   end
@@ -118,40 +120,22 @@ class Item < ApplicationRecord
   end
 
   #edition methods
-  #required list? then iterate?
-  #new - rename "edition_description"
-  def ed_description #
-    edition_type.category_names.map {|k| properties[k]}.compact.join(" ") if edition_type && edition_type.required_fields
-  end
-
   #position methods
-  def test_sym
-    #works
-    #h = {edition: [properties, "edition"]}
-    #h = h.assoc(:edition).drop(1)[0]
-    #h[0][h[1]]
+
+  def before_pos(d, target)
+    d.index(/#{target}/)
   end
 
-
-
-  # def prepend_pos(str, target)
-  #   0
-  # end
-  #
-  # def append_pos(str, target)
-  #   -1
-  # end
-
-  def before_pos(str, target)
-    str.index(/#{target}/)
+  def after_pos(d, target)
+    before_pos(d, target) + target.length if target
   end
 
-  def after_pos(str, target)
-    before_pos(str, target) + target.length
+  def split_pos(d, target)
+    [ after_pos(d, target) -1, after_pos(d, target) + 1 ] if target
   end
 
-  def split_pos(str, target)
-    [after_pos(str, target) -1, after_pos(str, target) + 1]
+  def split_insert(d, idx_arr, insert_value)
+    [ d[0..idx_arr[0] ], d[idx_arr[1]..-1]].join(insert_value)
   end
 
   def format_type(obj)
@@ -163,75 +147,91 @@ class Item < ApplicationRecord
     end
   end
 
-  #dynamically forat as(data_type) methods:
-  def format_by_type(args)
-    args.map {|arg| public_send("format_as_" + class_to_str(arg), arg)}
-    # [
-    #   ["CP", "from "],
-    #   ["CP", [:article, {"edition"=>["properties", "edition"]}] ]
-    # ]
-  end
+  #dynamically format as(data_type) methods: -> :d
+  # def format_by_type(args)
+  #   args.map {|arg| public_send("format_as_" + class_to_str(arg), arg)}
+  # end
 
   def format_as_string(str_arg)
     str_arg
   end
 
+  #:d
   def format_as_symbol(sym_arg)
     public_send(sym_arg)
   end
 
+  #d
   def format_as_array(arr_arg)
-    #arr_arg
-    #public_send(arr_arg[0], *arr_args.drop(1))
-    public_send(arr_arg[0], public_send("format_as_" + class_to_str(arr_arg[1]), arr_arg[1]))
+    #public_send(arr_arg[0], public_send("format_as_" + class_to_str(arr_arg[1]), arr_arg[1]))
+    #args = format_by_type(arr_arg.drop(1))
+    #public_send(arr_arg[0], *args)
+    public_send(arr_arg[0], *format_by_type(arr_arg.drop(1)))
   end
 
   def format_as_hash(hsh_arg)
-    #hsh_arg["edition"]
-    h = public_send(hsh_arg.assoc("edition").drop(1)[0][0])
-    h = hsh_arg.assoc("edition").drop(1)[0]
+    h = public_send(hsh_arg.assoc("edition").drop(1)[0][0]) #wrinkle: make dynamic
+    h = hsh_arg.assoc("edition").drop(1)[0] #wrinkle: make dynamic by passing some version of self.class.to_s/type.string/etc so any type may use this method
     public_send(h[0])[h[1]]
-    #h[hsh_arg.assoc("edition").drop(1)[0][1]]
-    # h[0][h[1]]
   end
 
   def class_to_str(obj)
     obj.class.to_s.downcase
   end
 
-  def fetch_rules
-    if ed_description #stringified collection of item.properties[edition]
-      d = ed_description #assign to var so we can update
-      test_args = []
-      if edition_type.edition_rules.assoc(edition_type.dropdown) #must be a better way...
-        rules = edition_type.edition_rules.assoc(edition_type.dropdown).drop(1) #retrieve rule_set if one exists
-        rules.each do |rule|
-          #idx = public_send(rule[0], d, properties[rule[1]]) #-> format_as
-          #idx = public_send(rule[0], d, public_send("format_as_" + rule[1].class.to_s.downcase, *rule[1]))
-          #args = rule[1].assoc("edition").drop(1)[0][1] #public_send("format_as_" + class_to_str(rule[1]), rule[1])
-          #idx = public_send(rule[0], d, public_send("format_as_" + class_to_str(rule[1]), rule[1]))
-          #idx = public_send(rule[0], d, public_send("format_as_" + class_to_str(rule[1]), rule[1]))
-          test_args << format_by_type(rule.drop(1))
-          #idx = public_send(rule[0], d, args[0])
+  #works
+  def joined_type_values(type)
+    type_to_m(type).category_names.map {|k| properties[k]}.compact.join(" ")
+  end
 
-          #d = args
-          #d.index(/#{args}/)
-          # if rule[0] == :split_pos
-          #   d = [d[0..idx[0]], d[idx[1]..-1]].join(format_type(rule[2])) #here: check whether :symbol or str
-          # else
-          #   #d = d.insert(idx, format_type(rule[2]))
-          #   d = d.insert(idx, public_send("format_as_" + class_to_str(rule[2]), rule[2]))
-          # end
+  #works
+  def type_to_m(type)
+    public_send(type + "_type")
+  end
+
+  #works but ugly
+  def insert_d(i, d)
+    if i == :d
+      d
+    elsif i.class == Array
+      i.map {|sub_i| sub_i == :d ? d : sub_i}
+    else
+      i
+    end
+  end
+
+  def format_by_type(args)
+    args.map {|arg| public_send("format_as_" + class_to_str(arg), arg)}
+  end
+
+  def fetch_rules(type)
+    if joined_type_values(type) #type_description
+      d = joined_type_values(type) #assign to var so we can update
+      if type_to_m(type).rule_set.assoc(type_to_m(type).rule_names)
+        rules = type_to_m(type).rule_set.assoc(type_to_m(type).rule_names).drop(1)
+        #d = rules[0]
+        #d = rules[0][0]
+        #d = format_by_type([rules[0][0].map {|i| insert_d(i, d)}])
+        #d = format_by_type(d)
+
+        rules.each do |rule|
+          d = format_by_type([rule[0].map {|i| insert_d(i, d)}])
+        #   args = format_by_type(rule.drop(1))
+        #   idx = public_send(rule[0], d, args[0])
+        #   if rule[0] == :split_pos
+        #     d = [ d[0..idx[0] ], d[idx[1]..-1]].join(args[1]) if args[1].present? && idx.present? #here: check whether :symbol or str
+        #   else
+        #     d = d.insert(idx, args[1]) if idx
+        #   end
         end
       end
-      #d
-      test_args
+      d
     end
   end
 
  #working but soon to be replaced edition methods
   def article(target)
-    article_list.any? {|word| word == target} ? "an" : "a"
+    article_list.any? {|word| word == target} ? " an " : " a "
   end
 
   def from_an_edition
