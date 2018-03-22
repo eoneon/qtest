@@ -130,6 +130,10 @@ class Item < ApplicationRecord
     before_pos(d, target) + target.length if target
   end
 
+  def pos_insert(d, idx, insert_value)
+    d.insert(idx, insert_value)
+  end
+
   def split_pos(d, target)
     [ after_pos(d, target) -1, after_pos(d, target) + 1 ] if target
   end
@@ -204,26 +208,47 @@ class Item < ApplicationRecord
     args.map {|arg| public_send("format_as_" + class_to_str(arg), arg)}
   end
 
+  def test_hash
+    Hash["a", 100]
+  end
+
   def fetch_rules(type)
     if joined_type_values(type) #type_description
       d = joined_type_values(type) #assign to var so we can update
       if type_to_m(type).rule_set.assoc(type_to_m(type).rule_names)
         rules = type_to_m(type).rule_set.assoc(type_to_m(type).rule_names).drop(1)
+        rules.each do |rule|
+          d = [rule[0].map {|i| insert_d(i, d)}]
+          d = format_by_type(d).join(" ")
+        end
+        #d = rules[2]
         #d = rules[0]
+        #d = rules[0][0].map {|i| insert_d(i, d)}
         #d = rules[0][0]
         #d = format_by_type([rules[0][0].map {|i| insert_d(i, d)}])
         #d = format_by_type(d)
+        #d = format_by_type([rules[0][0].map {|i| insert_d(i, d)}])
 
-        rules.each do |rule|
-          d = format_by_type([rule[0].map {|i| insert_d(i, d)}])
-        #   args = format_by_type(rule.drop(1))
-        #   idx = public_send(rule[0], d, args[0])
-        #   if rule[0] == :split_pos
-        #     d = [ d[0..idx[0] ], d[idx[1]..-1]].join(args[1]) if args[1].present? && idx.present? #here: check whether :symbol or str
-        #   else
-        #     d = d.insert(idx, args[1]) if idx
-        #   end
-        end
+        #d = format_by_type([rules[2][0].map {|i| insert_d(i, d)}])
+
+        #working:
+        # d = [rules[0][0].map {|i| insert_d(i, d)}]
+        # d = format_by_type(d).join(" ")
+        # d = [rules[1][0].map {|i| insert_d(i, d)}]
+        # d = format_by_type(d).join(" ")
+        # d = [rules[2][0].map {|i| insert_d(i, d)}]
+        # d = format_by_type(d).join(" ")
+        #end
+
+        #d = [rules[1][0].map {|i| insert_d(i, d)}]
+        #d = format_by_type(d)
+        # rules.each do |rule|
+        #   d = rule[0].map {|i| insert_d(i, d)}
+          #d = format_by_type(d)
+          #d = format_by_type([rule[0].map {|i| insert_d(i, d)}])
+          #d = rule
+          #d = rule[0]
+        #end
       end
       d
     end

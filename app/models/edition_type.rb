@@ -30,15 +30,18 @@ class EditionType < ApplicationRecord
       ["numbered",
         #[:split_pos, h = {"edition" => ["properties", "number"]}, "/"]
         #[ [:split_insert, :d, [:split_pos, :d, h = {"edition" => ["properties", "number"]}], "/"] ]
-        [ [:split_insert, :d, [:split_pos, :d, h = {"edition" => ["properties", "number"]}], "/"] ]
+        [[:split_insert, :d, [:split_pos, :d, h = {"edition" => ["properties", "number"]}], "/"] ] #rule
       ],
       ["from_an_edition",
-        [:before_pos, h = {"edition" => ["properties", "edition"]}, " from "],
-        [:before_pos, h = {"edition" => ["properties", "edition"]}, [ :article, h = {"edition" => ["properties", "edition"]}]],
-        [:after_pos, h = {"edition" => ["properties", "edition"]}, " edition "]
+        #[:before_pos, h = {"edition" => ["properties", "edition"]}, " from "],
+        [[:pos_insert, :d, [:before_pos, :d, h = {"edition" => ["properties", "edition"]}], " from "]], #rule
+        #[:before_pos, h = {"edition" => ["properties", "edition"]}, [ :article, h = {"edition" => ["properties", "edition"]}]],
+        [[:pos_insert, :d, [:before_pos, :d, h = {"edition" => ["properties", "edition"]}], [ :article, h = {"edition" => ["properties", "edition"]}]]], #rule
+        #[:after_pos, h = {"edition" => ["properties", "edition"]}, " edition "]
+        [[:pos_insert, :d, [:after_pos, :d, h = {"edition" => ["properties", "edition"]}], " edition "]] #rule
       ],
       ["numbered_out_of",
-        [:after_pos, h = {"edition" => ["properties", "numbered"]}, " out of "]
+        [[:pos_insert, :d, [:after_pos, :d, h = {"edition" => ["properties", "numbered"]}], " out of "]] #rule
       ]
     ]
   end
