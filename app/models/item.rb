@@ -167,9 +167,6 @@ class Item < ApplicationRecord
 
   #d
   def format_as_array(arr_arg)
-    #public_send(arr_arg[0], public_send("format_as_" + class_to_str(arr_arg[1]), arr_arg[1]))
-    #args = format_by_type(arr_arg.drop(1))
-    #public_send(arr_arg[0], *args)
     public_send(arr_arg[0], *format_by_type(arr_arg.drop(1)))
   end
 
@@ -221,34 +218,6 @@ class Item < ApplicationRecord
           d = [rule[0].map {|i| insert_d(i, d)}]
           d = format_by_type(d).join(" ")
         end
-        #d = rules[2]
-        #d = rules[0]
-        #d = rules[0][0].map {|i| insert_d(i, d)}
-        #d = rules[0][0]
-        #d = format_by_type([rules[0][0].map {|i| insert_d(i, d)}])
-        #d = format_by_type(d)
-        #d = format_by_type([rules[0][0].map {|i| insert_d(i, d)}])
-
-        #d = format_by_type([rules[2][0].map {|i| insert_d(i, d)}])
-
-        #working:
-        # d = [rules[0][0].map {|i| insert_d(i, d)}]
-        # d = format_by_type(d).join(" ")
-        # d = [rules[1][0].map {|i| insert_d(i, d)}]
-        # d = format_by_type(d).join(" ")
-        # d = [rules[2][0].map {|i| insert_d(i, d)}]
-        # d = format_by_type(d).join(" ")
-        #end
-
-        #d = [rules[1][0].map {|i| insert_d(i, d)}]
-        #d = format_by_type(d)
-        # rules.each do |rule|
-        #   d = rule[0].map {|i| insert_d(i, d)}
-          #d = format_by_type(d)
-          #d = format_by_type([rule[0].map {|i| insert_d(i, d)}])
-          #d = rule
-          #d = rule[0]
-        #end
       end
       d
     end
