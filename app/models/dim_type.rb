@@ -1,4 +1,6 @@
 class DimType < ApplicationRecord
+  include SharedMethods
+
   belongs_to :category
   has_many :items
 
@@ -10,14 +12,16 @@ class DimType < ApplicationRecord
     canvas_dims + border_dims
   end
 
-  def category_names
-    category.name.split("_")
-  end
+  #orgnizatinoal methods
+  # def category_names
+  #   category.name.split("_")
+  # end
 
   def required_fields
     category_names
   end
 
+  #dimension methods
   def inner_dims
     category_names.keep_if {|name| name.index(/inner/)}
   end
@@ -27,7 +31,7 @@ class DimType < ApplicationRecord
   end
 
   def grouped_2d_dims
-    [inner_dims, outer_dims].keep_if {|arr| arr.present?} #[inner_dims, outer_dims]
+    [inner_dims, outer_dims].keep_if {|arr| arr.present?} #[["innerwidth", "innerheight"], ["outerwidth", "outerheight"]]
   end
 
   def grouped_3d_dims
@@ -35,14 +39,10 @@ class DimType < ApplicationRecord
   end
 
   def dimensions
-    #accounting for differning number of nested levels
-    if grouped_2d_dims.present?
-      grouped_2d_dims
-    elsif grouped_3d_dims.present?
-      grouped_3d_dims
-    end
+    grouped_2d_dims.present? ? grouped_2d_dims : grouped_3d_dims
   end
 
+  #target methods
   def dim_targets
     name.split("_") #eg: [frame, image] [innerwidth, innerheight, outerwidth, outerheight]
   end
@@ -63,11 +63,7 @@ class DimType < ApplicationRecord
     dim_targets if name == category.name # [width, height, ...]
   end
 
-  #new
-  # def insert_targets
-  #   two_d_targets.present? ? [inner_target[-1], outer_target[-1]]
-  # end
-
+  #kill
   def weight_index
     if three_d_targets.present? && three_d_targets.index("weight")
       three_d_targets.index("weight")
@@ -75,16 +71,19 @@ class DimType < ApplicationRecord
   end
 
   def targets
-    if two_d_targets.present?
-      two_d_targets
-    elsif three_d_targets.present?
-      three_d_targets
-    end
+    two_d_targets.present? ? two_d_targets : three_d_targets
   end
+  #=>["frame", "image"]
 
+  #combining/formatting dimensions & targets
   def formatted_targets
     targets.map {|t| "(#{t})"}
   end
+
+  def dim_target_set
+    dimensions.zip(formatted_targets)
+  end
+  #=>[[["innerwidth", "innerheight"], "(frame)"], [["outerwidth", "outerheight"], "(image)"]]
 
   def dropdown
     dim_targets.join(" & ")

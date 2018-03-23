@@ -1,4 +1,6 @@
 class Item < ApplicationRecord
+  include SharedMethods
+
   belongs_to :mount_type, optional: true
   belongs_to :item_type, optional: true
   belongs_to :edition_type, optional: true
@@ -14,22 +16,23 @@ class Item < ApplicationRecord
     "abc efg hijklm"
   end
 
-
-  ##end
+  ##move: concern
   def to_method(k)
     public_send(k.remove("_id"))
   end
 
+  ##move: concern
   def to_clause(k)
     k[-8..-1] == "_type_id" ? k.remove("_type_id") : k.remove("_id")
   end
 
+  ##move: concern - validate_types
   #valid_type_assocs
   def valid_types
     attribute_names.map {|k| validate_types(k) if k.index(/_type_id/) && public_send(k).present?}.compact
-    #to_method(k) -> use this here and remove: public_send(k).present? and to_method(k) below
   end
 
+  #ditto
   def validate_types(k)
     if k == "edition_type_id" || k == "dim_type_id"
       validate_properties_types(k)
@@ -38,51 +41,63 @@ class Item < ApplicationRecord
     end
   end
 
+  #ditto
   def validate_properties_types(k)
     to_clause(k) if to_method(k).required_fields.keep_if {|field| valid_properties_keys.include?(field)} == to_method(k).required_fields
   end
 
+  #ditto
   def valid_properties_keys
     properties.keep_if {|k,v| v.present?}.keys if properties
   end
 
+  #move to description concern -> dependencies with validation
   def tagline_list
     %w(item edition sign cert) & valid_types
   end
 
+  #ditto
   def description_list
     %w(item edition sign cert dim) & valid_types
   end
 
-  ###
+  ###------->dim_type-specific methods
+
+  #move -> group with dimension-specific description methods
+  #kill: already handled inside dim_type.rb #=>["outerwidth", "outerheight", "innerwidth", "innerheight"]
   def dim_set
     dim_type.dimensions.map {|d| format_dims(d)}
   end
 
+  #item-specific but display logic should move -> presenter/decorator?
   def format_dims(d)
     d.map {|d| format_metric(d)}
   end
 
+  #ditto
   def format_metric(d)
     d == "weight" ? "#{properties[d]}lbs" : "#{properties[d]}\""
   end
 
+  #refactor if still needed and move to SharedMethods
   def join_dims(dim_set, delim)
     dim_set.map {|d| d.join(delim)}
   end
 
+  #kill
   def insert_targets(d)
     dims = d.zip(dim_type.formatted_targets)
     dims.map {|dims| dims.join(" ")}
   end
 
+  #kill
   def reformat_three_d(d)
     [d.take(dim_type.weight_index), d.drop(dim_type.weight_index)]
     #dims = d.take(dim_type.weight_index)
     #weight = d.drop(dim_type.weight_index)
   end
 
-  #dim_description
+  #kill ->rule-feeder logic will cover this
   def branching_dim
     if dim_type.two_d_targets.present?
       d = join_dims(dim_set, " x ")
@@ -99,24 +114,27 @@ class Item < ApplicationRecord
     #join_dims(d, delim) #wont work here because of different levels?
   end
 
-  ##
-
+  #kill
   def inner_dim_arr
     dim_type.inner_dims.map {|d| properties[d]} if dim_type && dim_type.inner_dims
   end
 
+  #kill
   def outer_dim_arr
     dim_type.outer_dims.map {|d| properties[d]} if dim_type && dim_type.outer_dims
   end
 
+  #move: this might stay since it will be used as a virtual attribute
   def image_size
     inner_dim_arr[0].to_i * inner_dim_arr[-1].to_i if inner_dim_arr.present? && inner_dim_arr.count >= 1
   end
 
+  #item-specific so either keep here or move to item-description-specific conern or presentor
   def frame_size
     outer_dim_arr[0].to_i * outer_dim_arr[1].to_i if outer_dim_arr.present? && outer_dim_arr.count == 2 && dim_type.outer_target == "frame"
   end
 
+  #item-specific (refactor ->pattern is dim_type-specific): display-specific -> presentor
   def plus_size
     if frame_size && frame_size > 1200
       "(#{join_dims(dim_set, " x ")[-1]})"
@@ -125,65 +143,13 @@ class Item < ApplicationRecord
     end
   end
 
+  #display-specific
   def article_list
     ["HC", "AP", "IP", "original", "etching", "animation", "embellished"]
   end
 
-  #string/position methods
-  def before_pos(str, sub_str)
-    str.index(/#{sub_str}/)
-  end
-
-  def after_pos(str, sub_str)
-    before_pos(str, sub_str) + sub_str.length if sub_str
-  end
-
-  def split_pos(str, sub_str)
-    [after_pos(str, sub_str) -1, after_pos(str, sub_str) + 1 ] if sub_str
-  end
-
-  def replace_pos(str, sub_str)
-    [before_pos(str, sub_str), after_pos(str, sub_str) - 1]
-  end
-
-  def pos_insert(str, idx, v)
-    str.insert(idx, v)
-  end
-
-  def split_insert(str, idx_arr, v)
-    [str[0..idx_arr[0]], str[idx_arr[1]..-1]].join(v)
-  end
-
-  def replace_insert(str, idx, v)
-    str = str.sub(/#{str[idx[0]..idx[1]]}/, "")
-    pos_insert(str, idx[0], v)
-  end
-  #=>[[12", 12", (frame)], [6", 6", (image)]]
-
-  ##array/position methods
-  def split_before_pos(arr, i)
-    arr.index(i) - 1
-  end
-
-  def split_after_pos(arr, i)
-    arr.index(i)
-  end
-
-  def take_pos(arr, i)
-    arr.take(arr.index(i) + 1)
-  end
-
-  def drop_pos(arr, i)
-    arr.drop(arr.index(i) + 1)
-  end
-
-  def a_replace_insert(arr, i, v)
-    idx = arr.index(i)
-    arr.fill(v, idx, 1)
-  end
-
   ###
-
+  #kill
   def format_type(obj)
     case
     when obj.class == String then obj
@@ -198,41 +164,44 @@ class Item < ApplicationRecord
   #   args.map {|arg| public_send("format_as_" + class_to_str(arg), arg)}
   # end
 
+  #tbd
   def format_as_string(str_arg)
     str_arg
   end
 
-  #:d
+  #ditto
   def format_as_symbol(sym_arg)
     public_send(sym_arg)
   end
 
-  #d
+  #ditto
   def format_as_array(arr_arg)
     public_send(arr_arg[0], *format_by_type(arr_arg.drop(1)))
   end
 
+  #ditto
   def format_as_hash(hsh_arg)
     h = public_send(hsh_arg.assoc("edition").drop(1)[0][0]) #wrinkle: make dynamic
     h = hsh_arg.assoc("edition").drop(1)[0] #wrinkle: make dynamic by passing some version of self.class.to_s/type.string/etc so any type may use this method
     public_send(h[0])[h[1]]
   end
 
+  #obj-methods -->group with above
   def class_to_str(obj)
     obj.class.to_s.downcase
   end
 
-  #works
+  #revisit
   def joined_type_values(type)
     type_to_m(type).category_names.map {|k| properties[k]}.compact.join(" ")
   end
 
-  #works
+  #obj-methods -->group with above -> but it's type-specific
   def type_to_m(type)
     public_send(type + "_type")
   end
 
-  #works but ugly
+  #tbd
   def insert_d(i, d)
     if i == :d
       d
@@ -243,10 +212,12 @@ class Item < ApplicationRecord
     end
   end
 
+  #description/item-specific --> presenter
   def format_by_type(args)
     args.map {|arg| public_send("format_as_" + class_to_str(arg), arg)}
   end
 
+  #ditto
   def fetch_rules(type)
     if joined_type_values(type) #type_description
       d = joined_type_values(type) #assign to var so we can update
@@ -261,16 +232,18 @@ class Item < ApplicationRecord
     end
   end
 
- #working but soon to be replaced edition methods
+ #ditto
   def article(target)
     article_list.any? {|word| word == target} ? " an " : " a "
   end
 
+  #kill
   def from_an_edition
     #article = article_list.any? {|word| word == properties["edition"]} ? "an" : "a"
     ["from", article(properties["edition"]), properties["edition"], "edition"].join(" ") #if properties["edition"].present?
   end
 
+  #kill
   def from_an_edition(d)
     idx = before_pos(d, properties["edition"])
     d = pos_insert(d, idx, " from ")
@@ -280,6 +253,7 @@ class Item < ApplicationRecord
     d = pos_insert(d, idx, " edition ")
   end
 
+  #kill
   def numbered
     [properties["edition"], properties["numbered"], "#{properties["number"]}/#{properties["size"]}"].join(" ") #if properties["numbered"].present? && properties["number"].present? && properties["size"].present?
   end
@@ -289,40 +263,49 @@ class Item < ApplicationRecord
   #   split_insert(d, idx, "/")
   # end
 
+  #kill
   def numbered_qty
     [properties["edition"], properties["numbered"]].join(" ") #if properties["numbered"].present? && properties["number"].blank? && properties["size"].blank?
   end
 
+  #kill
   def numbered_out_of
     [properties["edition"], properties["numbered"], "out of", properties["size"]].join(" ") #if properties["edition"].present? && properties["numbered"].present? && properties["size"].present?
   end
 
+  #kill-->incorporate into item/edition-specific presenter
   def not_numbered
     "This piece is not numbered." #if properties["unnumbered"].present? && properties["unnumbered"] == "not numbered"
   end
 
+  #kill-->taken over by type loop
   def edition_description
     [public_send(edition_type.dropdown.split(" ").join("_"))]
   end
 
-  ##
+  ###--------------->incorporate item-specific feeder loop
+  #kill-->(might need this)--covered by pos methods + type loop
   def substrate_kind
     item_type.substrates if item_type
   end
 
+  #refactor as part of loop and kill
   def before_substrate_pos(build)
     build.index(/#{Regexp.quote(substrate_kind)}/)
     #mount_type.context == "framed" ? 0 : build.index(/#{Regexp.quote(substrate_kind)}/) + substrate_kind.length
   end
 
+  #refactor as part of loop and kill
   def after_substrate_pos(build)
     before_substrate_pos(build) + substrate_kind.length
   end
 
+  #refactor as part of loop and kill
   def mounting_pos(build)
     mount_type.context == "framed" ? 0 : before_substrate_pos(build)
   end
 
+  #refactor as part of loop and kill
   def plus_size_pos(build)
     after_substrate_pos(build)
   end
@@ -332,11 +315,12 @@ class Item < ApplicationRecord
     mount_type.context == "framed" ? 0 : build.index(/#{Regexp.quote(substrate_kind)}/) + substrate_kind.length
   end
 
+  #refactor as part of loop and kill
   def substrate_value
     "on #{item_type.properties[substrate_kind]}" if substrate_kind == "paper"
   end
 
-  #build methods
+  #refactor as part of loop
   def build_mount
     mount_type.description
   end
@@ -367,13 +351,13 @@ class Item < ApplicationRecord
     tagline_list.map {|type| format_build(public_send("build_" + type)[0], type)}.compact.join(" ")
   end
 
-  #new
+  #refactor as part of loop
   def format_build(build, type)
     build = format_item(build) if type == "item"
     insert_punctuation(type, build)
   end
 
-  #new
+  #refactor as part of loop
   def format_item(build)
     ["mounting", "plus_size"].each do |m|
       build = insert_element(build, m) if public_send(m)
@@ -381,7 +365,7 @@ class Item < ApplicationRecord
     build.remove(*remove_values)
   end
 
-  #new
+  #kill
   def insert_element(build, m)
     build.insert(public_send(m + "_pos", build), " #{public_send(m)} ").strip
   end
@@ -390,13 +374,13 @@ class Item < ApplicationRecord
     mount_type.tagline_mounting if mount_type.present?
   end
 
-  #not sure how to make this dynamic
+  #refactor as part of loop
   def remove_values
     arr = ["giclee", "stretched"]
     arr + [/#{Regexp.quote(substrate_value)}/] if substrate_value
   end
 
-  #new
+  #refactor as part of loop
   def insert_punctuation(type, build)
     case
     when type == tagline_list[-1] then punct = "."
@@ -406,6 +390,8 @@ class Item < ApplicationRecord
     punct ? build.insert(build.length, punct) : build
   end
 
+  #combine with taglist somehow so we only perform single loop
+  #could build 2d-array and then reorder according to description list...or not
   def build_description
     description_list.map {|type| public_send("build_" + type) if valid_types.include?(type)}.reject {|i| i.nil?}
   end

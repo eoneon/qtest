@@ -1,5 +1,6 @@
 <%= form_for @item, :html => {:id => 'item_form'} do |f| %>
-<%#= @item.replace_insert(@item.test_str, @item.replace_pos(@item.test_str, "efg"), "456") %><br>
+<%= @item.before_pos(@item.test_str, "efg") %><br>
+<%= @item.valid_types %>
 <%= @item.fetch_rules("edition") %><br>
 <%= @item.build_tagline %>
   <%= render "items/hidden", f: f %>
