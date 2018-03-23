@@ -6,6 +6,16 @@ class Item < ApplicationRecord
   belongs_to :cert_type, optional: true
   belongs_to :dim_type, optional: true
 
+  def test_arr
+    [1,2,3,4,"a", "b", "c"]
+  end
+
+  def test_str
+    "abc efg hijklm"
+  end
+
+
+  ##end
   def to_method(k)
     public_send(k.remove("_id"))
   end
@@ -119,28 +129,60 @@ class Item < ApplicationRecord
     ["HC", "AP", "IP", "original", "etching", "animation", "embellished"]
   end
 
-  #edition methods
-  #position methods
-
-  def before_pos(d, target)
-    d.index(/#{target}/)
+  #string/position methods
+  def before_pos(str, sub_str)
+    str.index(/#{sub_str}/)
   end
 
-  def after_pos(d, target)
-    before_pos(d, target) + target.length if target
+  def after_pos(str, sub_str)
+    before_pos(str, sub_str) + sub_str.length if sub_str
   end
 
-  def pos_insert(d, idx, insert_value)
-    d.insert(idx, insert_value)
+  def split_pos(str, sub_str)
+    [after_pos(str, sub_str) -1, after_pos(str, sub_str) + 1 ] if sub_str
   end
 
-  def split_pos(d, target)
-    [ after_pos(d, target) -1, after_pos(d, target) + 1 ] if target
+  def replace_pos(str, sub_str)
+    [before_pos(str, sub_str), after_pos(str, sub_str) - 1]
   end
 
-  def split_insert(d, idx_arr, insert_value)
-    [ d[0..idx_arr[0] ], d[idx_arr[1]..-1]].join(insert_value)
+  def pos_insert(str, idx, v)
+    str.insert(idx, v)
   end
+
+  def split_insert(str, idx_arr, v)
+    [str[0..idx_arr[0]], str[idx_arr[1]..-1]].join(v)
+  end
+
+  def replace_insert(str, idx, v)
+    str = str.sub(/#{str[idx[0]..idx[1]]}/, "")
+    pos_insert(str, idx[0], v)
+  end
+  #=>[[12", 12", (frame)], [6", 6", (image)]]
+
+  ##array/position methods
+  def split_before_pos(arr, i)
+    arr.index(i) - 1
+  end
+
+  def split_after_pos(arr, i)
+    arr.index(i)
+  end
+
+  def take_pos(arr, i)
+    arr.take(arr.index(i) + 1)
+  end
+
+  def drop_pos(arr, i)
+    arr.drop(arr.index(i) + 1)
+  end
+
+  def a_replace_insert(arr, i, v)
+    idx = arr.index(i)
+    arr.fill(v, idx, 1)
+  end
+
+  ###
 
   def format_type(obj)
     case
@@ -205,10 +247,6 @@ class Item < ApplicationRecord
     args.map {|arg| public_send("format_as_" + class_to_str(arg), arg)}
   end
 
-  def test_hash
-    Hash["a", 100]
-  end
-
   def fetch_rules(type)
     if joined_type_values(type) #type_description
       d = joined_type_values(type) #assign to var so we can update
@@ -233,9 +271,23 @@ class Item < ApplicationRecord
     ["from", article(properties["edition"]), properties["edition"], "edition"].join(" ") #if properties["edition"].present?
   end
 
+  def from_an_edition(d)
+    idx = before_pos(d, properties["edition"])
+    d = pos_insert(d, idx, " from ")
+    idx = before_pos(d, properties["edition"])
+    d = pos_insert(d, idx, article(properties["edition"]))
+    idx = after_pos(d, properties["edition"])
+    d = pos_insert(d, idx, " edition ")
+  end
+
   def numbered
     [properties["edition"], properties["numbered"], "#{properties["number"]}/#{properties["size"]}"].join(" ") #if properties["numbered"].present? && properties["number"].present? && properties["size"].present?
   end
+
+  # def numbered(d)
+  #   idx = split_pos(d, properties["number"])
+  #   split_insert(d, idx, "/")
+  # end
 
   def numbered_qty
     [properties["edition"], properties["numbered"]].join(" ") #if properties["numbered"].present? && properties["number"].blank? && properties["size"].blank?

@@ -27,7 +27,7 @@ class DimType < ApplicationRecord
   end
 
   def grouped_2d_dims
-    [inner_dims, outer_dims].keep_if {|arr| arr.present?}
+    [inner_dims, outer_dims].keep_if {|arr| arr.present?} #[inner_dims, outer_dims]
   end
 
   def grouped_3d_dims
@@ -44,7 +44,7 @@ class DimType < ApplicationRecord
   end
 
   def dim_targets
-    name.split("_")
+    name.split("_") #eg: [frame, image] [innerwidth, innerheight, outerwidth, outerheight]
   end
 
   def outer_target
@@ -56,12 +56,17 @@ class DimType < ApplicationRecord
   end
 
   def two_d_targets
-    [outer_target, inner_target].compact
+    [outer_target, inner_target].compact #[frame, image]
   end
 
   def three_d_targets
     dim_targets if name == category.name # [width, height, ...]
   end
+
+  #new
+  # def insert_targets
+  #   two_d_targets.present? ? [inner_target[-1], outer_target[-1]]
+  # end
 
   def weight_index
     if three_d_targets.present? && three_d_targets.index("weight")
