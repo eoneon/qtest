@@ -1,5 +1,6 @@
 <%= form_for parent do |f| %>
-  <%= parent.category_names %>
+<%#= ["dog"].join(" x ") %>
+  <%= parent.format_dim_target_set %>
   <%= f.hidden_field :category_id %>
   <div class="field">
     <%= f.label :kind %><br>
