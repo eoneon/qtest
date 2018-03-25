@@ -86,17 +86,23 @@ class DimType < ApplicationRecord
   #=>[[["innerwidth", "innerheight"], "(frame)"], [["outerwidth", "outerheight"], "(image)"]]
 
   #values are normalized up to this point.
-  def format_dim_target_set
+  def format_dim_items
     dim_target_set.map {|set| format_set(set)}
   end
+
   #we want to treat this differently, which is being done because of the behavior of the a single vs double array
   def format_set(set)
-    #set = set.take(1).join(" x ") + " " + set.drop(1).join
-    dims = set.take(1).join(" x ")
-    targets = set.drop(1).join unless set[0] == "(weight)"
-    set.drop(1) unless set[0] == "weight"
-    target = set[0] == ["weight"] ? set : set.drop(1).join
-    "#{dims} #{target}"
+    set.take(1).join(" x ") + " " + set.drop(1).join
+  end
+
+  def format_dims
+    if pat_pos(format_dim_items, "weight")
+      idx = pat_pos(format_dim_items, "weight")
+      d = [format_dim_items.take(idx).join(" x "), format_dim_items.drop(idx).flatten].join("; ")
+    else
+      d = format_dim_items.join(", ")
+    end
+    "Measures approx. #{d}."
   end
 
   def dropdown

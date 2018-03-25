@@ -8,14 +8,6 @@ class Item < ApplicationRecord
   belongs_to :cert_type, optional: true
   belongs_to :dim_type, optional: true
 
-  def test_arr
-    [1,2,3,4,"a", "b", "c"]
-  end
-
-  def test_str
-    "abc efg hijklm"
-  end
-
   ##move: concern
   def to_method(k)
     public_send(k.remove("_id"))

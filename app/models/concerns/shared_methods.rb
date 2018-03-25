@@ -3,6 +3,14 @@ require 'active_support/concern'
 module SharedMethods
   extend ActiveSupport::Concern
 
+  def test_arr
+    ["tyu","345","a", "bz", "c"]
+  end
+
+  def test_str
+    "abc efg hijklm"
+  end
+
   #orgnizational filter
   def category_names
     category.name.split("_")
@@ -56,6 +64,28 @@ module SharedMethods
 
   def drop_pos(arr, i)
     arr.drop(arr.index(i) + 1)
+  end
+
+  def pat_pos(arr, pat)
+    arr.index{|i| i.include?(pat)}
+  end
+
+  ###
+
+  def get_until_i(arr, i)
+    arr[0..arr.index(i) - 1]
+  end
+
+  def get_thru_i(arr, i)
+    arr[0..arr.index(i)]
+  end
+
+  def get_after_i(arr, i)
+    arr[arr.index(i) + 1..-1]
+  end
+
+  def get_from_i(arr, i)
+    arr[arr.index(i)..-1]
   end
 
   #arr insert methods
