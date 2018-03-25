@@ -106,6 +106,16 @@ class Item < ApplicationRecord
     #join_dims(d, delim) #wont work here because of different levels?
   end
 
+  #replace branching_dim
+  def build_dimensions
+    d = dim_type.format_dimensions if dim_type
+    dim_type.required_fields.each do |f|
+      idx = replace_pos(d,f)
+      d = replace_insert(d, idx, format_metric(f)) 
+    end
+    d
+  end
+
   #kill
   def inner_dim_arr
     dim_type.inner_dims.map {|d| properties[d]} if dim_type && dim_type.inner_dims

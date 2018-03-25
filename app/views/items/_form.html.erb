@@ -1,8 +1,8 @@
 <%= form_for @item, :html => {:id => 'item_form'} do |f| %>
-<%= @item.before_pos(@item.test_str, "efg") %><br>
-<%= @item.get_from(@item.test_arr, 4) %>
+<%#= @item.before_pos(@item.test_str, "efg") %><br>
+<%= @item.build_dimensions %>
 <%#= @item.fetch_rules("edition") %><br>
-<%= @item.build_tagline %>
+<%#= @item.build_tagline %>
   <%= render "items/hidden", f: f %>
   <script type="text/javascript">
     function submitform(){

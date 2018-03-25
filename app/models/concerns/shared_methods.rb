@@ -29,7 +29,6 @@ module SharedMethods
     [after_pos(str, sub_str) -1, after_pos(str, sub_str) + 1 ] if sub_str
   end
 
-
   def replace_pos(str, sub_str)
     [before_pos(str, sub_str), after_pos(str, sub_str) - 1]
   end

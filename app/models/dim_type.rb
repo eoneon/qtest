@@ -95,7 +95,7 @@ class DimType < ApplicationRecord
     set.take(1).join(" x ") + " " + set.drop(1).join
   end
 
-  def format_dims
+  def format_dimensions
     if pat_pos(format_dim_items, "weight")
       idx = pat_pos(format_dim_items, "weight")
       d = [format_dim_items.take(idx).join(" x "), format_dim_items.drop(idx).flatten].join("; ")
