@@ -28,15 +28,15 @@ class EditionType < ApplicationRecord
     #refactor Hash rules
     [
       ["numbered",
-        [[:split_insert, :d, [:split_pos, :d, h = {"edition" => ["properties", "number"]}], "/"] ] #rule
+        [[:insert_join, :d, [:idx_range_between_split, :d, h = {"edition" => ["properties", "number"]}], "/"] ] #rule
       ],
       ["from_an_edition",
-        [[:pos_insert, :d, [:before_pos, :d, h = {"edition" => ["properties", "edition"]}], " from "]], #rule[0]
-        [[:pos_insert, :d, [:before_pos, :d, h = {"edition" => ["properties", "edition"]}], [ :article, h = {"edition" => ["properties", "edition"]}]]], #rule[1]
-        [[:pos_insert, :d, [:after_pos, :d, h = {"edition" => ["properties", "edition"]}], " edition "]] #rule[2]
+        [[:insert_pat_at_idx, :d, [:idx_before_pat, :d, h = {"edition" => ["properties", "edition"]}], " from "]], #rule[0]
+        [[:insert_pat_at_idx, :d, [:idx_before_pat, :d, h = {"edition" => ["properties", "edition"]}], [ :article, h = {"edition" => ["properties", "edition"]}]]], #rule[1]
+        [[:insert_pat_at_idx, :d, [:idx_after_pat, :d, h = {"edition" => ["properties", "edition"]}], " edition "]] #rule[2]
       ],
       ["numbered_out_of",
-        [[:pos_insert, :d, [:after_pos, :d, h = {"edition" => ["properties", "numbered"]}], " out of "]] #rule
+        [[:insert_pat_at_idx, :d, [:idx_after_pat, :d, h = {"edition" => ["properties", "numbered"]}], " out of "]] #rule
       ]
     ]
   end

@@ -107,11 +107,11 @@ class Item < ApplicationRecord
   end
 
   #replace branching_dim
-  def build_dimensions
+  def my_dimensions
     d = dim_type.format_dimensions if dim_type
     dim_type.required_fields.each do |f|
       idx = replace_pos(d,f)
-      d = replace_insert(d, idx, format_metric(f)) 
+      d = replace_pat(d, idx, format_metric(f))
     end
     d
   end
@@ -247,12 +247,12 @@ class Item < ApplicationRecord
 
   #kill
   def from_an_edition(d)
-    idx = before_pos(d, properties["edition"])
-    d = pos_insert(d, idx, " from ")
-    idx = before_pos(d, properties["edition"])
-    d = pos_insert(d, idx, article(properties["edition"]))
-    idx = after_pos(d, properties["edition"])
-    d = pos_insert(d, idx, " edition ")
+    idx = idx_before_pat(d, properties["edition"])
+    d = insert_pat_at_idx(d, idx, " from ")
+    idx = idx_before_pat(d, properties["edition"])
+    d = insert_pat_at_idx(d, idx, article(properties["edition"]))
+    idx = idx_after_pat(d, properties["edition"])
+    d = insert_pat_at_idx(d, idx, " edition ")
   end
 
   #kill
@@ -261,8 +261,8 @@ class Item < ApplicationRecord
   end
 
   # def numbered(d)
-  #   idx = split_pos(d, properties["number"])
-  #   split_insert(d, idx, "/")
+  #   idx = idx_range_between_split(d, properties["number"])
+  #   insert_join(d, idx, "/")
   # end
 
   #kill
