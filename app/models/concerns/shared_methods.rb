@@ -28,7 +28,7 @@ module SharedMethods
     [idx_after_pat(str, pat) -1, idx_after_pat(str, pat) + 1 ] if pat
   end
 
-  def idx_range_for_split(str, pat)
+  def idx_range_of_pat(str, pat)
     [idx_before_pat(str, pat), idx_after_pat(str, pat) - 1]
   end
 
@@ -60,7 +60,12 @@ module SharedMethods
     insert_pat_at_idx(str, idx[0], v)
   end
 
-  #Extract array items using item index
+  def replace_insert(str, pat, v)
+    idx_arr = idx_range_of_pat(str, pat)
+    replace_pat(str, idx_arr, v)
+  end
+
+  #extract array items using item index
   def take_with_i(arr, i)
     arr[0..arr.index(i)]
   end

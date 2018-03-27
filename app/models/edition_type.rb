@@ -1,4 +1,6 @@
 class EditionType < ApplicationRecord
+  include SharedMethods
+
   belongs_to :category
   has_many :items
 
@@ -10,20 +12,30 @@ class EditionType < ApplicationRecord
     category_names.count == 1 ? category_names : category_names - ["edition"]
   end
 
-  def dropdown
+  def context
     case
-    when category_names.count == 4 then "numbered"
-    when category_names.count == 3 then "numbered out of"
-    when category_names.count == 2 then "numbered qty"
-    when category_names == ["edition"] then "from an edition"
-    when category_names == ["unnumbered"] then "not numbered"
+    when category.name == "edition_numbered_number_size" then ["numbered", "edition numbered number/size"]
+    when category.name == "edition_numbered_size" then ["numbered out of", "edition numbered out of size"]
+    when category.name == "edition_numbered" then ["numbered qty", "edition_numbered"]
+    when category.name == "edition" then ["from an edition", "from an edition edition"]
+    when category.name == "unnumbered" then ["not numbered", "This piece is not numbered."]
     end
   end
 
+  def dropdown
+    context[0]
+  end
+
+  def format_edition
+    context[-1]
+  end
+
+  #kill
   def rule_names
     dropdown.gsub(/ /, "_")
   end
 
+  #kill
   def rule_set
     #refactor Hash rules
     [
