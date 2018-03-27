@@ -1,4 +1,7 @@
 <%= form_for parent do |f| %>
+  <p><%= @item_type.valid_keys %></p>
+  <p><%= @item_type.valid_keys_ordered %></p>
+  <p><%= @item_type.description %></p>
   <%= f.hidden_field :category_id %>
   <div class="field">
     <%= f.label :kind %><br>

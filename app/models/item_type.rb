@@ -1,5 +1,6 @@
 class ItemType < ApplicationRecord
   include Importable
+  include SharedMethods
 
   belongs_to :category
   has_many :items
@@ -23,9 +24,9 @@ class ItemType < ApplicationRecord
   #scope :flat_items, -> {where_any_of("properties ? :key OR properties ? :key", key: "paper", key: "canvas")}
   #scope :flat_items, -> {canvas_items.or.paper_items}
 
-  def category_names
-    category.name.split("_")
-  end
+  # def category_names
+  #   category.name.split("_")
+  # end
 
   def self.flat_items
     canvas_items + paper_items + panel_items + sericel_items
@@ -35,6 +36,18 @@ class ItemType < ApplicationRecord
     printed_items + animation_items + photo_items + etching_items
   end
 
+  #new: keep properties keys if value present
+  def valid_keys
+    properties.keep_if {|k,v| v.present?}.keys if properties
+  end
+  #=>["mixed", "panel", "original"]
+
+  #reorder keys and set properties values
+  def valid_keys_ordered
+    category_names.map {|k| k if valid_keys.include?(k)}.compact
+  end
+  #=> ["original", "monprint", "panel"]
+
   def art_type
     case
     when category_names.any? {|name| name == "original"} then "original"
@@ -43,41 +56,31 @@ class ItemType < ApplicationRecord
   end
 
   def substrates
-    substrate = category_names & FieldValue.all_substrate.pluck(:name)
-    substrate.join("")
+    %w(canvas paper sericel panel)
   end
 
-  def medium2
-    [properties["leafing"], properties["remarque"]].reject {|m| m.blank?}.count
-  end
-
-  def format_values(name)
+  def format_values(k)
     case
-    when name == substrates then "on #{properties[name]}"
-    when name == "painting" &&  properties[name] != "painting" then "#{properties[name]} painting"
-    when medium2 == 2 && name == "leafing" then "with #{properties[name]}"
-    when medium2 == 2 && name == "remarque" then "and #{properties[name]}"
-    when medium2 == 1 && name == "remarque" || name == "leafing" then "with #{properties[name]}"
-    else properties[name]
+    when substrates.include?(k) then "on #{properties[k]}"
+    when k == "painting" && properties[k] != "painting" then "#{properties[k]} painting"
+    when k == "leafing" then "with #{properties[k]}"
+    when k == "remarque" && category_names.include?("leafing") then "and #{properties[k]}"
+    when k == "remarque" && category_names.exclude?("leafing") then "with #{properties[k]}"
+    else properties[k]
     end
+  end
+
+  def properties_loop
+    medium = []
+    valid_keys_ordered.each do |k|
+      medium << format_values(k)
+    end
+    [medium.join(" ")]
   end
 
   def description
-    if properties?
-      medium = []
-      names = category_names.map {|name| name if properties[name].present?}.reject {|i| i.nil?}
-      names.each do |name|
-        format_values(name)
-        medium << format_values(name)
-      end
-      [medium.join(" ")]
-    end
+    properties_loop if properties?
   end
-
-  # def canvas_pos
-  #   if properties && properties[substrates] == "canvas"
-  #   end
-  # end
 
   def dropdown
     description[0]

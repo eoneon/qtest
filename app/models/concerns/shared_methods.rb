@@ -3,13 +3,31 @@ require 'active_support/concern'
 module SharedMethods
   extend ActiveSupport::Concern
 
-  def test_arr
-    ["tyu","345","a", "bz", "c"]
+  def test_arr1
+    ["abc","efg","123"]
+  end
+
+  def test_arr2
+    ["abc","efg"]
   end
 
   def test_str
     "abc efg hijklm"
   end
+
+  #do something if item in first array matches item in second array
+  def do_if_i_in_arr2(arr, arr2)
+    arr.any? {|i| arr2.include?(i)}
+  end
+
+  # def do_i(i)
+  #   puts(i)
+  # end
+
+  #do something if all items in first array present in second array
+  # def do_if_all_i_in_arr2(arr, arr2, do_i(&i))
+  #   arr.all? {|i| puts_i(i) if arr2.include?(i)}
+  # end
 
   def category_names
     category.name.split("_")
