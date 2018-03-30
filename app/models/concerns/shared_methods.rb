@@ -42,13 +42,62 @@ module SharedMethods
     idx_before_pat(str, pat) + pat.length if pat
   end
 
+  def idx_range_of_pat(str, pat)
+    [idx_before_pat(str, pat), idx_after_pat(str, pat) - 1]
+  end
+
   def idx_range_between_split(str, pat)
     [idx_after_pat(str, pat) -1, idx_after_pat(str, pat) + 1 ] if pat
   end
 
-  def idx_range_of_pat(str, pat)
-    [idx_before_pat(str, pat), idx_after_pat(str, pat) - 1]
+  #insert pattern into string at index
+  def insert_pat_at_idx(str, idx, v)
+    str.insert(idx, v)
   end
+
+  def insert_join(str, idx_arr, v)
+    [str[0..idx_arr[0]], str[idx_arr[1]..-1]].join(v)
+  end
+
+  #new:
+  def remove_idx_range(str, idx_range)
+    str.sub(/#{str[idx_range[0]..idx_range[1]]}/, "")
+  end
+
+  #new: integrated insert methods
+  def insert_before(str, pat, v)
+    idx = idx_before_pat(str, pat)
+    insert_pat_at_idx(str, idx, v)
+  end
+
+  def insert_after(str, pat, v)
+    idx = idx_before_pat(str, pat) + pat.length
+    insert_pat_at_idx(str, idx, v)
+  end
+
+  def insert_replace(str, pat, v)
+    idx_arr = idx_range_of_pat(str, pat)
+    str = remove_idx_range(str, idx_arr)
+    insert_pat_at_idx(str, idx_arr[0], v)
+  end
+
+  #consolidated insert method
+  #pos: before, replace, after
+  def insert_rel_to_pat(pos:, str:, pat:, v:)
+    public_send("insert_" + pos, str, pat, v)
+  end
+
+  #replace pattern in string
+  def replace_pat(str, idx, v)
+    str = str.sub(/#{str[idx[0]..idx[1]]}/, "")
+    insert_pat_at_idx(str, idx[0], v)
+  end
+
+  def replace_insert(str, pat, v)
+    idx_arr = idx_range_of_pat(str, pat)
+    replace_pat(str, idx_arr, v)
+  end
+
 
   #get index in array relative to item index
   def idx_before_i(arr, i)
@@ -63,25 +112,6 @@ module SharedMethods
     arr.index{|i| i.include?(pat)}
   end
 
-  #insert pattern into string at index
-  def insert_pat_at_idx(str, idx, v)
-    str.insert(idx, v)
-  end
-
-  def insert_join(str, idx_arr, v)
-    [str[0..idx_arr[0]], str[idx_arr[1]..-1]].join(v)
-  end
-
-  #replace pattern in string
-  def replace_pat(str, idx, v)
-    str = str.sub(/#{str[idx[0]..idx[1]]}/, "")
-    insert_pat_at_idx(str, idx[0], v)
-  end
-
-  def replace_insert(str, pat, v)
-    idx_arr = idx_range_of_pat(str, pat)
-    replace_pat(str, idx_arr, v)
-  end
 
   #extract array items using item index
   def take_with_i(arr, i)

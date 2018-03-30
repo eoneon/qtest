@@ -1,7 +1,7 @@
 <%= form_for parent do |f| %>
-  <%#= parent.get_from_idx(parent.test_arr, 2) %>
+  <%= parent.xl_dims %>
   <%#= parent.format_dim_target_set.keep_if {|i| i.index(/weight/)} %>
-  <%= parent.format_dims %>
+  <%#= parent.format_dims %>
   <%= f.hidden_field :category_id %>
   <div class="field">
     <%= f.label :kind %><br>

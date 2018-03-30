@@ -4,9 +4,9 @@ class EditionType < ApplicationRecord
   belongs_to :category
   has_many :items
 
-  def category_names
-    category.name.split("_")
-  end
+  # def category_names
+  #   category.name.split("_")
+  # end
 
   def required_fields
     category_names.count == 1 ? category_names : category_names - ["edition"]
@@ -26,7 +26,7 @@ class EditionType < ApplicationRecord
     context[0]
   end
 
-  def format_edition
+  def stub
     context[-1]
   end
 

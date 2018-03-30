@@ -1,5 +1,5 @@
 <%= form_for @item, :html => {:id => 'item_form'} do |f| %>
-<%= @item.replace_insert(@item.test_str, "efg", "dog") %><br>
+<%= @item.valid_properties_keys %><br>
 <%#= @item.my_dimensions %>
 <%#= @item.fetch_rules("edition") %><br>
 <%= @item.build_tagline %>

@@ -14,7 +14,7 @@ class Item < ApplicationRecord
   end
 
   ##move: concern
-  def to_clause(k)
+  def to_type(k)
     k[-8..-1] == "_type_id" ? k.remove("_type_id") : k.remove("_id")
   end
 
@@ -29,13 +29,13 @@ class Item < ApplicationRecord
     if k == "edition_type_id" || k == "dim_type_id"
       validate_properties_types(k)
     elsif to_method(k) && to_method(k).properties.present? #to_method neccessary?
-      to_clause(k)
+      to_type(k)
     end
   end
 
   #ditto
   def validate_properties_types(k)
-    to_clause(k) if to_method(k).required_fields.keep_if {|field| valid_properties_keys.include?(field)} == to_method(k).required_fields
+    to_type(k) if to_method(k).required_fields.keep_if {|field| valid_properties_keys.include?(field)} == to_method(k).required_fields
   end
 
   #ditto
@@ -116,12 +116,12 @@ class Item < ApplicationRecord
     d
   end
 
-  #kill
+  #keep?
   def inner_dim_arr
     dim_type.inner_dims.map {|d| properties[d]} if dim_type && dim_type.inner_dims
   end
 
-  #kill
+  #keep?
   def outer_dim_arr
     dim_type.outer_dims.map {|d| properties[d]} if dim_type && dim_type.outer_dims
   end
@@ -297,17 +297,17 @@ class Item < ApplicationRecord
     #mount_type.context == "framed" ? 0 : build.index(/#{Regexp.quote(substrate_kind)}/) + substrate_kind.length
   end
 
-  #refactor as part of loop and kill
+  #kill
   def after_substrate_pos(build)
     before_substrate_pos(build) + substrate_kind.length
   end
 
-  #refactor as part of loop and kill
+  #kill
   def mounting_pos(build)
     mount_type.context == "framed" ? 0 : before_substrate_pos(build)
   end
 
-  #refactor as part of loop and kill
+  #kill
   def plus_size_pos(build)
     after_substrate_pos(build)
   end
@@ -322,23 +322,23 @@ class Item < ApplicationRecord
     "on #{item_type.properties[substrate_kind]}" if substrate_kind == "paper"
   end
 
-  #refactor as part of loop
+  #kill
   def build_mount
     mount_type.description
   end
-
+  #kill
   def build_item
     item_type.description
   end
-
+  #kill
   def build_edition
     edition_description
   end
-
+  #kill
   def build_sign
     sign_type.description
   end
-
+  #kill
   def build_cert
     cert_type.description
   end

@@ -36,6 +36,13 @@ class ItemType < ApplicationRecord
     printed_items + animation_items + photo_items + etching_items
   end
 
+  def art_type
+    case
+    when category_names.any? {|name| name == "original"} then "original"
+    when category_names.any? {|name| name == "limited"} then "limited"
+    end
+  end
+
   #new: keep properties keys if value present
   def valid_keys
     properties.keep_if {|k,v| v.present?}.keys if properties
@@ -47,13 +54,6 @@ class ItemType < ApplicationRecord
     category_names.map {|k| k if valid_keys.include?(k)}.compact
   end
   #=> ["original", "monprint", "panel"]
-
-  def art_type
-    case
-    when category_names.any? {|name| name == "original"} then "original"
-    when category_names.any? {|name| name == "limited"} then "limited"
-    end
-  end
 
   def substrates
     %w(canvas paper sericel panel)
@@ -79,6 +79,10 @@ class ItemType < ApplicationRecord
   end
 
   def description
+    properties_loop if properties?
+  end
+
+  def stub
     properties_loop if properties?
   end
 

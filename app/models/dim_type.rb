@@ -42,6 +42,18 @@ class DimType < ApplicationRecord
     grouped_2d_dims.present? ? grouped_2d_dims : grouped_3d_dims
   end
 
+  def frame_dims
+    outer_dims if outer_target == "frame"
+  end
+
+  # def image_dims
+  #   inner_dims if inner_target == "image"
+  # end
+
+  def xl_dims
+    frame_dims ? "(#{frame_dims.join(" x ")})" : "(#{inner_dims.join(" x ")})"
+  end
+
   #target methods
   def dim_targets
     name.split("_") #eg: [frame, image] [innerwidth, innerheight, outerwidth, outerheight]
