@@ -8,6 +8,14 @@ class Item < ApplicationRecord
   belongs_to :cert_type, optional: true
   belongs_to :dim_type, optional: true
 
+  def test_method
+    args = mount_type.h_args
+    args[:str] = item_type.properties_loop[0]
+    args
+    #str = item_type.properties_loop[0]
+    #insert_rel_to_pat(test_method)
+  end
+
   ##move: concern
   def to_method(k)
     public_send(k.remove("_id"))
@@ -288,8 +296,11 @@ class Item < ApplicationRecord
   ###--------------->incorporate item-specific feeder loop
   #kill-->(might need this)--covered by pos methods + type loop
   def substrate_kind
-    item_type.substrates if item_type
+    #item_type.substrates if item_type
+    item_type.substrate_key if item_type
   end
+
+
 
   #refactor as part of loop and kill
   def before_substrate_pos(build)
@@ -376,7 +387,7 @@ class Item < ApplicationRecord
     mount_type.tagline_mounting if mount_type.present?
   end
 
-  #refactor as part of loop
+  #kill: replaced...
   def remove_values
     arr = ["giclee", "stretched"]
     arr + [/#{Regexp.quote(substrate_value)}/] if substrate_value

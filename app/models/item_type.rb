@@ -59,6 +59,11 @@ class ItemType < ApplicationRecord
     %w(canvas paper sericel panel)
   end
 
+  def substrate_key
+    arr = category_names & substrates
+    arr[0]
+  end
+
   def format_values(k)
     case
     when substrates.include?(k) then "on #{properties[k]}"

@@ -1,7 +1,7 @@
 <%= form_for @item, :html => {:id => 'item_form'} do |f| %>
-<%= @item.valid_properties_keys %><br>
-<%#= @item.my_dimensions %>
-<%#= @item.fetch_rules("edition") %><br>
+<%#= @item.valid_properties_keys %><br>
+<%= @item.item_type.properties_loop[0] %><br>
+<%= @item.insert_rel_to_pat(@item.test_method) %><br>
 <%= @item.build_tagline %>
   <%= render "items/hidden", f: f %>
   <script type="text/javascript">
