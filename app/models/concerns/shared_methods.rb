@@ -15,6 +15,10 @@ module SharedMethods
     "abc efg hijklm"
   end
 
+  def test_hash
+    dog = {fuji: "love", denali: "sugar"}
+  end
+
   #do something if item in first array matches item in second array
   def do_if_i_in_arr2(arr, arr2)
     arr.any? {|i| arr2.include?(i)}
@@ -39,7 +43,7 @@ module SharedMethods
   end
 
   def idx_after_pat(str, pat)
-    idx_before_pat(str, pat) + pat.length if pat
+    idx_before_pat(str, pat) + pat.length if pat.present?
   end
 
   def idx_range_of_pat(str, pat)
@@ -47,7 +51,7 @@ module SharedMethods
   end
 
   def idx_range_between_split(str, pat)
-    [idx_after_pat(str, pat) -1, idx_after_pat(str, pat) + 1 ] if pat
+    [idx_after_pat(str, pat) -1, idx_after_pat(str, pat) + 1 ] if pat && str
   end
 
   #insert pattern into string at index
@@ -65,17 +69,27 @@ module SharedMethods
   end
 
   #new: integrated insert methods
-  def insert_before(str, pat, v)
+  def pad(pos, v)
+    if pos == "before"
+      "#{v} "
+    elsif pos == "after"
+      " #{v}"
+    end
+  end
+
+  def insert_before(str, pat, v, ws)
     idx = idx_before_pat(str, pat)
+    v = pad("before", v) if ws == 1
     insert_pat_at_idx(str, idx, v)
   end
 
-  def insert_after(str, pat, v)
+  def insert_after(str, pat, v, ws)
     idx = idx_before_pat(str, pat) + pat.length
+    v = pad("after", v) if ws == 1
     insert_pat_at_idx(str, idx, v)
   end
 
-  def insert_replace(str, pat, v)
+  def insert_replace(str, pat, v, ws)
     idx_arr = idx_range_of_pat(str, pat)
     str = remove_idx_range(str, idx_arr)
     insert_pat_at_idx(str, idx_arr[0], v)
@@ -83,8 +97,8 @@ module SharedMethods
 
   #consolidated insert method
   #pos: before, replace, after
-  def insert_rel_to_pat(pos:, str:, pat:, v:)
-    public_send("insert_" + pos, str, pat, v)
+  def insert_rel_to_pat(pos:, str:, pat:, v:, ws:)
+    public_send("insert_" + pos, str, pat, v, ws)
   end
 
   #replace pattern in string
@@ -98,7 +112,6 @@ module SharedMethods
     replace_pat(str, idx_arr, v)
   end
 
-
   #get index in array relative to item index
   def idx_before_i(arr, i)
     arr.index(i) - 1
@@ -111,7 +124,6 @@ module SharedMethods
   def idx_of_i_with_pat(arr, pat)
     arr.index{|i| i.include?(pat)}
   end
-
 
   #extract array items using item index
   def take_with_i(arr, i)

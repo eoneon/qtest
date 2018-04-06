@@ -16,42 +16,93 @@ class Item < ApplicationRecord
     #insert_rel_to_pat(test_method)
   end
 
-  ##move: concern
-  def to_method(k)
+  #eg: "Hello" -> String -> "String" -> "string" *unused utility meth
+  def class_to_str(obj)
+    obj.class.to_s.downcase
+  end
+
+  #eg: "dim_type_id" -> :dim_type
+  def fk_to_meth(k)
     public_send(k.remove("_id"))
   end
 
-  ##move: concern
+  #eg: "dim" -> :dim_type
+  def type_to_meth(type)
+    public_send(type + "_type")
+  end
+
+  #eg: "dim_type_id" -> "dim"
   def to_type(k)
     k[-8..-1] == "_type_id" ? k.remove("_type_id") : k.remove("_id")
   end
 
-  ##move: concern - validate_types
-  #valid_type_assocs
-  def valid_types
-    attribute_names.map {|k| validate_types(k) if k.index(/_type_id/) && public_send(k).present?}.compact
+  #eg: dependency of validate_properties_required
+  def valid_properties_required_keys
+    properties.keep_if {|k,v| v.present?}.keys if properties
   end
 
-  #ditto
-  def validate_types(k)
-    if k == "edition_type_id" || k == "dim_type_id"
-      validate_properties_types(k)
-    elsif to_method(k) && to_method(k).properties.present? #to_method neccessary?
+  #eg: dependency of validate_types
+  def validate_properties_required(k)
+    to_type(k) if fk_to_meth(k).required_fields.keep_if {|field| valid_properties_required_keys.include?(field)} == fk_to_meth(k).required_fields
+  end
+
+  #eg: dependency of valid_types ->validate_properties
+  def validate_properties(k)
+    #if k == "edition_type_id" || k == "dim_type_id" #add remote_properties list #=> ["edition_type_id", "dim_type_id"].include?(k)
+    if %w(edition_type_id dim_type_id).include?(k)
+      validate_properties_required(k)
+    elsif fk_to_meth(k).properties.present?
       to_type(k)
     end
   end
 
-  #ditto
-  def validate_properties_types(k)
-    to_type(k) if to_method(k).required_fields.keep_if {|field| valid_properties_keys.include?(field)} == to_method(k).required_fields
+  #eg: (assoc_typs) %w(sku retail item_type_id edition_type_id sign mount_type_id cert_type_id) #=> %w(item edition sign) *unordered list of assoc-typs
+  def valid_types
+    attribute_names.map {|k| validate_properties(k) if k.index(/_type_id/) && public_send(k).present?}.compact
   end
 
-  #ditto
-  def valid_properties_keys
-    properties.keep_if {|k,v| v.present?}.keys if properties
+  #ver_lists
+  def tag_list
+    %w(item edition sign cert) & valid_types
   end
 
-  #move to description concern -> dependencies with validation
+  def inv_list
+    %w(item edition sign cert mount) & valid_types
+  end
+
+  def body_list
+    %w(item edition sign mount cert) & valid_types
+  end
+
+  def item_list
+    %w(mount dim) & valid_types #valid_items
+  end
+
+  # DESCRIPTION METHOCDS
+  def mount_args(d, args)
+    args[:str] = d
+    args[:v] == "framed" ? args[:pat] = d : args
+  end
+
+  def insert_mount(d, ver)
+    args = mount_type.typ_ver_args(ver)
+    insert_rel_to_pat(mount_args(d, args)) if args.is_a? Hash
+    #args = mount_type.typ_ver_args(ver)
+  end
+
+  def format_item(ver)
+    d = item_type.typ_ver_args(ver)
+    d = insert_mount(d, ver)
+    #d = insert_dim(d, ver) if xl_dims
+  end
+
+  def build_descrp(ver) #"tag", "inv", "body"
+    public_send(ver + "_list").map {|typ| public_send("format_" + typ, ver)}
+  end
+
+  ###############################################
+
+  #kill
   def tagline_list
     %w(item edition sign cert) & valid_types
   end
@@ -61,9 +112,7 @@ class Item < ApplicationRecord
     %w(item edition sign cert dim) & valid_types
   end
 
-  ###------->dim_type-specific methods
 
-  #move -> group with dimension-specific description methods
   #kill: already handled inside dim_type.rb #=>["outerwidth", "outerheight", "innerwidth", "innerheight"]
   def dim_set
     dim_type.dimensions.map {|d| format_dims(d)}
@@ -196,19 +245,9 @@ class Item < ApplicationRecord
     public_send(h[0])[h[1]]
   end
 
-  #obj-methods -->group with above
-  def class_to_str(obj)
-    obj.class.to_s.downcase
-  end
-
   #revisit
   def joined_type_values(type)
-    type_to_m(type).category_names.map {|k| properties[k]}.compact.join(" ")
-  end
-
-  #obj-methods -->group with above -> but it's type-specific
-  def type_to_m(type)
-    public_send(type + "_type")
+    type_to_meth(type).category_names.map {|k| properties[k]}.compact.join(" ")
   end
 
   #tbd
@@ -231,8 +270,8 @@ class Item < ApplicationRecord
   def fetch_rules(type)
     if joined_type_values(type) #type_description
       d = joined_type_values(type) #assign to var so we can update
-      if type_to_m(type).rule_set.assoc(type_to_m(type).rule_names)
-        rules = type_to_m(type).rule_set.assoc(type_to_m(type).rule_names).drop(1)
+      if type_to_meth(type).rule_set.assoc(type_to_meth(type).rule_names)
+        rules = type_to_meth(type).rule_set.assoc(type_to_meth(type).rule_names).drop(1)
         rules.each do |rule|
           d = [rule[0].map {|i| insert_d(i, d)}]
           d = format_by_type(d).join(" ")
@@ -299,8 +338,6 @@ class Item < ApplicationRecord
     #item_type.substrates if item_type
     item_type.substrate_key if item_type
   end
-
-
 
   #refactor as part of loop and kill
   def before_substrate_pos(build)
@@ -371,12 +408,12 @@ class Item < ApplicationRecord
   end
 
   #refactor as part of loop
-  def format_item(build)
-    ["mounting", "plus_size"].each do |m|
-      build = insert_element(build, m) if public_send(m)
-    end
-    build.remove(*remove_values)
-  end
+  # def format_item(build)
+  #   ["mounting", "plus_size"].each do |m|
+  #     build = insert_element(build, m) if public_send(m)
+  #   end
+  #   build.remove(*remove_values)
+  # end
 
   #kill
   def insert_element(build, m)

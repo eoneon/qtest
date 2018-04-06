@@ -24,10 +24,6 @@ class ItemType < ApplicationRecord
   #scope :flat_items, -> {where_any_of("properties ? :key OR properties ? :key", key: "paper", key: "canvas")}
   #scope :flat_items, -> {canvas_items.or.paper_items}
 
-  # def category_names
-  #   category.name.split("_")
-  # end
-
   def self.flat_items
     canvas_items + paper_items + panel_items + sericel_items
   end
@@ -36,6 +32,7 @@ class ItemType < ApplicationRecord
     printed_items + animation_items + photo_items + etching_items
   end
 
+  #was using for hiding/showing edition on items: refactor dependent on js
   def art_type
     case
     when category_names.any? {|name| name == "original"} then "original"
@@ -44,14 +41,14 @@ class ItemType < ApplicationRecord
   end
 
   #new: keep properties keys if value present
-  def valid_keys
+  def valid_properties
     properties.keep_if {|k,v| v.present?}.keys if properties
   end
   #=>["mixed", "panel", "original"]
 
   #reorder keys and set properties values
-  def valid_keys_ordered
-    category_names.map {|k| k if valid_keys.include?(k)}.compact
+  def valid_properties_ordered
+    category_names.map {|k| k if valid_properties.include?(k)}.compact
   end
   #=> ["original", "monprint", "panel"]
 
@@ -59,11 +56,82 @@ class ItemType < ApplicationRecord
     %w(canvas paper sericel panel)
   end
 
-  def substrate_key
-    arr = category_names & substrates
+  def media
+    %w(painting print mixed sketch etching photo animation)
+  end
+
+  def property_key(property_kind)
+    arr = category_names & property_kind
     arr[0]
   end
 
+  def media_key
+    property_key(media)
+  end
+
+  def substrate_key
+    property_key(substrates)
+  end
+
+  def property_kind_pos(property_key)
+    idx_after_i(category_names, property_key)
+  end
+
+  def substrate_pos
+    property_kind_pos(substrate_key)
+  end
+
+  def xl_dim_pos
+    if substrate_key != paper
+      substrate_pos
+    elsif substrate_key == paper && properties[media_key] != "giclee"
+      substrate_pos - 1
+    elsif substrate_key == paper && properties[media_key] == "giclee"
+      substrate_pos - 2
+    end
+  end
+
+  def xl_dim_ref
+    category_names[xl_dim_pos]
+  end
+
+  def substrate_args(k, ver)
+   ver == "tag" && k == "paper" ? return : "on #{properties[k]}"
+  end
+
+  def print_args(k, ver)
+   ver == "tag" && properties[k] == "giclee" ? return : properties[k]
+  end
+
+  def format_args(k, ver)
+    case
+    when substrates.include?(k) then substrate_args(k, ver)
+    when k == "print" then print_args(k, ver)
+    when k == "painting" && properties[k] != "painting" then "#{properties[k]} painting"
+    when k == "leafing" then "with #{properties[k]}"
+    when k == "remarque" && category_names.include?("leafing") then "and #{properties[k]}"
+    when k == "remarque" && category_names.exclude?("leafing") then "with #{properties[k]}"
+    else properties[k]
+    end
+  end
+
+  def args_loop(ver)
+    medium = []
+    valid_properties_ordered.each do |k| #k: property/category_name[i]
+      medium << format_args(k, ver)
+    end
+    medium.join(" ")
+  end
+
+  def typ_ver_args(ver)
+    args_loop(ver) if properties?
+  end
+
+  # def dropdown
+  #   args_loop(ver)
+  # end
+
+  ####
   def format_values(k)
     case
     when substrates.include?(k) then "on #{properties[k]}"
@@ -77,16 +145,18 @@ class ItemType < ApplicationRecord
 
   def properties_loop
     medium = []
-    valid_keys_ordered.each do |k|
+    valid_properties_ordered.each do |k|
       medium << format_values(k)
     end
     [medium.join(" ")]
   end
 
+  #kill
   def description
     properties_loop if properties?
   end
 
+  #kill
   def stub
     properties_loop if properties?
   end
