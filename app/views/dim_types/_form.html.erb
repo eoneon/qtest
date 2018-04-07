@@ -1,7 +1,7 @@
 <%= form_for parent do |f| %>
-  <%#= parent.format_dimensions %>
-  <%#= parent.format_dim_target_set.keep_if {|i| i.index(/weight/)} %>
-  <%= parent.test_hash.keys.first %>
+  <%= parent.inv_dims_3d %><br>
+  <%= parent.idx_of_i_with_pat(parent.inv_dims_3d, "weight") %>
+  <%= parent.format_3d(parent.inv_dims_3d) %>
   <%= f.hidden_field :category_id %>
   <div class="field">
     <%= f.label :kind %><br>

@@ -1,8 +1,8 @@
 <%= form_for @item, :html => {:id => 'item_form'} do |f| %>
-<%= @item.format_item("inv") %><br>
-<%= @item.mount_type.typ_ver_args("inv") %><br>
-<%#= @item.insert_rel_to_pat(@item.test_method) %><br>
-<%#= @item.build_tagline %>
+<%= @item.format_item("tag") %><br>
+<%#= @item.dim_type.typ_ver_args("inv") %><br>
+<%#= @item.xl_dims %><br>
+<%#= @item.pop_type(typ, args) %>
   <%= render "items/hidden", f: f %>
   <script type="text/javascript">
     function submitform(){

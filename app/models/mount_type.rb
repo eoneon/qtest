@@ -27,9 +27,9 @@ class MountType < ApplicationRecord
     wrapped if wrapped == "stretched"
   end
 
-  def frame_args(ver)
+  def framed_args(ver)
     case
-    when ver == "inv" || ver == "tag" then h = {pos: "before", v: mount_key}
+    when ver == "inv" || ver == "tag" then h = {pos: "before", v: mount_key, ws: 1}
     when ver == "body" then mount_clause
     end
   end
@@ -37,8 +37,8 @@ class MountType < ApplicationRecord
   def wrapped_args(ver)
     case
     when ver == "inv" then h = {pos: "before", pat: "canvas", v: mount_value, ws: 1}
-    when ver == "tag" && gallery_wrapped then h = {pos: "before", pat: "canvas", v: mount_value}
-    when ver == "body" && stretched then h = {pos: "before", pat: "canvas", v: mount_value}
+    when ver == "tag" && gallery_wrapped then h = {pos: "before", pat: "canvas", v: mount_value, ws: 1}
+    when ver == "body" && stretched then h = {pos: "before", pat: "canvas", v: mount_value, ws: 1}
     when ver == "body" && gallery_wrapped then mount_clause
     end
   end

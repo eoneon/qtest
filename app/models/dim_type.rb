@@ -26,12 +26,12 @@ class DimType < ApplicationRecord
   end
 
   def joined_inner_dims
-    inner_dims.join(" x ")
+    inner_dims.join(" x ") #if inner_dims
   end
   #=>innerwidth x innerheight
 
   def joined_outer_dims
-    outer_dims.join(" x ")
+    outer_dims.join(" x ") #if outer_dims
   end
   #=> outerwidth x outerheight
 
@@ -40,28 +40,38 @@ class DimType < ApplicationRecord
   end
   #=> [frame, image] / [width, height, weight]
 
+  def outer_target
+    targets[0] if category_names[0].index(/outer/) #frame
+  end
+
+  def inner_target
+    targets[-1] if category_names[-1].index(/inner/) #image
+  end
+
   def targets_2d
-    [outer_target, inner_target].compact
+    [outer_target, inner_target].reject {|i| i.blank?}
   end
   #=>[frame, image]
 
   def targets_3d
-    targets if name == category.name
+    targets unless targets_2d.present? #name == category.name
   end
   #=>[width, height, weight]
 
   def dims_2d
-    [joined_outer_dims, joined_inner_dims].compact
+    [joined_outer_dims, joined_inner_dims].reject {|i| i.blank?}
   end
   #=> [outerwidth x outerheight, innerwidth x innerheight]
 
   def formatted_2d_targets
-    [outer_target, inner_target].compact.map {|t| "(#{t})"}
+    [outer_target, inner_target].reject {|i| i.blank?}.map {|t| "(#{t})"}
   end
   #=>["(frame)", "(image)"]
 
-  def body_two_d
-    dims_2d.zip(formatted_2d_targets).join(", ")
+  def body_2d
+    dim_arr = dims_2d.zip(formatted_2d_targets) #.join(", ")
+    #=> [["outerwidth x outerheight", "(frame)"], ["innerwidth x innerheight", "(image)"]]
+    dim_arr.map {|arr| arr.join(" ")}.join(", ")
   end
   #=>"outerwidth x outerheight (frame), innerwidth x innerheight (image)"
 
@@ -70,11 +80,11 @@ class DimType < ApplicationRecord
   end
 
   def xl_dims
-    frame_dims ? " (#{joined_outer_dims})" : " (#{joined_inner_dims})"
+    frame_dims ? "(#{joined_outer_dims})" : "(#{joined_inner_dims})"
   end
 
   def inv_targets_2d
-    targets.map {|t| format_inv_targets(t)} if targets_2d
+    targets_2d.map {|t| format_inv_targets(t)} unless targets_2d.blank? #.present?
   end
   #=>[“frm:”, “img:”]
 
@@ -101,27 +111,27 @@ class DimType < ApplicationRecord
   #=>["width (width)", "height (height)", "weight (weight)"]
 
   def inv_dims_3d
-    targets_3d.map {|t| "#{format_inv_targets(t)} #{t}"}
+    targets_3d.map {|t| "#{format_inv_targets(t)} #{t}"} if targets_3d.present?
   end
   #=>["w: width", "h: height", "w: weight"]
 
-  def format_3d(ver) #dims_3d/inv_dims_3d
-    idx = idx_of_i_with_pat(ver, "weight")
+  def format_3d(arr_3d) #dims_3d/inv_dims_3d
+    idx = idx_of_i_with_pat(arr_3d, "weight")
     if idx
-      [ver.take(idx).join(" x "), ver[idx]].join("; ")
+      [arr_3d.take(idx).join(" x "), arr_3d[idx]].join("; ")
     else
-      ver.join(" x ")
+      arr_3d.join(" x ")
     end
   end
   #=> "width (width) x height (height); weight (weight)"
   #=> "w: width x h: height; w: weight"
 
   def inv_3d
-    format_3d(inv_dims_3d)
+    format_3d(inv_dims_3d) if targets_3d.present?
   end
 
   def body_3d
-    format_3d(dims_3d)
+    format_3d(dims_3d) if targets_3d.present?
   end
   #=> "width (width) x height (height); weight (weight)"
 
@@ -130,11 +140,11 @@ class DimType < ApplicationRecord
   end
 
   def tag_dim
-    h = {pos: "after", v: xl_dims}
+    h = {pos: "after", v: xl_dims} if dims_2d.present?
   end
 
   def body_dim
-    "Measures approx. #{[body_2d, body_3d].compact}."
+    "Measures approx. #{[body_2d, body_3d].join(" ")}."
   end
 
   def typ_ver_args(ver)
