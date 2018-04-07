@@ -82,11 +82,11 @@ class ItemType < ApplicationRecord
   end
 
   def xl_dim_pos
-    if substrate_key != paper
+    if substrate_key != "paper"
       substrate_pos
-    elsif substrate_key == paper && properties[media_key] != "giclee"
+    elsif substrate_key == "paper" && properties[media_key] != "giclee"
       substrate_pos - 1
-    elsif substrate_key == paper && properties[media_key] == "giclee"
+    elsif substrate_key == "paper" && properties[media_key] == "giclee"
       substrate_pos - 2
     end
   end

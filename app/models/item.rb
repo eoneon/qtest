@@ -87,19 +87,19 @@ class Item < ApplicationRecord
     k == "weight" ? "#{k}lbs" : "#{k}\""
   end
 
-  def pop_args_dim(args, k)
-    pop_args(k)[:str] = args[:v]
-    pop_args(k)[:v] = format_metric(pop_args[:v])
-  end
+  # def pop_args_dim(args, k)
+  #   pop_args(k)[:str] = args[:v]
+  #   pop_args(k)[:v] = format_metric(pop_args[:v])
+  # end
   #=>calls pop_args
 
   def pop_type(typ, pop_args)
     str = pop_args[:str] #(outerwidth x outerheight)
     public_send(typ + "_type").category_names.each do |k|
       #dim_type.category_names.each do
-      pop_args[:str] = str
-      pop_args[:pat] = k
-      pop_args[:v] = typ == "dim" ? format_metric(properties[k]) : properties[k]
+      v = typ == "dim" ? format_metric(properties[k]) : properties[k]
+      args = {str: str, pat: k, v: v}
+      pop_args.merge!(args)
       str = insert_rel_to_pat(pop_args) if str.index(/#{k}/)
     end
     str
@@ -108,14 +108,18 @@ class Item < ApplicationRecord
 
   def insert_dim(d, ver)
     args = dim_type.typ_ver_args(ver)
-    pop_args = {pos: "replace", str: args[:v], ws: 0} #pat: k, v: v
-
+    pop_args = {pos: "replace", str: args[:v], ws: 0}
     insert_v = pop_type("dim", pop_args)
-    #now we have insert_v
+    args[:v] = insert_v
+    args[:str] = d
+    args[:pat] = item_type.xl_dim_ref
+    insert_rel_to_pat(args)
+  end
 
-    #args[:str] = d
-    #args[:pat] = dim_type.xl_dim_key #did i pad this value?
-    #insert_rel_to_pat(args)
+  def dim_args(d, args)
+    args[:str] = d
+    args[:pat] = item_type.xl_dim_ref
+    args
   end
 
   def mount_args(d, args)
@@ -133,7 +137,7 @@ class Item < ApplicationRecord
   def format_item(ver)
     d = item_type.typ_ver_args(ver)
     d = insert_mount(d, ver) if item_list.include?("mount")
-    d = insert_dim(d, ver) if xl_dims
+    xl_dims ? insert_dim(d, ver) : d
   end
 
   def build_descrp(ver) #"tag", "inv", "body"
