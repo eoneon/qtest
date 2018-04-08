@@ -74,24 +74,23 @@ class Item < ApplicationRecord
     %w(item edition sign mount cert) & valid_types
   end
 
+  def type_conditions(typ)
+    case
+    when typ == "mount" then typ
+    when typ == "dim" && xl_dims then typ
+    end
+  end
+
   def item_list
-    %w(mount dim) & valid_types #valid_items
+    typs = %w(mount dim) & valid_types
+    typs.map {|typ| type_conditions(typ)}.compact if typs.present?
   end
 
   # DESCRIPTION METHOCDS
-  # def pop_args(k)
-  #   h = {pos: "replace", pat: k, v: properties[k], ws: 0}
-  # end
 
   def format_metric(k)
     k == "weight" ? "#{k}lbs" : "#{k}\""
   end
-
-  # def pop_args_dim(args, k)
-  #   pop_args(k)[:str] = args[:v]
-  #   pop_args(k)[:v] = format_metric(pop_args[:v])
-  # end
-  #=>calls pop_args
 
   def pop_type(typ, pop_args)
     str = pop_args[:str] #(outerwidth x outerheight)
