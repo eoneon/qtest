@@ -1,7 +1,7 @@
 <%= form_for @item, :html => {:id => 'item_form'} do |f| %>
-<%= @item.format_item("tag") %><br>
+<%#= @item.format_edition("tag") if @item.edition_type.present? %><br>
 <%#= @item.dim_type.typ_ver_args("inv") %><br>
-<%#= @item.item_list %><br>
+<%= @item.format_edition("tag") %><br>
 <%#= @item.pop_type(typ, args) %>
   <%= render "items/hidden", f: f %>
   <script type="text/javascript">

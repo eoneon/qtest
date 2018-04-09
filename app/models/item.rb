@@ -78,14 +78,23 @@ class Item < ApplicationRecord
   end
 
   # DESCRIPTION METHOCDS
+  def article_list
+    ["HC", "AP", "IP", "original", "etching", "animation", "embellished"]
+  end
+
+  def format_article(pat)
+    article_list.any? {|word| word == pat} ? "an" : "a"
+  end
 
   def format_metric(k)
-    k == "weight" ? "#{k}lbs" : "#{k}\""
+    k == "weight" ? "#{k}lbs" : "#{k}"
   end
 
   def pop_type(typ, str)
     type_to_meth(typ).category_names.each do |k|
+      #k = "number/" if k == "number"
       v = typ == "dim" ? format_metric(properties[k]) : properties[k]
+      #v = "#{v}s" if k == "number"
       str = insert_rel_to_pat(pos: "replace", str: str, pat: k, v: v, ws: 0) if str.index(/#{k}/)
     end
     str
@@ -101,6 +110,11 @@ class Item < ApplicationRecord
     t_args[:pat] = d if t_args[:v] == "framed"
   end
 
+  def hsh_args_edition(t_args)
+    hsh_args = {str: pop_type("edition", t_args[:v]), v: format_article(properties["edition"])}
+    t_args.merge!(hsh_args)
+  end
+
   def insert_types(d, ver)
     descrp = ""
     item_list.each do |t|
@@ -110,6 +124,13 @@ class Item < ApplicationRecord
       descrp = insert_rel_to_pat(t_args)
     end
     descrp
+  end
+
+  def format_edition(ver)
+    t_args = edition_type.typ_ver_args(ver)
+    pop_type("edition", t_args[:v])
+    t_args = hsh_args_edition(t_args)
+    t_args[:pat] == "from" ? insert_rel_to_pat(t_args) : t_args[:v]
   end
 
   def format_item(ver)
@@ -223,9 +244,7 @@ class Item < ApplicationRecord
   end
 
   #display-specific
-  def article_list
-    ["HC", "AP", "IP", "original", "etching", "animation", "embellished"]
-  end
+
 
   ###
   #kill
@@ -302,9 +321,7 @@ class Item < ApplicationRecord
   # end
 
  #ditto
-  def article(target)
-    article_list.any? {|word| word == target} ? " an " : " a "
-  end
+
 
   #kill
   # def from_an_edition
