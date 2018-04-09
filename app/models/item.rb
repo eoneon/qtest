@@ -92,54 +92,56 @@ class Item < ApplicationRecord
     k == "weight" ? "#{k}lbs" : "#{k}\""
   end
 
-  def pop_type(typ, pop_args)
-    str = pop_args[:str] #(outerwidth x outerheight)
-    public_send(typ + "_type").category_names.each do |k|
-      #dim_type.category_names.each do
+  # def pop_args
+  #   h = {pos: "replace", ws: 0}
+  # end
+
+  def pop_type(typ, str)
+    #str = t_args[:v] #(outerwidth x outerheight)
+    type_to_meth(typ).category_names.each do |k|
       v = typ == "dim" ? format_metric(properties[k]) : properties[k]
-      args = {str: str, pat: k, v: v}
-      pop_args.merge!(args)
-      str = insert_rel_to_pat(pop_args) if str.index(/#{k}/)
+      str = insert_rel_to_pat(pos: "replace", str: str, pat: k, v: v, ws: 0) if str.index(/#{k}/)
     end
     str
   end
   #=>calls pop_args_dim
 
-  def insert_dim(d, ver)
-    args = dim_type.typ_ver_args(ver)
-    pop_args = {pos: "replace", str: args[:v], ws: 0}
-    insert_v = pop_type("dim", pop_args)
-    args[:v] = insert_v
-    args[:str] = d
-    args[:pat] = item_type.xl_dim_ref
-    insert_rel_to_pat(args)
+  def hsh_args_dim(d, t_args)
+    hsh_args = {}
+    hsh_args[:v] = pop_type("dim", t_args[:v])
+    hsh_args[:pat] = item_type.xl_dim_ref
+    hsh_args[:str] = d
+    t_args.merge!(hsh_args)
+
+    #hsh_args = {v: = pop_type("dim", t_args[:v]), pat: item_type.xl_dim_ref}
+    #t_args[:v] = pop_type("dim", t_args[:v])
+    #t_args[:pat] = item_type.xl_dim_ref
   end
 
-  def dim_args(d, args)
-    args[:str] = d
-    args[:pat] = item_type.xl_dim_ref
-    args
+  def hsh_args_mount(d, t_args)
+    t_args[:str] = d
+    t_args[:pat] = d if t_args[:v] == "framed"
   end
 
-  def mount_args(d, args)
-    args[:str] = d
-    args[:pat] = d if args[:v] == "framed"
-    args
-  end
-
-  def insert_mount(d, ver)
-    args = mount_type.typ_ver_args(ver)
-    args = mount_args(d, args)
-    insert_rel_to_pat(args)
+  def insert_types(d, ver)
+    descrp = ""
+    item_list.each do |t|
+      t_args = type_to_meth(t).typ_ver_args(ver)
+      #thing = t_args
+      descrp = public_send("hsh_args_" + t, d, t_args)
+      #t_args = public_send("hsh_args_" + t, d, t_args)
+      descrp = insert_rel_to_pat(t_args)
+    end
+    descrp
+    #thing
   end
 
   def format_item(ver)
     d = item_type.typ_ver_args(ver)
-    d = insert_mount(d, ver) if item_list.include?("mount")
-    xl_dims ? insert_dim(d, ver) : d
+    insert_types(d, ver) if item_list.present?
   end
 
-  def build_descrp(ver) #"tag", "inv", "body"
+  def build_descrp(ver)
     public_send(ver + "_list").map {|typ| public_send("format_" + typ, ver)}
   end
 
