@@ -8,22 +8,26 @@ class EditionType < ApplicationRecord
     category_names.count == 1 ? category_names : category_names - ["edition"]
   end
 
-  def context
-    case
-    when category.name == "edition_numbered_number_size" then ["numbered", "edition numbered number/size"]
-    when category.name == "edition_numbered_size" then ["numbered out of", "edition numbered out of size"]
-    when category.name == "edition_numbered" then ["numbered qty", "edition_numbered"]
-    when category.name == "edition" then ["from an edition", "from an edition edition"]
-    when category.name == "unnumbered" then ["not numbered", "This piece is not numbered."]
+  def edition
+    case category.name
+    when "edition_numbered_number_size" then ["numbered", h = {v: "edition numbered number/size"}]
+    when "edition_numbered_size" then ["numbered out of", h = {v: "edition numbered out of size"}]
+    when "edition_numbered" then ["numbered qty", h = {v: "edition_numbered"}]
+    when "edition" then ["from an edition", h = {pos: "after", pat: "from", v: "from edition edition"}]
+    when "unnumbered" then ["not numbered", h = {v: "This piece is not numbered."}]
     end
   end
 
   def dropdown
-    context[0]
+    edition[0]
+  end
+
+  def typ_ver_args(ver)
+    edition[-1] if edition
   end
 
   def stub
-    context[-1]
+    edition[-1]
   end
 
   #kill

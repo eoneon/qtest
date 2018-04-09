@@ -8,14 +8,6 @@ class Item < ApplicationRecord
   belongs_to :cert_type, optional: true
   belongs_to :dim_type, optional: true
 
-  def test_method
-    args = mount_type.h_args
-    args[:str] = item_type.properties_loop[0]
-    args
-    #str = item_type.properties_loop[0]
-    #insert_rel_to_pat(test_method)
-  end
-
   #eg: "Hello" -> String -> "String" -> "string" *unused utility meth
   def class_to_str(obj)
     obj.class.to_s.downcase
@@ -48,7 +40,6 @@ class Item < ApplicationRecord
 
   #eg: dependency of valid_types ->validate_properties
   def validate_properties(k)
-    #if k == "edition_type_id" || k == "dim_type_id" #add remote_properties list #=> ["edition_type_id", "dim_type_id"].include?(k)
     if %w(edition_type_id dim_type_id).include?(k)
       validate_properties_required(k)
     elsif fk_to_meth(k).properties.present?
@@ -92,30 +83,17 @@ class Item < ApplicationRecord
     k == "weight" ? "#{k}lbs" : "#{k}\""
   end
 
-  # def pop_args
-  #   h = {pos: "replace", ws: 0}
-  # end
-
   def pop_type(typ, str)
-    #str = t_args[:v] #(outerwidth x outerheight)
     type_to_meth(typ).category_names.each do |k|
       v = typ == "dim" ? format_metric(properties[k]) : properties[k]
       str = insert_rel_to_pat(pos: "replace", str: str, pat: k, v: v, ws: 0) if str.index(/#{k}/)
     end
     str
   end
-  #=>calls pop_args_dim
 
   def hsh_args_dim(d, t_args)
-    hsh_args = {}
-    hsh_args[:v] = pop_type("dim", t_args[:v])
-    hsh_args[:pat] = item_type.xl_dim_ref
-    hsh_args[:str] = d
+    hsh_args = {v: pop_type("dim", t_args[:v]), pat: item_type.xl_dim_ref, str: d}
     t_args.merge!(hsh_args)
-
-    #hsh_args = {v: = pop_type("dim", t_args[:v]), pat: item_type.xl_dim_ref}
-    #t_args[:v] = pop_type("dim", t_args[:v])
-    #t_args[:pat] = item_type.xl_dim_ref
   end
 
   def hsh_args_mount(d, t_args)
@@ -127,18 +105,16 @@ class Item < ApplicationRecord
     descrp = ""
     item_list.each do |t|
       t_args = type_to_meth(t).typ_ver_args(ver)
-      #thing = t_args
+      return d unless t_args.is_a? Hash
       descrp = public_send("hsh_args_" + t, d, t_args)
-      #t_args = public_send("hsh_args_" + t, d, t_args)
       descrp = insert_rel_to_pat(t_args)
     end
     descrp
-    #thing
   end
 
   def format_item(ver)
     d = item_type.typ_ver_args(ver)
-    insert_types(d, ver) if item_list.present?
+    item_list.present? ? insert_types(d, ver) : d
   end
 
   def build_descrp(ver)
