@@ -140,7 +140,7 @@ class DimType < ApplicationRecord
   end
 
   def tag_dim
-    h = {pos: "after", v: xl_dims, ws: 1} if dims_2d.present?
+    h = {pos: "after", occ: 0, v: xl_dims, ws: 1} if dims_2d.present?
   end
 
   def body_dim

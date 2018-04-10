@@ -1,8 +1,13 @@
 <%= form_for @item, :html => {:id => 'item_form'} do |f| %>
-<%#= @item.format_edition("tag") if @item.edition_type.present? %><br>
-<%#= @item.dim_type.typ_ver_args("inv") %><br>
-<%= @item.format_edition("tag") %><br>
-<%#= @item.pop_type(typ, args) %>
+<p>format_edition: <%#= @item.format_edition("tag") %></p>
+<p>format_item: <%= @item.format_item("tag") %></p>
+<!-- <p>category names: <%#= @item.edition_type.category_names %></p>
+<p>remove_idx_range: <%#= @item.remove_idx_range(@item.test_str, @item.idx_range_of_pat(@item.test_str, -1, "number")) %></p>
+<p>idx_range_of_pat: <%#= @item.idx_range_of_pat(@item.test_str, -1, "number") %></p>
+<p>insert_rel_to_pat: <%#= @item.insert_rel_to_pat(pos: "replace", str: @item.test_str, occ: -1, pat: "number", v: @item.properties["number"], ws: 0) %></p>
+<p>str: "AP numbered number/size"/ pat: "number"</p> -->
+
+
   <%= render "items/hidden", f: f %>
   <script type="text/javascript">
     function submitform(){

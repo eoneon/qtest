@@ -4,7 +4,7 @@ module SharedMethods
   extend ActiveSupport::Concern
 
   def test_arr1
-    ["abc","efg","123"]
+    ["abc","efg","123", "abc"]
   end
 
   def test_arr2
@@ -12,7 +12,7 @@ module SharedMethods
   end
 
   def test_str
-    "abc efg hijklm"
+    "AP numbered number/size"
   end
 
   def test_hash
@@ -20,17 +20,8 @@ module SharedMethods
   end
 
   #do something if item in first array matches item in second array
-  def do_if_i_in_arr2(arr, arr2)
-    arr.any? {|i| arr2.include?(i)}
-  end
-
-  # def do_i(i)
-  #   puts(i)
-  # end
-
-  #do something if all items in first array present in second array
-  # def do_if_all_i_in_arr2(arr, arr2, do_i(&i))
-  #   arr.all? {|i| puts_i(i) if arr2.include?(i)}
+  # def do_if_i_in_arr2(arr, arr2)
+  #   arr.any? {|i| arr2.include?(i)}
   # end
 
   def category_names
@@ -38,20 +29,21 @@ module SharedMethods
   end
 
   #get index in string relative to pattern
-  def idx_before_pat(str, pat)
-    str.index(/#{pat}/)
+  def idx_before_pat(str, occ, pat)
+    idx = occ == 0 ? str.index(/#{pat}/) : str.rindex(/#{pat}/)
   end
 
-  def idx_after_pat(str, pat)
-    idx_before_pat(str, pat) + pat.length if pat.present?
+  def idx_after_pat(str, occ, pat)
+    idx_before_pat(str, occ, pat) + pat.length if pat.present?
   end
 
-  def idx_range_of_pat(str, pat)
-    [idx_before_pat(str, pat), idx_after_pat(str, pat) - 1]
+  def idx_range_of_pat(str, occ, pat)
+    idx = occ == 0 ? str.index(/#{pat}/) : str.rindex(/#{pat}/)
+    [idx, idx + pat.length]
   end
 
-  def idx_range_between_split(str, pat)
-    [idx_after_pat(str, pat) -1, idx_after_pat(str, pat) + 1 ] if pat && str
+  def idx_range_between_split(str, occ, pat)
+    [idx_after_pat(str, occ, pat) -1, idx_after_pat(str, occ, pat) + 1 ] if pat && str
   end
 
   #insert pattern into string at index
@@ -65,7 +57,7 @@ module SharedMethods
 
   #new:
   def remove_idx_range(str, idx_range)
-    str.sub(/#{str[idx_range[0]..idx_range[1]]}/, "")
+    [str[0,idx_range[0]], str[idx_range[1]..-1]].join
   end
 
   #new: integrated insert methods
@@ -77,28 +69,28 @@ module SharedMethods
     end
   end
 
-  def insert_before(str, pat, v, ws)
-    idx = idx_before_pat(str, pat)
+  def insert_before(str, occ, pat, v, ws)
+    idx = idx_before_pat(str, occ, pat)
     v = pad("before", v) if ws == 1
     insert_pat_at_idx(str, idx, v)
   end
 
-  def insert_after(str, pat, v, ws)
-    idx = idx_before_pat(str, pat) + pat.length
+  def insert_after(str, occ, pat, v, ws)
+    idx = idx_before_pat(str, occ, pat) + pat.length
     v = pad("after", v) if ws == 1
     insert_pat_at_idx(str, idx, v)
   end
 
-  def insert_replace(str, pat, v, ws)
-    idx_arr = idx_range_of_pat(str, pat)
+  def insert_replace(str, occ, pat, v, ws)
+    idx_arr = idx_range_of_pat(str, occ, pat)
     str = remove_idx_range(str, idx_arr)
     insert_pat_at_idx(str, idx_arr[0], v)
   end
 
   #consolidated insert method
   #pos: before, replace, after
-  def insert_rel_to_pat(pos:, str:, pat:, v:, ws:)
-    public_send("insert_" + pos, str, pat, v, ws)
+  def insert_rel_to_pat(pos:, str:, occ:, pat:, v:, ws:)
+    public_send("insert_" + pos, str, occ, pat, v, ws)
   end
 
   #replace pattern in string
@@ -107,8 +99,8 @@ module SharedMethods
     insert_pat_at_idx(str, idx[0], v)
   end
 
-  def replace_insert(str, pat, v)
-    idx_arr = idx_range_of_pat(str, pat)
+  def replace_insert(str, occ, pat, v, ws)   #added occ & ws
+    idx_arr = idx_range_of_pat(str, occ, pat, ws) #added ws
     replace_pat(str, idx_arr, v)
   end
 
