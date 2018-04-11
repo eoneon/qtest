@@ -4,11 +4,11 @@ module SharedMethods
   extend ActiveSupport::Concern
 
   def test_arr1
-    ["abc","efg","123", "abc"]
+    ["abc","efg","123"]
   end
 
   def test_arr2
-    ["abc","efg"]
+    ["321","321"]
   end
 
   def test_str
@@ -26,6 +26,10 @@ module SharedMethods
 
   def category_names
     category.name.split("_")
+  end
+
+  def arr_match?(arr1, arr2)
+    arr1.any? {|i| arr2.include?(i)}
   end
 
   #get index in string relative to pattern

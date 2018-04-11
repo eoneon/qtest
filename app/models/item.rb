@@ -128,6 +128,7 @@ class Item < ApplicationRecord
 
   def format_edition(ver)
     t_args = edition_type.typ_ver_args(ver)
+    return t_args unless t_args.is_a? Hash
     pop_type("edition", t_args[:v])
     t_args = hsh_args_edition(t_args)
     t_args[:pat] == "from" ? insert_rel_to_pat(t_args) : t_args[:v]
