@@ -126,6 +126,10 @@ class Item < ApplicationRecord
     descrp
   end
 
+  def format_sign(ver)
+    sign_type.typ_ver_args(ver)
+  end
+
   def format_edition(ver)
     t_args = edition_type.typ_ver_args(ver)
     return t_args unless t_args.is_a? Hash
