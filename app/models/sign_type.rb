@@ -5,7 +5,7 @@ class SignType < ApplicationRecord
   has_many :items
 
   def valid_keys
-    properties.map {|k,v| k if v.present?} if properties.present?
+    properties.map {|k,v| k if v.present?}.compact if properties.present?
   end
 
   def required_keys?
@@ -15,8 +15,7 @@ class SignType < ApplicationRecord
   def sign_context
     case
     when properties["signmethod"] &&  arr_match?(properties["signmethod"].split(" "), ["hand", "autographed"]) then "hand_signed"
-    when properties["signmethod"] && arr_match?(properties["signmethod"].split(" "), ["plate", "authorized"]) then "authorized_signed"
-    when properties["signmethod"] && properties["signmethod"] == "estate" then "estate_signed"
+    when properties["signmethod"] && %w(plate authorized estate).include?(properties["signmethod"]) then properties["signmethod"] + "_signed"
     when properties["signtype"] && properties["signtype"] == "not signed" then "unsigned"
     end
   end
@@ -27,6 +26,14 @@ class SignType < ApplicationRecord
     when ver == "body" && k == "signtype" then "#{properties[k]} by the"
     when ver == "body" && k != "signtype" then properties[k]
     when ver == "inv" && k != "signer" then properties[k]
+    end
+  end
+
+  def plate_signed(ver,k)
+    case
+    when %w(tag inv).include?(ver) && k != "signer" then properties[k]
+    when ver == "body" && k == "signmethod" then "bearing the " + properties[k] + " signature of the"
+    when ver == "body" && k != "signtype" then properties[k]
     end
   end
 

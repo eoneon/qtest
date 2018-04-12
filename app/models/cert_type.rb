@@ -1,6 +1,28 @@
 class CertType < ApplicationRecord
+  include SharedMethods
+
   belongs_to :category
   has_many :items
+
+  def valid_keys
+    properties.map {|k,v| k if v.present?}.compact if properties.present?
+  end
+
+  def required_keys?
+   category_names.sort == valid_keys.sort
+  end
+
+  def seal_and_issuer?
+    %w(seal sealissuer).all? {|k| category_names.include?(k)} if required_keys?
+  end
+
+  def cert_and_issuer?
+    %w(certificate certissuer).all? {|k| category_names.include?(k)} if required_keys?
+  end
+
+  def seal_and_cert?
+    %w(seal certificate).all? {|k| category_names.include?(k)} if required_keys?
+  end
 
   def context
     if properties.present?

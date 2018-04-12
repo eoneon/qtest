@@ -1,4 +1,5 @@
 <h1>CertificateType#Edit</h1>
+<%= @cert_type.seal_and_cert? %>
 <p><%= @cert_type.dropdown %></p>
 <p><%#= @cert_type.art_type %></p>
 <%= render 'item_types/form', parent: @cert_type %>
