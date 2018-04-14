@@ -2,6 +2,7 @@
 <%#= @cert_type.insert_rel_to_i(pos: "after", arr: @cert_type.test_arr1, i: "abc", occ: 0, v: "dog") %>
 <p><%= @cert_type.build_cert("tag") %></p>
 <p><%= @cert_type.key_loop %></p>
+<p><%= @cert_type.category_names %></p>
 
 <%= render 'item_types/form', parent: @cert_type %>
 
