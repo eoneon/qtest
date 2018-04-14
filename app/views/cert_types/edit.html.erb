@@ -1,7 +1,8 @@
 <h1>CertificateType#Edit</h1>
-<%= @cert_type.seal_and_cert? %>
-<p><%= @cert_type.dropdown %></p>
-<p><%#= @cert_type.art_type %></p>
+<%#= @cert_type.insert_rel_to_i(pos: "after", arr: @cert_type.test_arr1, i: "abc", occ: 0, v: "dog") %>
+<p><%= @cert_type.build_cert("tag") %></p>
+<p><%= @cert_type.key_loop %></p>
+
 <%= render 'item_types/form', parent: @cert_type %>
 
 <%= link_to 'Show', cert_type_path(@cert_type) %> |

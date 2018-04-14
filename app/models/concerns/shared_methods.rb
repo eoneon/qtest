@@ -109,12 +109,17 @@ module SharedMethods
   end
 
   #get index in array relative to item index
-  def idx_before_i(arr, i)
-    arr.index(i) - 1
+  def idx_before_i(arr, i, occ)
+    occ == 0 ? arr.index(i) : arr.rindex(i)
   end
 
-  def idx_after_i(arr, i)
-    arr.index(i)
+  def idx_after_i(arr, i, occ)
+    idx_before_i(arr, i, occ) + 1
+  end
+
+  def insert_rel_to_i(pos:, arr:, i:, occ:, v:)
+    idx = public_send("idx_" + pos + "_i", arr, i, occ)
+    arr.insert(idx, v)
   end
 
   def idx_of_i_with_pat(arr, pat)
