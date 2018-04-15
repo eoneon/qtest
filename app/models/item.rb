@@ -62,7 +62,7 @@ class Item < ApplicationRecord
   end
 
   def body_list
-    %w(item edition sign mount cert) & valid_types
+    %w(item edition sign mount cert dim) & valid_types
   end
 
   #item-specific (refactor ->pattern is dim_type-specific): display-specific -> presentor
@@ -131,6 +131,19 @@ class Item < ApplicationRecord
     descrp
   end
 
+  def format_dim(ver)
+    d = dim_type.typ_ver_args(ver)
+    pop_type("dim", d)
+  end
+
+  def format_mount(ver)
+    mount_type.typ_ver_args(ver)
+  end
+
+  def format_cert(ver)
+    cert_type.typ_ver_args(ver)
+  end
+
   def format_sign(ver)
     sign_type.typ_ver_args(ver)
   end
@@ -138,9 +151,8 @@ class Item < ApplicationRecord
   def format_edition(ver)
     t_args = edition_type.typ_ver_args(ver)
     return t_args unless t_args.is_a? Hash
-    pop_type("edition", t_args[:v])
     t_args = hsh_args_edition(t_args)
-    t_args[:pat] == "from" ? insert_rel_to_pat(t_args) : t_args[:v]
+    t_args[:pat] == "from" ? insert_rel_to_pat(t_args) : t_args[:str]
   end
 
   def format_item(ver)
@@ -149,8 +161,18 @@ class Item < ApplicationRecord
   end
 
   def build_descrp(ver)
-    public_send(ver + "_list").map {|typ| public_send("format_" + typ, ver)}
+    sub_d = []
+    public_send(ver + "_list").each do |typ|
+      sub_d << public_send("format_" + typ, ver)
+      #d = punct(ver, typ, d)
+      #cap(ver, typ, v)
+    end
+    sub_d
   end
+
+  # def build_descrp(ver)
+  #   public_send(ver + "_list").map {|typ| public_send("format_" + typ, ver)}.join(" ")
+  # end
 
   #keep?
   def inner_dim_arr
@@ -172,8 +194,6 @@ class Item < ApplicationRecord
     outer_dim_arr[0].to_i * outer_dim_arr[1].to_i if outer_dim_arr.present? && outer_dim_arr.count == 2 && dim_type.outer_target == "frame"
   end
 
-
-
   #kill-->(might need this)--covered by pos methods + type loop
   def substrate_kind
     item_type.substrate_key if item_type
@@ -184,18 +204,12 @@ class Item < ApplicationRecord
     "on #{item_type.properties[substrate_kind]}" if substrate_kind == "paper"
   end
 
-  #kill: replaced...
-  # def remove_values
-  #   arr = ["giclee", "stretched"]
-  #   arr + [/#{Regexp.quote(substrate_value)}/] if substrate_value
-  # end
-
   #refactor as part of loop
-  def insert_punctuation(type, build)
+  def insert_punctuation(typ, build)
     case
-    when type == tagline_list[-1] then punct = "."
-    when type == "item" && tagline_list.any? {|w| ["edition", "sign"].include?(w)} then punct = ", "
-    when type == "edition" && tagline_list.include?("sign") then punct = " and"
+    when typ == tagline_list[-1] then punct = "."
+    when typ == "item" && tagline_list.any? {|w| ["edition", "sign"].include?(w)} then punct = ", "
+    when typ == "edition" && tagline_list.include?("sign") then punct = " and"
     end
     punct ? build.insert(build.length, punct) : build
   end

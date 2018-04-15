@@ -92,7 +92,7 @@ class ItemType < ApplicationRecord
   end
 
   def xl_dim_ref
-    category_names[xl_dim_pos]
+    properties[category_names[xl_dim_pos]]
   end
 
   def substrate_args(k, ver)
