@@ -144,7 +144,7 @@ class DimType < ApplicationRecord
   end
 
   def body_dim
-    "Measures approx. #{[body_2d, body_3d].join(" ")}".strip
+    "measures approx. #{[body_2d, body_3d].join(" ")}".strip
   end
 
   def typ_ver_args(ver)

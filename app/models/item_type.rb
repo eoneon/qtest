@@ -81,13 +81,21 @@ class ItemType < ApplicationRecord
     property_kind_pos(substrate_key)
   end
 
+  # def xl_dim_pos
+  #   if substrate_key != "paper"
+  #     substrate_pos - 1
+  #   elsif substrate_key == "paper" && properties[media_key] != "giclee"
+  #     substrate_pos - 2
+  #   elsif substrate_key == "paper" && properties[media_key] == "giclee"
+  #     substrate_pos - 3
+  #   end
+  # end
+
   def xl_dim_pos
-    if substrate_key != "paper"
-      substrate_pos - 1
-    elsif substrate_key == "paper" && properties[media_key] != "giclee"
-      substrate_pos - 2
-    elsif substrate_key == "paper" && properties[media_key] == "giclee"
-      substrate_pos - 3
+    case
+    when substrate_key != "paper" then substrate_pos - 1
+    when substrate_key == "paper" && properties[media_key] != "giclee" then substrate_pos - 2
+    when substrate_key == "paper" && properties[media_key] == "giclee" then substrate_pos - 3
     end
   end
 
@@ -127,38 +135,8 @@ class ItemType < ApplicationRecord
     args_loop(ver) if properties?
   end
 
-  # def dropdown
-  #   args_loop(ver)
-  # end
-
-  ####
-  def format_values(k)
-    case
-    when substrates.include?(k) then "on #{properties[k]}"
-    when k == "painting" && properties[k] != "painting" then "#{properties[k]} painting"
-    when k == "leafing" then "with #{properties[k]}"
-    when k == "remarque" && category_names.include?("leafing") then "and #{properties[k]}"
-    when k == "remarque" && category_names.exclude?("leafing") then "with #{properties[k]}"
-    else properties[k]
-    end
-  end
-
-  def properties_loop
-    medium = []
-    valid_properties_ordered.each do |k|
-      medium << format_values(k)
-    end
-    [medium.join(" ")]
-  end
-
-  #kill
   def description
-    properties_loop if properties?
-  end
-
-  #kill
-  def stub
-    properties_loop if properties?
+    args_loop("tag") if properties?
   end
 
   def dropdown
