@@ -58,12 +58,15 @@ class Item < ApplicationRecord
   end
 
   def inv_list
-    %w(item edition sign cert mount) & valid_types
+    %w(item edition sign cert dim) & valid_types
   end
 
   def body_list
     %w(item edition sign mount cert dim) & valid_types
+    arr = %w(item edition sign mount cert dim) & valid_types
+    mount_type.stretched ? arr - ["mount"] : arr
   end
+  #if "stretched" then - mount
 
   #item-specific (refactor ->pattern is dim_type-specific): display-specific -> presentor
   def xl_dims
@@ -83,6 +86,18 @@ class Item < ApplicationRecord
   end
 
   # DESCRIPTION METHOCDS
+  def punct(ver, typ, d)
+    case
+    when typ == public_send(ver + "_list")[-1] && ver != "body" then d + "."
+    when typ == "item" && ver == "body" && tag_list.all? {|i| %(edition sign).exclude?(i)} then d + "."
+    when typ == "item" && tag_list.any? {|i| %(edition sign).include?(i)} then d + ","
+    when typ == "edition" && tag_list.include?("sign") then d + " and"
+    when typ == "edition" && ver == "body" && tag_list.exclude?("sign") then d + "."
+    when %w(sign mount cert dim).include?(typ) && ver == "body" then d + "."
+    else d
+    end
+  end
+
   def article_list
     ["HC", "AP", "IP", "original", "etching", "animation", "embellished"]
   end
@@ -100,7 +115,7 @@ class Item < ApplicationRecord
       occ = k == "number" ? -1 : 0
       v = typ == "dim" ? format_metric(properties[k]) : properties[k]
       str = insert_rel_to_pat(pos: "replace", str: str, occ: occ, pat: k, v: v, ws: 0) if str.index(/#{k}/)
-      str
+      #str
     end
     str
   end
@@ -163,16 +178,14 @@ class Item < ApplicationRecord
   def build_descrp(ver)
     sub_d = []
     public_send(ver + "_list").each do |typ|
-      sub_d << public_send("format_" + typ, ver)
-      #d = punct(ver, typ, d)
+      #sub_d << public_send("format_" + typ, ver)
+      d = public_send("format_" + typ, ver)
+      sub_d << d
+      #sub_d << punct(ver, typ, d)
       #cap(ver, typ, v)
     end
-    sub_d
+    sub_d.join(" ")
   end
-
-  # def build_descrp(ver)
-  #   public_send(ver + "_list").map {|typ| public_send("format_" + typ, ver)}.join(" ")
-  # end
 
   #keep?
   def inner_dim_arr
@@ -202,15 +215,5 @@ class Item < ApplicationRecord
   #refactor as part of loop and kill
   def substrate_value
     "on #{item_type.properties[substrate_kind]}" if substrate_kind == "paper"
-  end
-
-  #refactor as part of loop
-  def insert_punctuation(typ, build)
-    case
-    when typ == tagline_list[-1] then punct = "."
-    when typ == "item" && tagline_list.any? {|w| ["edition", "sign"].include?(w)} then punct = ", "
-    when typ == "edition" && tagline_list.include?("sign") then punct = " and"
-    end
-    punct ? build.insert(build.length, punct) : build
   end
 end

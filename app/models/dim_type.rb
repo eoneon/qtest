@@ -89,7 +89,7 @@ class DimType < ApplicationRecord
   #=>[“frm:”, “img:”]
 
   def inv_2d
-    inv_targets_2d.zip(dims_2d).join(", ")
+    inv_targets_2d.zip(dims_2d).map {|i| i.join(" ")}.join(", ")
   end
   #=>“frm: outerwidth x outerheight, img: innerwidth x innerheight”
 
@@ -136,7 +136,7 @@ class DimType < ApplicationRecord
   #=> "width (width) x height (height); weight (weight)"
 
   def inv_dim
-    [inv_3d, inv_2d].compact
+    "(#{[inv_3d, inv_2d].compact.join(" ")})"
   end
 
   def tag_dim
@@ -144,120 +144,14 @@ class DimType < ApplicationRecord
   end
 
   def body_dim
-    "Measures approx. #{[body_2d, body_3d].join(" ")}."
+    "Measures approx. #{[body_2d, body_3d].join(" ")}".strip
   end
 
   def typ_ver_args(ver)
     public_send(ver + "_dim")
   end
 
-  #####
-
-  # def grouped_2d_dims
-  #   [inner_dims, outer_dims].keep_if {|arr| arr.present?} #[["innerwidth", "innerheight"], ["outerwidth", "outerheight"]]
-  # end
-  #
-  # def grouped_3d_dims
-  #   three_d_targets.combination(1).to_a if three_d_targets
-  # end
-  #
-  # def dimensions
-  #   grouped_2d_dims.present? ? grouped_2d_dims : grouped_3d_dims
-  # end
-  #
-  # def frame_dims
-  #   outer_dims if outer_target == "frame"
-  # end
-
-  # def image_dims
-  #   inner_dims if inner_target == "image"
-  # end
-
-  #tag_dims
-  # def xl_dims
-  #   frame_dims ? "(#{frame_dims.join(" x ")})" : "(#{inner_dims.join(" x ")})"
-  # end
-
-  #target methods
-  # def dim_targets
-  #   name.split("_") #eg: [frame, image] [innerwidth, innerheight, outerwidth, outerheight]
-  # end
-  #
-  # def outer_target
-  #   dim_targets[0] if category_names[0].index(/outer/) #frame
-  # end
-  #
-  # def inner_target
-  #   dim_targets[-1] if category_names[-1].index(/inner/) #image
-  # end
-  #
-  # def two_d_targets
-  #   [outer_target, inner_target].compact #[frame, image]
-  # end
-  #
-  # def three_d_targets
-  #   dim_targets if name == category.name # [width, height, ...]
-  # end
-  #
-  # #kill
-  # def weight_index
-  #   if three_d_targets.present? && three_d_targets.index("weight")
-  #     three_d_targets.index("weight")
-  #   end
-  # end
-  #
-  # #avoids if/else
-  # def targets
-  #   two_d_targets.present? ? two_d_targets : three_d_targets
-  # end
-  # #=>["frame", "image"]
-  #
-  # def inv_targets
-  #   targets.map {|t| "#{t[0]}:" }
-  # end
-  #
-  # #body_targets
-  # def formatted_targets
-  #   targets.map {|t| "(#{t})"}
-  # end
-  #
-  # def dim_target_set
-  #   dimensions.zip(formatted_targets)
-  # end
-  # #=>[[["innerwidth", "innerheight"], "(frame)"], [["outerwidth", "outerheight"], "(image)"]]
-  #
-  # def inv_dim_target_set
-  #   dimensions.zip(inv_targets)
-  #   #dimensions.zip(formatted_targets)
-  # end
-  #
-  # #values are normalized up to this point.
-  # def format_dim_items
-  #   dim_target_set.map {|set| format_set(set)}
-  # end
-  # #=>["innerwidth x innerheight (frame)", "outerwidth x outerheight (image)"]
-  #
-  # #we want to treat this differently, which is being done because of the behavior of the a single vs double array
-  # def format_set(set)
-  #   set.take(1).join(" x ") + " " + set.drop(1).join
-  # end
-  #
-  # #body_clause
-  # def format_dimensions
-  #   if idx_range_of_pat(format_dim_items, "weight")
-  #     idx = idx_range_of_pat(format_dim_items, "weight")
-  #     d = [format_dim_items.take(idx).join(" x "), format_dim_items.drop(idx).flatten].join("; ") if idx
-  #   else
-  #     d = format_dim_items.join(", ")
-  #   end
-  #   "Measures approx. #{d}."
-  # end
-
   def dropdown
     targets.join(" & ")
   end
-
-  # def rule_names
-  #   category.name
-  # end
 end
