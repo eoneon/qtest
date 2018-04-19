@@ -1,5 +1,6 @@
 class Item < ApplicationRecord
   include SharedMethods
+  include Kapitalize
 
   belongs_to :mount_type, optional: true
   belongs_to :item_type, optional: true
@@ -54,7 +55,12 @@ class Item < ApplicationRecord
 
   #ver_lists
   def tag_list
-    %w(item edition sign cert) & valid_types
+    arr = %w(item edition sign cert) & valid_types
+    if edition_type && edition_type.category.name == "unnumbered"
+      arr - ["edition"]
+    else
+      arr
+    end
   end
 
   def inv_list
@@ -62,7 +68,7 @@ class Item < ApplicationRecord
   end
 
   def body_list
-    %w(item edition sign mount cert dim) & valid_types
+    #%w(item edition sign mount cert dim) & valid_types
     arr = %w(item edition sign mount cert dim) & valid_types
     mount_type.stretched ? arr - ["mount"] : arr
   end
@@ -180,9 +186,8 @@ class Item < ApplicationRecord
     public_send(ver + "_list").each do |typ|
       #sub_d << public_send("format_" + typ, ver)
       d = public_send("format_" + typ, ver)
-      sub_d << d
-      #sub_d << punct(ver, typ, d)
-      #cap(ver, typ, v)
+      sub_d << punct(ver, typ, d)
+      #cap_loop(ver, sub_d[0])
     end
     sub_d.join(" ")
   end
@@ -208,12 +213,12 @@ class Item < ApplicationRecord
   end
 
   #kill-->(might need this)--covered by pos methods + type loop
-  def substrate_kind
-    item_type.substrate_key if item_type
-  end
-
-  #refactor as part of loop and kill
-  def substrate_value
-    "on #{item_type.properties[substrate_kind]}" if substrate_kind == "paper"
-  end
+  # def substrate_kind
+  #   item_type.substrate_key if item_type
+  # end
+  #
+  # #refactor as part of loop and kill
+  # def substrate_value
+  #   "on #{item_type.properties[substrate_kind]}" if substrate_kind == "paper"
+  # end
 end

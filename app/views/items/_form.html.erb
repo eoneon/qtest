@@ -1,7 +1,7 @@
 <%= form_for @item, :html => {:id => 'item_form'} do |f| %>
-<p>format_sign: <%= @item.build_descrp("inv") %></p>
-<p>format_item: <%= @item.pop_type("dim", @item.format_dim("inv")) %></p>
-<p>dim: <%= @item.format_dim("body") %></p>
+<p>format_item: <%= @item.build_descrp("tag") %></p>
+<p>hyphen: <%= @item.heyphenated?("-") %></p>
+<p>test hsh: <%= @item.test_hash %></p>
   <%= render "items/hidden", f: f %>
   <script type="text/javascript">
     function submitform(){

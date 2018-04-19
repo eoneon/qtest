@@ -7,22 +7,19 @@ module SharedMethods
     ["abc","efg","123"]
   end
 
-  def test_arr2
-    ["321","321"]
+  def test_hash
+    hsh = {dogs: []}
   end
 
   def test_str
-    "AP numbered number/size"
+    "1-app\" (numbered) number/size"
   end
 
   def test_hash
-    dog = {fuji: "love", denali: "sugar"}
+    dog = {fuji: "love", denali: ["self"]}
+    dog[:denali] << "cat"
+    dog
   end
-
-  #do something if item in first array matches item in second array
-  # def do_if_i_in_arr2(arr, arr2)
-  #   arr.any? {|i| arr2.include?(i)}
-  # end
 
   def category_names
     category.name.split("_")

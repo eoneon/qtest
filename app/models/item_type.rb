@@ -140,6 +140,6 @@ class ItemType < ApplicationRecord
   end
 
   def dropdown
-    description[0]
+    description
   end
 end
