@@ -1,7 +1,9 @@
 <%= form_for @item, :html => {:id => 'item_form'} do |f| %>
-<p>format_item: <%= @item.build_descrp("tag") %></p>
-<p>hyphen: <%= @item.heyphenated?("-") %></p>
-<p>test hsh: <%= @item.test_hash %></p>
+<p>format_item: <%#= @item.build_descrp("tag").split("") %></p>
+<p>loop: <%= @item.closure_loop(@item.build_descrp("tag")) %></p>
+<p>up/down: <%= @item.char_idx(@item.build_descrp("tag"), /[[:space:]]/, 190) %></p>
+<p>test: <%= @item.close_tag("(") %></p>
+<p>closure: <%#= @item.test_str.index(/\)/, @item.closure_idx(@item.test_str) + 1) %></p>
   <%= render "items/hidden", f: f %>
   <script type="text/javascript">
     function submitform(){

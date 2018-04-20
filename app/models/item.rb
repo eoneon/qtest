@@ -184,7 +184,6 @@ class Item < ApplicationRecord
   def build_descrp(ver)
     sub_d = []
     public_send(ver + "_list").each do |typ|
-      #sub_d << public_send("format_" + typ, ver)
       d = public_send("format_" + typ, ver)
       sub_d << punct(ver, typ, d)
       #cap_loop(ver, sub_d[0])
