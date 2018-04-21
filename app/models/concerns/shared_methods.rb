@@ -4,7 +4,7 @@ module SharedMethods
   extend ActiveSupport::Concern
 
   def test_arr1
-    ["a","b","c", "d"]
+    ["abc","efg","123"]
   end
 
   def test_hash
@@ -18,7 +18,8 @@ module SharedMethods
   def test_hash
     dog = {fuji: "love", denali: ["self"]}
     dog[:denali] << "cat"
-    dog
+    #dog[:fuji] = "heart"
+    dog = {fuji: "heart"}
   end
 
   def category_names

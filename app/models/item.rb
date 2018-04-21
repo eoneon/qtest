@@ -189,6 +189,7 @@ class Item < ApplicationRecord
       #cap_loop(ver, sub_d[0])
     end
     sub_d.join(" ")
+    #sub_d
   end
 
   #keep?
