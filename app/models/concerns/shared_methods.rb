@@ -4,7 +4,7 @@ module SharedMethods
   extend ActiveSupport::Concern
 
   def test_arr1
-    ["abc","efg","123"]
+    (0..9)
   end
 
   def test_hash
@@ -12,13 +12,12 @@ module SharedMethods
   end
 
   def test_str
-    "framed original painting on canvas (40 x 40), hand signed with certificate of authenticity."
+    "fr.am,ed original painting on canvas (40\" x 40\"), hand signed with certificate of authenticity."
   end
 
   def test_hash
     dog = {fuji: "love", denali: ["self"]}
     dog[:denali] << "cat"
-    #dog[:fuji] = "heart"
     dog = {fuji: "heart"}
   end
 
