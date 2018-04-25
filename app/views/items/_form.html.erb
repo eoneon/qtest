@@ -1,11 +1,8 @@
 <%= form_for @item, :html => {:id => 'item_form'} do |f| %>
-<p>descrp: <%= @item.build_descrp("tag") %></p>
-<p>closure_idx: <%= @item.closure_idx(@item.test_str) %></p>
-<p>idx: <%= @item.test_str[37] == "(" %></p>
-<p>cap: <%= @item.capitalize(@item.build_descrp("tag")) %></p>
-<p>up/down: <%#= @item.char_idx(@item.build_descrp("tag"), /[[:space:]]/, 190) %></p>
-<p>test: <%#= @item.test_hash %></p>
-<p>closure: <%#= @item.test_str.index(/\)/, @item.closure_idx(@item.test_str) + 1) %></p>
+<p>D: <%= @item.build_descrp("tag") %></p>
+<p>TEST STRING: <%= @item.test_str %></p>
+<p>IDX: <%= @item.test_str[7] %></p>
+<p>word_end?: <%= @item.word_str(@item.test_str, 7) %></p>
   <%= render "items/hidden", f: f %>
   <script type="text/javascript">
     function submitform(){

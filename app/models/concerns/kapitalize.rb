@@ -3,23 +3,73 @@ require 'active_support/concern'
 module Kapitalize
   extend ActiveSupport::Concern
 
-  ##capitalization checks
-  # def upper?(char)
-  #   char =~ /[A-Z]/
-  # end
-
-  def lower?(char)
-    char =~ /[a-z]/
-  end
-
   # def number?(char)
   #   char[0] =~ /\d/
   # end
 
-  def exempt_word?(chars)
-    %w(a an and or of on with from the).include?(chars)
+  # def lower?(char)
+  #   char =~ /[a-z]/
+  # end
+
+  def end_idx(d)
+    d.length - 1
   end
 
+  ##new
+  def lower?(d, i)
+    d[i] =~ /[a-z]/
+  end
+
+  def first_idx(i)
+    i == 0
+  end
+
+  def leading_spc?(d, i)
+    d[i - 1] =~ /\s/ if i - 1 > 0 #don't want to search end of string if number negative
+  end
+
+  def word_end(d, i)
+    i == end_idx(d) ? i : d.index(/[\s,.!?]/, i + 1)
+  end
+
+  def word?(d, i)
+    lower?(d, i) && first_idx(i) || lower?(d, i) && leading_spc?(d, i) #&& ! exempt_word?(word_str(d, i))
+  end
+
+  def valid_word?(d, i)
+    exempt_word?(word?(d, i)) if word?(d, i)
+  end
+  #convert to range?
+  def word_idx_rng(d, i)
+    [i..word_end(d, i)] if valid_word?(d, i) #leading_spc?(d, i) && lower?(d, i)
+  end
+
+  def word_str(d, i)
+    word_idx_rng(d, i).map {|i| d[i]}.join("") if word_idx_rng(d, i)
+  end
+
+  def exempt_word?(chars)
+    %w(a an and or of on with from the).exclude?(chars)
+  end
+
+  #closure methods
+  def closure_char(d, i)
+    d[i] =~ /[(]/ ? ")" : "\""
+  end
+
+  def closure_end(d, i)
+    d[i + 1..end_idx(d, i)].index(/#{closure_char(d, i)}/)
+  end
+
+  def closure_idx_rng(d, i)
+    [i..closure_end(d, i)]
+  end
+
+  def closure_str(d, i)
+    d[i..closure_end(d, i)]
+  end
+
+  ###
   def exempt_punct?(char)
     %w($ , ; . ! ? & -).include?(char)
   end
@@ -40,11 +90,7 @@ module Kapitalize
     chars.strip != "-" && chars.index(/-/)
   end
 
-  # def closure_tag(str)
-  #   idx = parenth_idx(str)
-  #   str[idx] == "(" ? ")" : "\""
-  #   #str[idx] =~ /\(/ ? /\)/ : "\""
-  # end
+
 
   # def close_tag(char)
   #   #char =~ /\(/ ? ")" : "\""
