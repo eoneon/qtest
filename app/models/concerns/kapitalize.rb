@@ -36,6 +36,10 @@ module Kapitalize
     lower?(d, i) && first_idx(i) || lower?(d, i) && leading_spc?(d, i) #&& ! exempt_word?(word_str(d, i))
   end
 
+  def exempt_word?(chars)
+    %w(a an and or of on with from the).exclude?(chars)
+  end
+
   def valid_word?(d, i)
     exempt_word?(word?(d, i)) if word?(d, i)
   end
@@ -48,15 +52,28 @@ module Kapitalize
     word_idx_rng(d, i).map {|i| d[i]}.join("") if word_idx_rng(d, i)
   end
 
-  def exempt_word?(chars)
-    %w(a an and or of on with from the).exclude?(chars)
-  end
-
   #closure methods
-  def closure_char(d, i)
-    d[i] =~ /[(]/ ? ")" : "\""
+  def closure?(d, i)
+    #char[0] == "(" || char[0] == "\""
+    d[i] =~ /[\"",(]/
   end
 
+  def closure_char(d, i)
+    #d[i] == "(" ? ")" : "\"" if closure?(d, i)
+    d[i] == "\(" ? "\)" : "\""
+  end
+
+  def matching_closure(d, i)
+    #d[i + 1..end_idx(d)].index(closure_char(d, i)) #need to use offset! also, careful to match string to string and not string to regexp
+    d.index(closure_char(d, i), i + 1)
+  end
+
+  def closure_idx(str)
+    #str =~ /[\(\)\"]/
+    str =~ /[\(\"\)]/
+  end
+
+  #kill
   def closure_end(d, i)
     d[i + 1..end_idx(d, i)].index(/#{closure_char(d, i)}/)
   end
@@ -78,9 +95,7 @@ module Kapitalize
     char[0] == "(" #|| char[0] == ")"
   end
 
-  def closure?(char)
-    char[0] == "(" || char[0] == "\""
-  end
+
 
   # def quote?(chars)
   #   char[0] == "\""

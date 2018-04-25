@@ -1,8 +1,10 @@
 <%= form_for @item, :html => {:id => 'item_form'} do |f| %>
 <p>D: <%= @item.build_descrp("tag") %></p>
+<p>closure_char: <%= @item.closure_char(@item.test_str, 34) %></p>
 <p>TEST STRING: <%= @item.test_str %></p>
-<p>IDX: <%= @item.test_str[7] %></p>
-<p>word_end?: <%= @item.word_str(@item.test_str, 7) %></p>
+<p>TEST regexp: <%= @item.test_str[34] =~ /[\"",(]/ %></p>
+<p>IDX: <%= @item.test_str[34] %></p>
+<p>matching_closure?: <%= @item.matching_closure(@item.test_str, 34) %></p>
   <%= render "items/hidden", f: f %>
   <script type="text/javascript">
     function submitform(){
