@@ -3,14 +3,6 @@ require 'active_support/concern'
 module Kapitalize
   extend ActiveSupport::Concern
 
-  # def number?(char)
-  #   char[0] =~ /\d/
-  # end
-
-  # def lower?(char)
-  #   char =~ /[a-z]/
-  # end
-
   def end_idx(d)
     d.length - 1
   end
@@ -33,7 +25,7 @@ module Kapitalize
   end
 
   def word?(d, i)
-    lower?(d, i) && first_idx(i) || lower?(d, i) && leading_spc?(d, i) #&& ! exempt_word?(word_str(d, i))
+    lower?(d, i) && first_idx(i) || lower?(d, i) && leading_spc?(d, i)
   end
 
   def exempt_word?(chars)
@@ -43,9 +35,10 @@ module Kapitalize
   def valid_word?(d, i)
     exempt_word?(word?(d, i)) if word?(d, i)
   end
+
   #convert to range?
   def word_idx_rng(d, i)
-    [i..word_end(d, i)] if valid_word?(d, i) #leading_spc?(d, i) && lower?(d, i)
+    [i..word_end(d, i)] if valid_word?(d, i)
   end
 
   def word_str(d, i)
@@ -54,39 +47,40 @@ module Kapitalize
 
   #closure methods
   def closure?(d, i)
-    #char[0] == "(" || char[0] == "\""
     d[i] =~ /[\"",(]/
   end
 
   def closure_char(d, i)
-    #d[i] == "(" ? ")" : "\"" if closure?(d, i)
     d[i] == "\(" ? "\)" : "\""
   end
 
   def matching_closure(d, i)
-    #d[i + 1..end_idx(d)].index(closure_char(d, i)) #need to use offset! also, careful to match string to string and not string to regexp
     d.index(closure_char(d, i), i + 1)
   end
 
-  def closure_idx(str)
-    #str =~ /[\(\)\"]/
-    str =~ /[\(\"\)]/
-  end
-
-  #kill
-  def closure_end(d, i)
-    d[i + 1..end_idx(d, i)].index(/#{closure_char(d, i)}/)
-  end
-
+  #convert to range?
   def closure_idx_rng(d, i)
-    [i..closure_end(d, i)]
+    [i..matching_closure(d, i)] if closure?(d[i])
+  end
+
+  #convert to range?
+  def closure_content_idx_rng(d, i)
+    [i + 1..matching_closure(d, i) - 1]
   end
 
   def closure_str(d, i)
-    d[i..closure_end(d, i)]
+    closure_idx_rng(d, i).map {|i| d[i]}.join("") if closure_idx_rng(d, i)
   end
 
-  ###
+  def valid_closure_content?(d, i)
+    closure_str(d, i)[1] =~ /[[:alpha:]]/ if closure_str(d, i)
+  end
+
+  def closure_content_str(d, i)
+    closure_str(d, i)[1..-2] if valid_closure_content?(d, i)
+  end
+
+  #kill
   def exempt_punct?(char)
     %w($ , ; . ! ? & -).include?(char)
   end
@@ -95,28 +89,19 @@ module Kapitalize
     char[0] == "(" #|| char[0] == ")"
   end
 
-
-
-  # def quote?(chars)
-  #   char[0] == "\""
-  # end
-
   def hyphenated?(chars)
     chars.strip != "-" && chars.index(/-/)
   end
 
-
-
-  # def close_tag(char)
-  #   #char =~ /\(/ ? ")" : "\""
-  #   #char  == /\(/ ? /\)/ : "\""
-  #   char == "(" ? ")" : "\""
+  #kill
+  # def closure_idx(str)
+  #   str =~ /[\(\"\)]/
   # end
 
-  def closure_idx(str)
-    #str =~ /[\(\)\"]/
-    str =~ /[\(\"\)]/
-  end
+  #kill
+  # def closure_end(d, i)
+  #   d[i + 1..end_idx(d, i)].index(/#{closure_char(d, i)}/)
+  # end
 
   def parenth_idx(str)
     str.index(")")

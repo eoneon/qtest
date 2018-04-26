@@ -4,7 +4,7 @@
 <p>TEST STRING: <%= @item.test_str %></p>
 <p>TEST regexp: <%= @item.test_str[34] =~ /[\"",(]/ %></p>
 <p>IDX: <%= @item.test_str[34] %></p>
-<p>matching_closure?: <%= @item.matching_closure(@item.test_str, 34) %></p>
+<p>matching_closure?: <%= @item.valid_closure_content?(@item.test_str, 34) %></p>
   <%= render "items/hidden", f: f %>
   <script type="text/javascript">
     function submitform(){
