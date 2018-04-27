@@ -21,7 +21,7 @@ module Kapitalize
   end
 
   def first_word_ridx(str)
-    str.index(/[\s,.!?)]/, first_word_idx(str) + 1) - 1
+    str.index(word_delim, first_word_idx(str) + 1) - 1
   end
 
   def first_word_idxrng(str)
@@ -32,13 +32,17 @@ module Kapitalize
     first_word_idxrng(str).map {|i| str[i]}.join("") if first_word_idxrng(str)
   end
 
+  def word_delim
+    /[\s\-\",.!?()]/
+  end
+
   def leading_spc?(str, i)
     str[i - 1] =~ /\s/ if i - 1 > 0 #don't want to search end of string if number negative
   end
 
   #word_ridx
   def word_end(str, i)
-    i == end_idx(str) ? i : str.index(/[\s,.!?]/, i + 1)
+    i == end_idx(str) ? i : str.index(word_delim, i + 1)
   end
 
   def word?(str, i)

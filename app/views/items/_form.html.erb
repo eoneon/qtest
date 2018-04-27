@@ -4,7 +4,7 @@
 <p>TEST STRING: <%= (6..6).count %></p>
 <p>TEST HERE!: <%= @item.sub_pat_at_idxs(@item.test_str, 79..90, "Dog") %></p>
 <p>First: <%= @item.first_word(@item.test_str) %></p>
-<p>replace_idxs: <%#= @item.last_word(@item.test_str, i) %></p>
+<p>delim: <%= @item.word_delim %></p>
 <p>kapitalize: <%#= @item.kapitalize(@item.test_str) %></p>
 <p>kapitalize: <%#= @item.cap_content(@item.test_str, 0, ) %></p>
   <%= render "items/hidden", f: f %>
