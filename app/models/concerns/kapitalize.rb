@@ -31,8 +31,12 @@ module Kapitalize
     d.rindex(/[a-z]/)
   end
 
-  def last_word_start_idx(d, i)
+  def last_word_start_idx(d)
     d[last_word_end_idx(d) - 1] =~ /\s/ ? last_word_end_idx(d) : d.rindex(/\s/, last_word_end_idx(d) - 1) + 1
+  end
+
+  def last_word(d)
+    d[last_word_start_idx(d)..last_word_end_idx(d)]
   end
 
   def exempt_word?(chars)
