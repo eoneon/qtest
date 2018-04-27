@@ -3,40 +3,73 @@ require 'active_support/concern'
 module Kapitalize
   extend ActiveSupport::Concern
 
-  def end_idx(d)
-    d.length - 1
+  def end_idx(str)
+    str.length - 1
   end
 
-  def lower?(d, i)
-    d[i] =~ /[a-z]/
+  def lower?(str, i)
+    str[i] =~ /[a-z]/
   end
 
+  #first_word
   def first_idx(i)
     i == 0
   end
 
-  def leading_spc?(d, i)
-    d[i - 1] =~ /\s/ if i - 1 > 0 #don't want to search end of string if number negative
+  def first_word_idx(str)
+    str.index(/[a-z]/)
   end
 
-  def word_end(d, i)
-    i == end_idx(d) ? i : d.index(/[\s,.!?]/, i + 1)
+  def first_word_ridx(str)
+    str.index(/[\s,.!?)]/, first_word_idx(str) + 1) - 1
   end
 
-  def word?(d, i)
-    lower?(d, i) && first_idx(i) || lower?(d, i) && leading_spc?(d, i)
+  def first_word_idxrng(str)
+    first_word_idx(str)..first_word_ridx(str)
   end
 
-  def last_word_end_idx(d)
-    d.rindex(/[a-z]/)
+  def first_word(str)
+    first_word_idxrng(str).map {|i| str[i]}.join("") if first_word_idxrng(str)
   end
 
-  def last_word_start_idx(d)
-    d[last_word_end_idx(d) - 1] =~ /\s/ ? last_word_end_idx(d) : d.rindex(/\s/, last_word_end_idx(d) - 1) + 1
+  def leading_spc?(str, i)
+    str[i - 1] =~ /\s/ if i - 1 > 0 #don't want to search end of string if number negative
+  end
+
+  #word_ridx
+  def word_end(str, i)
+    i == end_idx(str) ? i : str.index(/[\s,.!?]/, i + 1)
+  end
+
+  def word?(str, i)
+    lower?(str, i) && first_idx(i) || lower?(str, i) && leading_spc?(str, i)
+  end
+
+  #last_word_ridx
+  def last_word_end_idx(str)
+    str.rindex(/[a-z]/)
+  end
+
+  #last_word_idx
+  def last_word_start_idx(str)
+    str[last_word_end_idx(str) - 1] =~ /\s/ ? last_word_end_idx(str) : str.rindex(/\s/, last_word_end_idx(str) - 1) + 1
+  end
+
+  #last_word_idxs
+  def last_word_idx_rng(str)
+    last_word_start_idx(str)..last_word_end_idx(str)
   end
 
   def last_word(d)
     d[last_word_start_idx(d)..last_word_end_idx(d)]
+  end
+
+  def word_idx_rng(d, i)
+    (i..word_end(d, i)) if word?(d, i) #if valid_word?(d, i)
+  end
+
+  def word_str(d, i)
+    word_idx_rng(d, i).map {|i| d[i]}.join("") if word_idx_rng(d, i)
   end
 
   def exempt_word?(chars)
@@ -44,16 +77,7 @@ module Kapitalize
   end
 
   def valid_word?(d, i)
-    exempt_word?(word?(d, i)) if word?(d, i)
-  end
-
-  #convert to range?
-  def word_idx_rng(d, i)
-    (i..word_end(d, i)) if valid_word?(d, i)
-  end
-
-  def word_str(d, i)
-    word_idx_rng(d, i).map {|i| d[i]}.join("") if word_idx_rng(d, i)
+    exempt_word?(word_str(d, i)) if word?(d, i)
   end
 
   #closure methods
@@ -69,12 +93,10 @@ module Kapitalize
     d.index(closure_char(d, i), i + 1)
   end
 
-  #convert to range?
   def closure_idx_rng(d, i)
     (i..matching_closure(d, i)) if closure?(d, i)
   end
 
-  #convert to range?
   def closure_content_idx_rng(d, i)
     (i + 1..matching_closure(d, i) - 1)
   end
@@ -91,9 +113,19 @@ module Kapitalize
     closure_str(d, i)[1..-2] if valid_closure_content?(d, i)
   end
 
+  def sub_pat_at_idxs(str, idx_arg, pat)
+    if idx_arg.first == 0
+      pat + str[idx_arg.last + 1..-1]
+    elsif idx_arg == last_word_idx_rng(str)
+      str[0..idx_arg.first - 1] + pat
+    else
+      str[0..idx_arg.first - 1] + pat + str[idx_arg.last + 1..-1]
+    end
+  end
+
   #testing
   def content_loop(h)
-    idx == 0
+    idx = 0
     chars = []
     h[:content].split(h[:delim]).each do |word|
       chars << word[0] =~ /[a-z]/ && exempt_word?(word) || word[0] =~ /[a-z]/ && i == 0 ? word.capitalize : word
@@ -103,26 +135,27 @@ module Kapitalize
     chars.join(h[:delim])
   end
 
-  #testing
+  #kill
   def replace_idxs(d, idx_arg, pat)
     idxs = idx_arg.class == Range ? [idx_arg.first - 1, idx_arg.last + 1] : [idx_arg - 1, idx_arg + 1]
     #[d[0..idxs[0]], d[idxs[1]..-1]].join(pat)
   end
 
+  def delim_idx(content)
+    content.index(/[\s,-]/)
+  end
+
   #testing
   def cap_content(d, i, h)
-    delim_idx = h[:content].index(/[\s,-]/) if hyphenated?(h[:content][0]) || closure?(d, i)
-    pat = delim_idx ? content_loop(h.merge!(delim: h[:content][delim_idx])) : h[:content][0].capitalize
+    #delim_idx = h[:content].index(/[\s,-]/) if hyphenated?(h[:content][0]) || closure?(d, i)
+    #pat = delim_idx ? content_loop(h.merge!(delim: h[:content][delim_idx])) : h[:content][0].capitalize
+    pat = delim_idx(h[:content]) ? content_loop(h.merge!(delim: h[:content][delim_idx])) : h[:content].capitalize
     h.merge!(build: replace_idxs(d, h[:skip_idxs], pat))
   end
 
   #testing
   def set_hash(d, i, h)
-    if closure_idx_rng(d, i)
-      h.merge!(skip_idxs: closure_idx_rng(d, i), content: closure_str(d, i))
-    else
-      h.merge!(skip_idxs: word_idx_rng(d, i), content: word_str(d, i))
-    end
+    closure_idx_rng(d, i) ? h.merge!(skip_idxs: closure_idx_rng(d, i), content: closure_str(d, i)) : h.merge!(skip_idxs: word_idx_rng(d, i), content: word_str(d, i))
   end
 
   #testing
