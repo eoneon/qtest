@@ -3,19 +3,43 @@ require 'active_support/concern'
 module Kapitalize
   extend ActiveSupport::Concern
 
+  #kill
+  def first_idx(idx)
+    idx == 0
+  end
+
+  #maybe kill
+  def leading_spc?(str, idx)
+    str[idx - 1] =~ /\s/ if idx - 1 > 0 #don't want to search end of string if number negative
+  end
+
+  #kill
+  def word?(str, idx)
+    lower?(str, idx) && first_idx(idx) || lower?(str, idx) && leading_spc?(str, idx)
+  end
+
+  #start keep
   def end_idx(str)
     str.length - 1
   end
 
-  def lower?(str, i)
-    str[i] =~ /[a-z]/
+  def lower?(str, idx)
+    str[idx] =~ /[a-z]/
   end
 
-  #first_word
-  def first_idx(i)
-    i == 0
+  def word_delim
+    /[\s\-\",.!?()]/
   end
 
+  def valid_word_for_cap?(word)
+    word[0] =~ /[a-z]/ && exempt_word?(word)
+  end
+
+  def exempt_word?(chars)
+    %w(a an and or of on with from the).exclude?(chars)
+  end
+
+  #start
   def first_word_idx(str)
     str.index(/[a-z]/)
   end
@@ -24,73 +48,95 @@ module Kapitalize
     str.index(word_delim, first_word_idx(str) + 1) - 1
   end
 
-  def first_word_idxrng(str)
+  def first_word_idx_rng(str)
     first_word_idx(str)..first_word_ridx(str)
   end
 
   def first_word(str)
-    first_word_idxrng(str).map {|i| str[i]}.join("") if first_word_idxrng(str)
+    first_word_idx_rng(str).map {|i| str[i]}.join("") if first_word_idx_rng(str)
+  end
+  #end
+
+  #start
+  def first_chars_idx_rng(str)
+    0..first_word_ridx(str)
+  end
+  #end
+
+  #start
+  def next_chars_idx(str, idx)
+    str.index(/[a-z]/, idx + 1) if idx > 0 && str.index(/[a-z]/, idx + 1) > last_word_idx(str)
   end
 
-  def word_delim
-    /[\s\-\",.!?()]/
+  def next_chars_ridx(str, idx)
+    str.index(word_delim, next_chars_idx(str, idx) + 1)
   end
 
-  def leading_spc?(str, i)
-    str[i - 1] =~ /\s/ if i - 1 > 0 #don't want to search end of string if number negative
+  def next_chars_idx_rng(str, idx)
+    next_chars_idx(str, idx)..next_chars_ridx(str, idx)
   end
 
-  #word_ridx
-  def word_end(str, i)
-    i == end_idx(str) ? i : str.index(word_delim, i + 1)
+  #dup: refactore to take any idx_rng
+  def next_word(str, idx)
+    next_chars_idx_rng(str, idx).map {|i| str[i]}.join("") if next_chars_idx_rng(str, idx)
+  end
+  #end
+
+  #word_ridx: :i #=>offset
+  def word_end(str, idx)
+    idx == end_idx(str) ? idx : str.index(word_delim, idx + 1)
   end
 
-  def word?(str, i)
-    lower?(str, i) && first_idx(i) || lower?(str, i) && leading_spc?(str, i)
+  #start: here!
+  def last_chars_idx_rng(str)
+    last_word_ridx(str)..-1
   end
 
-  #last_word_ridx
-  def last_word_end_idx(str)
+  def last_word_ridx(str)
     str.rindex(/[a-z]/)
   end
 
   #last_word_idx
-  def last_word_start_idx(str)
-    str[last_word_end_idx(str) - 1] =~ /\s/ ? last_word_end_idx(str) : str.rindex(/\s/, last_word_end_idx(str) - 1) + 1
+  def last_word_idx(str)
+    str[last_word_ridx(str) - 1] =~ /\s/ ? last_word_ridx(str) : str.rindex(/\s/, last_word_ridx(str) - 1) + 1
   end
 
   #last_word_idxs
   def last_word_idx_rng(str)
-    last_word_start_idx(str)..last_word_end_idx(str)
+    last_word_idx(str)..last_word_ridx(str)
   end
 
-  def last_word(d)
-    d[last_word_start_idx(d)..last_word_end_idx(d)]
+  def last_word(str)
+    str[last_word_idx(str)..last_word_ridx(str)]
   end
 
-  def word_idx_rng(d, i)
-    (i..word_end(d, i)) if word?(d, i) #if valid_word?(d, i)
+  def word_idx_rng(str, idx)
+    (idx..word_end(str, idx)) if word?(str, idx) #if valid_word?(d, i)
   end
 
-  def word_str(d, i)
-    word_idx_rng(d, i).map {|i| d[i]}.join("") if word_idx_rng(d, i)
+  def word_str(str, idx)
+    word_idx_rng(str, idx).map {|i| str[i]}.join("") if word_idx_rng(str, idx)
   end
 
-  def exempt_word?(chars)
-    %w(a an and or of on with from the).exclude?(chars)
+
+
+
+
+  def valid_word?(str, i)
+    exempt_word?(word_str(str, idx)) if word?(str, idx)
   end
 
-  def valid_word?(d, i)
-    exempt_word?(word_str(d, i)) if word?(d, i)
+  def cap_word(word)
+    valid_word?(word) ? word.capitalize : word
   end
 
   #closure methods
-  def closure?(d, i)
-    d[i] =~ /[\"",(]/
+  def closure?(str, idx)
+    str[idx] =~ /[\"",(]/
   end
 
-  def closure_char(d, i)
-    d[i] == "\(" ? "\)" : "\""
+  def closure_char(str, idx)
+    str[idx] == "\(" ? "\)" : "\""
   end
 
   def matching_closure(d, i)
