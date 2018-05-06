@@ -1,5 +1,6 @@
 class Item < ApplicationRecord
   include SharedMethods
+  include Capitalization
   include Kapitalize
 
   belongs_to :mount_type, optional: true
@@ -179,6 +180,35 @@ class Item < ApplicationRecord
   def format_item(ver)
     d = item_type.typ_ver_args(ver)
     item_list.present? ? insert_types(d, ver) : d
+  end
+
+  #xl_dim methods
+  def xl_dim_str(d)
+    pop_type("dim", dim_type.xl_dims) if xl_dims
+  end
+
+  def xl_dim_idx(d)
+    build_descrp("tag").index(xl_dim_str(d)) if xl_dim_str(d)
+  end
+
+  def xl_dim_ridx(d)
+    xl_dim_idx(d) + xl_dim_str(d).length if xl_dim_idx(d)
+  end
+
+  #test for range/array behavior
+  def xl_dim_idxs(d)
+    [xl_dim_idx(d), xl_dim_ridx(d)] if xl_dim_ridx(d)
+  end
+
+  #kill
+  def delimit(d)
+    if xl_dims
+      delim = pop_type("dim", dim_type.xl_dims)
+    else
+      delim = /\s/
+    end
+    l = delim.length
+    build_descrp("tag").rindex(/#{delim}/)
   end
 
   def build_descrp(ver)

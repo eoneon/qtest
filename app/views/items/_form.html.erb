@@ -1,12 +1,13 @@
 <%= form_for @item, :html => {:id => 'item_form'} do |f| %>
-<p>D: <%= @item.build_descrp("tag") %></p>
-<p>closure_char: <%= @item.end_idx(@item.test_str) %></p>
-<p>TEST STRING: <%= (6..6).count %></p>
-<p>TEST HERE!: <%= @item.sub_pat_at_idxs(@item.test_str, 79..90, "Dog") %></p>
-<p>First: <%= @item.first_word(@item.test_str) %></p>
-<p>delim: <%= @item.word_delim %></p>
-<p>kapitalize: <%#= @item.kapitalize(@item.test_str) %></p>
-<p>kapitalize: <%#= @item.cap_content(@item.test_str, 0, ) %></p>
+<p>D: <%= @item.build_descrp("tag")[45..56] %></p>
+<p>first_word_idx_rng: <%= @item.first_word_idx_rng(@item.test_str) %></p>
+<p>first_chars_idx_rng: <%= @item.first_chars_idx_rng(@item.test_str) %></p>
+<p>next_chars_idx: <%= @item.next_chars_idx(@item.test_str, 8) %></p>
+<p>TEST HERE!: <%= @item.xl_dim_idx(@item.build_descrp("tag")) %></p>
+<p>idx: <%= @item.test_str[6] %></p>
+<p>regexp: <%= @item.test_str.index(/[^\s]/, 6) %></p>
+<p>next_chars_idx_rng: <%= @item.next_chars_idx_rng(@item.test_str, 6) %></p>
+<p>xl_dim_rng: <%= @item.xl_dim_idxs(@item.build_descrp("tag")) %></p>
   <%= render "items/hidden", f: f %>
   <script type="text/javascript">
     function submitform(){
