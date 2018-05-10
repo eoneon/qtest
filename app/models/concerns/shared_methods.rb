@@ -12,7 +12,8 @@ module SharedMethods
   end
 
   def test_str
-    "framed oriinal painting on canvas (40\" x 40\"), hand signed with certificate of authenticity."
+    #{}"framed oriinal painting on canvas (40\" x 40\"), hand signed with certificate of authenticity."
+    "framed oriinal painting on canvas, hand signed with certificate of."
   end
 
   def test_hash

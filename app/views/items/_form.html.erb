@@ -1,13 +1,10 @@
 <%= form_for @item, :html => {:id => 'item_form'} do |f| %>
-<p>D: <%= @item.build_descrp("tag")[45..56] %></p>
-<p>first_word_idx_rng: <%= @item.first_word_idx_rng(@item.test_str) %></p>
-<p>first_chars_idx_rng: <%= @item.first_chars_idx_rng(@item.test_str) %></p>
-<p>next_chars_idx: <%= @item.next_chars_idx(@item.test_str, 8) %></p>
-<p>TEST HERE!: <%= @item.xl_dim_idx(@item.build_descrp("tag")) %></p>
+<p>D: <%= @item.build_descrp("tag") %></p>
+<p>next_chars_idx: <%#= @item.next_chars_idx(@item.test_str, 8) %></p>
 <p>idx: <%= @item.test_str[6] %></p>
-<p>regexp: <%= @item.test_str.index(/[^\s]/, 6) %></p>
-<p>next_chars_idx_rng: <%= @item.next_chars_idx_rng(@item.test_str, 6) %></p>
-<p>xl_dim_rng: <%= @item.xl_dim_idxs(@item.build_descrp("tag")) %></p>
+<p>sub: <%= @item.sub_pat_ridx("frame", 0) %></p>
+<p>next_chars_idx_rng: <%#= @item.next_chars_idx_rng(@item.test_str, 6) %></p>
+<p>test upcase: <%= @item.title_upcase(@item.test_str) %></p>
   <%= render "items/hidden", f: f %>
   <script type="text/javascript">
     function submitform(){
