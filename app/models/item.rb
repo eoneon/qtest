@@ -197,7 +197,8 @@ class Item < ApplicationRecord
 
   #test for range/array behavior
   def xl_dim_idxs(d)
-    [xl_dim_idx(d), xl_dim_ridx(d)] if xl_dim_ridx(d)
+    #[xl_dim_idx(d), xl_dim_ridx(d)] if xl_dim_ridx(d)
+    xl_dim_idx(d)..xl_dim_ridx(d) if xl_dim_ridx(d)
   end
 
   #kill

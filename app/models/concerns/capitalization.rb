@@ -5,11 +5,11 @@ module Capitalization
   include SharedMethods
 
   def next_pat_idx(str, pat, idx)
-    str.index(/[^\s]/, idx + pat.length + 1)
+    str.index(/[^\s]/, idx + pat.length)
   end
 
   def lower_alpha?(pat)
-    pat[0] =~ /[a-z]/
+    pat[0] =~ /[a-z]/ if pat
   end
 
   def exempt_word?(word)
@@ -17,7 +17,7 @@ module Capitalization
   end
 
   def sub_pat_idx(pat, idx)
-    idx + pat.index(/[a-z]/) if pat.index(/[a-z]/)
+    idx + pat.index(/[a-z]/) if pat.index(/[a-z]/) && pat[0] =~ /[^A-Z]/
   end
 
   def sub_pat_ridx(pat, idx)
@@ -29,19 +29,19 @@ module Capitalization
   end
 
   def word_alpha(str, pat, idx)
-    str[sub_pat_idxs(pat, idx)[0]..sub_pat_idxs(pat, idx)[1]] if sub_pat_idxs(pat, idx)[0].present? && sub_pat_idxs(pat, idx)[1].present?
+    str[sub_pat_idxs(pat, idx)[0]..sub_pat_idxs(pat, idx)[1]] if sub_pat_idxs(pat, idx) && sub_pat_idxs(pat, idx)[0].present? && sub_pat_idxs(pat, idx)[1].present?
   end
 
   def exempt_lower_alpha?(str, pat, idx)
-     exempt_word?(word_alpha(str, pat, idx)) && lower_alpha?(word_alpha(str, pat, idx)) || idx == 0 && lower_alpha?(word_alpha(str, pat, idx))
+    lower_alpha?(word_alpha(str, pat, idx)) && (idx == 0 || exempt_word?(word_alpha(str, pat, idx)))
   end
 
   def valid_cap_idxs?(str, idx)
-    idx < xl_dim_idxs(str)[0] && idx > xl_dim_idxs(str)[-1]
+    xl_dim_idxs(str).exclude?(idx)
   end
 
   def valid_cap_word?(str, pat, idx)
-    valid_cap_idxs?(str, idx) || exempt_lower_alpha?(str, pat, idx)
+    valid_cap_idxs?(str, idx) && exempt_lower_alpha?(str, pat, idx)
   end
 
   def cap_word(str, pat, h)

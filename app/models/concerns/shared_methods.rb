@@ -13,7 +13,7 @@ module SharedMethods
 
   def test_str
     #{}"framed oriinal painting on canvas (40\" x 40\"), hand signed with certificate of authenticity."
-    "framed oriinal painting on canvas, hand signed with certificate of."
+    "framed hand colored sold out limited edition with gold leaf, AP numbered 1/100 with official seal from Warner Bros. and certificate of authenticity from Linda Jones Enterprises."
   end
 
   def test_hash
