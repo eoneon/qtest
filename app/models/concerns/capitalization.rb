@@ -37,7 +37,7 @@ module Capitalization
   end
 
   def valid_cap_idxs?(str, idx)
-    xl_dim_idxs(str).exclude?(idx)
+    xl_dim_idxs(str).nil? || xl_dim_idxs(str).exclude?(idx)  
   end
 
   def valid_cap_word?(str, pat, idx)
