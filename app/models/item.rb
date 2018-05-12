@@ -188,16 +188,14 @@ class Item < ApplicationRecord
   end
 
   def xl_dim_idx(d)
-    build_descrp("tag").index(xl_dim_str(d)) if xl_dim_str(d)
+    d.index(xl_dim_str(d)) if xl_dim_str(d)
   end
 
   def xl_dim_ridx(d)
     xl_dim_idx(d) + xl_dim_str(d).length if xl_dim_idx(d)
   end
 
-  #test for range/array behavior
   def xl_dim_idxs(d)
-    #[xl_dim_idx(d), xl_dim_ridx(d)] if xl_dim_ridx(d)
     xl_dim_idx(d)..xl_dim_ridx(d) if xl_dim_ridx(d)
   end
 
@@ -217,10 +215,8 @@ class Item < ApplicationRecord
     public_send(ver + "_list").each do |typ|
       d = public_send("format_" + typ, ver)
       sub_d << punct(ver, typ, d)
-      #cap_loop(ver, sub_d[0])
     end
-    sub_d.join(" ")
-    #sub_d
+    title_upcase(sub_d.join(" "))
   end
 
   #keep?
