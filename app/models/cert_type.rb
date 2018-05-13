@@ -57,7 +57,7 @@ class CertType < ApplicationRecord
     cert_arr = seal_and_cert? ? join_seal_cert("descrp") : category_names
     cert_arr = certissuer? ? format_issuer(cert_arr, "certissuer") : cert_arr
     cert_arr = sealissuer? ? format_issuer(cert_arr, "sealissuer") : cert_arr
-    inverso? ? format_inverso(cert_arr) : cert_arr
+    #inverso? ? format_inverso(cert_arr) : cert_arr
   end
 
   def na_clause

@@ -217,6 +217,7 @@ class Item < ApplicationRecord
       sub_d << punct(ver, typ, d)
     end
     title_upcase(sub_d.join(" "))
+    #sub_d.join(" ")
   end
 
   #keep?
