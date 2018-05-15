@@ -1,5 +1,5 @@
 <%= form_for @item, :html => {:id => 'item_form'} do |f| %>
-<p><strong>tagline2:</strong> <%= @item.build_descrp("inv") %></p>
+<p><strong>tagline2:</strong> <%= @item.build_descrp("body") %></p>
 <p><strong>tagline:</strong> <%#= @item.build_descrp("tag") %></p>
   <%= render "items/hidden", f: f %>
   <script type="text/javascript">

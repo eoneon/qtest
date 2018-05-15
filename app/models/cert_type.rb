@@ -61,18 +61,18 @@ class CertType < ApplicationRecord
   end
 
   def na_clause
-    "this piece does not come with a Certificate of Authenticity"
+    "This piece does not come with a Certificate of Authenticity"
   end
 
   def psa_clause
-    "this piece is presented with PSA/DNA Authentication, which authenticates memorabilia using proprietary permanent invisible ink as well as a strand of synthetic DNA"
+    "This piece is presented with PSA/DNA Authentication, which authenticates memorabilia using proprietary permanent invisible ink as well as a strand of synthetic DNA"
   end
 
   def format_coa(k)
     case properties[k]
-    when "COA" then "certificate"
-    when "LOA" then "letter"
-    when "SOA" then "seal"
+    when "COA" then "Certificate"
+    when "LOA" then "Letter"
+    when "SOA" then "Seal"
     end
   end
 
@@ -87,8 +87,8 @@ class CertType < ApplicationRecord
   def cert_context(ver, k)
     case
     when category_names.exclude?(k) then k
-    when %(COA LOA SOA).include?(properties[k]) then format_coa(k) + " of authenticity"
-    when properties[k] == "PSA/DNA" && %(tag inv).include?(ver) then properties[k] + " authentication"
+    when %(COA LOA SOA).include?(properties[k]) then format_coa(k) + " of Authenticity"
+    when properties[k] == "PSA/DNA" && %(tag inv).include?(ver) then properties[k] + " Authentication"
     when properties[k] == "PSA/DNA" && ver == "body" then psa_clause
     else properties[k]
     end

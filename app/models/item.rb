@@ -96,7 +96,7 @@ class Item < ApplicationRecord
   def punct(ver, typ, d)
     case
     when typ == public_send(ver + "_list")[-1] && ver != "body" then d + "."
-    when typ == "item" && ver == "body" && tag_list.all? {|i| %(edition sign).exclude?(i)} then d + "."
+    when typ == "item" && ver == "body" && tag_list.all? {|i| %(edition sign).exclude?(i)} then d.capitalize + "."
     when typ == "item" && tag_list.any? {|i| %(edition sign).include?(i)} then d + ","
     when typ == "edition" && tag_list.include?("sign") then d + " and"
     when typ == "edition" && ver == "body" && tag_list.exclude?("sign") then d + "."
@@ -216,8 +216,8 @@ class Item < ApplicationRecord
       d = public_send("format_" + typ, ver)
       sub_d << punct(ver, typ, d)
     end
-    title_upcase(sub_d.join(" "))
-    #sub_d.join(" ")
+    #title_upcase(sub_d.join(" "))
+    sub_d.join(" ")
   end
 
   #keep?
