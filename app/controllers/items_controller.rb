@@ -9,7 +9,7 @@ class ItemsController < ApplicationController
 
   def new
     #@invoice = Invoice.find(params[:invoice_id])
-    @item = Item.new(mount_type_id: params[:mount_type_id], item_type_id: params[:item_type_id], edition_type_id: params[:edition_type_id], sign_type_id: params[:sign_type_id], cert_type_id: params[:cert_type_id], dim_type_id: params[:dim_type_id])
+    @item = Item.new(artist_type_id: params[:artist_type_id], mount_type_id: params[:mount_type_id], item_type_id: params[:item_type_id], edition_type_id: params[:edition_type_id], sign_type_id: params[:sign_type_id], cert_type_id: params[:cert_type_id], dim_type_id: params[:dim_type_id])
   end
 
   def create

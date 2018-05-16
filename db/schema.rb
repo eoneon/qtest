@@ -10,11 +10,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180221181133) do
+ActiveRecord::Schema.define(version: 20180516020000) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "hstore"
+
+  create_table "artist_types", force: :cascade do |t|
+    t.hstore "properties"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "category_id"
+    t.index ["category_id"], name: "index_artist_types_on_category_id"
+  end
 
   create_table "categories", force: :cascade do |t|
     t.string "name"

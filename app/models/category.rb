@@ -1,6 +1,7 @@
 class Category < ApplicationRecord
   include Importable
 
+  has_many :artist_types
   has_many :mount_types
   has_many :item_types
   has_many :edition_types

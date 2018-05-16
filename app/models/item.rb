@@ -1,8 +1,8 @@
 class Item < ApplicationRecord
   include SharedMethods
   include Capitalization
-  #include Kapitalize
 
+  belongs_to :artist_types, optional: true
   belongs_to :mount_type, optional: true
   belongs_to :item_type, optional: true
   belongs_to :edition_type, optional: true
