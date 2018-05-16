@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180516020000) do
+ActiveRecord::Schema.define(version: 20180516035355) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -103,6 +103,8 @@ ActiveRecord::Schema.define(version: 20180516020000) do
     t.bigint "cert_type_id"
     t.bigint "mount_type_id"
     t.bigint "dim_type_id"
+    t.bigint "artist_type_id"
+    t.index ["artist_type_id"], name: "index_items_on_artist_type_id"
     t.index ["cert_type_id"], name: "index_items_on_cert_type_id"
     t.index ["dim_type_id"], name: "index_items_on_dim_type_id"
     t.index ["edition_type_id"], name: "index_items_on_edition_type_id"

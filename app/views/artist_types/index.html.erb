@@ -1,0 +1,22 @@
+<p id="notice"><%= notice %></p>
+
+<h1>ArtistType#index</h1>
+<% if @artist_types.empty? %>
+  <p><strong>No ArtistTypes</strong></p>
+<% end %>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @artist_types.each do |artist_type| %>
+      <%= render 'artist_types/artist_type', artist_type: artist_type %>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+<%= link_to "New artist_type", new_artist_type_path %>
