@@ -103,6 +103,10 @@ class ItemType < ApplicationRecord
     properties[category_names[xl_dim_pos]]
   end
 
+  def artist_ref
+    properties[category_names[-1]]
+  end
+
   def substrate_args(k, ver)
    ver == "tag" && k == "paper" ? return : "on #{properties[k]}"
   end

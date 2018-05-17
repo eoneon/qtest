@@ -25,7 +25,8 @@ module ApplicationHelper
   end
 
   def type_list
-    [MountType, ItemType, SignType, CertType]
+    [ArtistType, MountType, ItemType, SignType, CertType]
+    #[MountType, ItemType, SignType, CertType]
   end
 
   #scopes

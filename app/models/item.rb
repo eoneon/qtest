@@ -2,7 +2,7 @@ class Item < ApplicationRecord
   include SharedMethods
   include Capitalization
 
-  belongs_to :artist_types, optional: true
+  belongs_to :artist_type, optional: true
   belongs_to :mount_type, optional: true
   belongs_to :item_type, optional: true
   belongs_to :edition_type, optional: true
@@ -10,6 +10,46 @@ class Item < ApplicationRecord
   belongs_to :cert_type, optional: true
   belongs_to :dim_type, optional: true
 
+  def inner_dim_arr
+    dim_type.inner_dims.map {|d| properties[d]} if dim_type && dim_type.inner_dims
+  end
+
+  #keep?
+  def outer_dim_arr
+    dim_type.outer_dims.map {|d| properties[d]} if dim_type && dim_type.outer_dims
+  end
+
+  #move: this might stay since it will be used as a virtual attribute
+  def image_size
+    inner_dim_arr[0].to_i * inner_dim_arr[-1].to_i if inner_dim_arr.present? && inner_dim_arr.count >= 1
+  end
+
+  #item-specific so either keep here or move to item-description-specific conern or presentor
+  def frame_size
+    outer_dim_arr[0].to_i * outer_dim_arr[1].to_i if outer_dim_arr.present? && outer_dim_arr.count == 2 && dim_type.outer_target == "frame"
+  end
+
+  #xl_dim methods
+  def xl_dim_str(d)
+    pop_type("dim", dim_type.xl_dims) if xl_dims
+  end
+
+  def xl_dim_idx(d)
+    d.index(xl_dim_str(d)) if xl_dim_str(d)
+  end
+
+  def xl_dim_ridx(d)
+    xl_dim_idx(d) + xl_dim_str(d).length if xl_dim_idx(d)
+  end
+
+  def xl_dim_idxs(d)
+    xl_dim_idx(d)..xl_dim_ridx(d) if xl_dim_ridx(d)
+  end
+
+  #item-specific (refactor ->pattern is dim_type-specific): display-specific -> presentor
+  def xl_dims
+    frame_size && frame_size > 1200 || frame_size.blank? && image_size && image_size > 1200
+  end
   #eg: "Hello" -> String -> "String" -> "string" *unused utility meth
   def class_to_str(obj)
     obj.class.to_s.downcase
@@ -56,7 +96,7 @@ class Item < ApplicationRecord
 
   #ver_lists
   def tag_list
-    arr = %w(item edition sign cert) & valid_types
+    arr = %w(artist item edition sign cert) & valid_types
     if edition_type && edition_type.category.name == "unnumbered"
       arr - ["edition"]
     else
@@ -65,7 +105,7 @@ class Item < ApplicationRecord
   end
 
   def inv_list
-    %w(item edition sign cert dim) & valid_types
+    %w(artist item edition sign cert dim) & valid_types
   end
 
   def body_list
@@ -73,30 +113,26 @@ class Item < ApplicationRecord
     arr = %w(item edition sign mount cert dim) & valid_types
     mount_type.stretched ? arr - ["mount"] : arr
   end
-  #if "stretched" then - mount
-
-  #item-specific (refactor ->pattern is dim_type-specific): display-specific -> presentor
-  def xl_dims
-    frame_size && frame_size > 1200 || frame_size.blank? && image_size && image_size > 1200
-  end
 
   def type_conditions(typ)
     case
-    when typ == "mount" then typ
+    when typ == "mount" || typ == "artist" then typ
     when typ == "dim" && xl_dims then typ
     end
   end
 
   def item_list
-    typs = %w(mount dim) & valid_types
+    typs = %w(mount artist dim) & valid_types
     typs.map {|typ| type_conditions(typ)}.compact if typs.present?
   end
 
   # DESCRIPTION METHOCDS
   def punct(ver, typ, d)
     case
+    #when typ == "artist" && ver != "body" then d + " - "
     when typ == public_send(ver + "_list")[-1] && ver != "body" then d + "."
-    when typ == "item" && ver == "body" && tag_list.all? {|i| %(edition sign).exclude?(i)} then d.capitalize + "."
+    when typ == "item" && ver == "body" && tag_list.all? {|i| %(edition sign).exclude?(i)} then d + "."
+
     when typ == "item" && tag_list.any? {|i| %(edition sign).include?(i)} then d + ","
     when typ == "edition" && tag_list.include?("sign") then d + " and"
     when typ == "edition" && ver == "body" && tag_list.exclude?("sign") then d + "."
@@ -142,6 +178,12 @@ class Item < ApplicationRecord
     t_args.merge!(hsh_args)
   end
 
+  def hsh_args_artist(d, t_args)
+    #hsh_args = {str: d, pat: item_type.artist_ref}
+    hsh_args = {str: d, pat: d}
+    t_args.merge!(hsh_args)
+  end
+
   def insert_types(d, ver)
     descrp = ""
     item_list.each do |t|
@@ -151,6 +193,10 @@ class Item < ApplicationRecord
       descrp = insert_rel_to_pat(t_args)
     end
     descrp
+  end
+
+  def format_artist(ver)
+    artist_type.typ_ver_args(ver)
   end
 
   def format_dim(ver)
@@ -182,63 +228,17 @@ class Item < ApplicationRecord
     item_list.present? ? insert_types(d, ver) : d
   end
 
-  #xl_dim methods
-  def xl_dim_str(d)
-    pop_type("dim", dim_type.xl_dims) if xl_dims
-  end
-
-  def xl_dim_idx(d)
-    d.index(xl_dim_str(d)) if xl_dim_str(d)
-  end
-
-  def xl_dim_ridx(d)
-    xl_dim_idx(d) + xl_dim_str(d).length if xl_dim_idx(d)
-  end
-
-  def xl_dim_idxs(d)
-    xl_dim_idx(d)..xl_dim_ridx(d) if xl_dim_ridx(d)
-  end
-
-  #kill
-  def delimit(d)
-    if xl_dims
-      delim = pop_type("dim", dim_type.xl_dims)
-    else
-      delim = /\s/
-    end
-    l = delim.length
-    build_descrp("tag").rindex(/#{delim}/)
-  end
-
   def build_descrp(ver)
     sub_d = []
     public_send(ver + "_list").each do |typ|
       d = public_send("format_" + typ, ver)
       sub_d << punct(ver, typ, d)
     end
-    #title_upcase(sub_d.join(" "))
-    sub_d.join(" ")
+    title_upcase(sub_d.join(" "))
+    #sub_d.join(" ")
   end
 
-  #keep?
-  def inner_dim_arr
-    dim_type.inner_dims.map {|d| properties[d]} if dim_type && dim_type.inner_dims
-  end
 
-  #keep?
-  def outer_dim_arr
-    dim_type.outer_dims.map {|d| properties[d]} if dim_type && dim_type.outer_dims
-  end
-
-  #move: this might stay since it will be used as a virtual attribute
-  def image_size
-    inner_dim_arr[0].to_i * inner_dim_arr[-1].to_i if inner_dim_arr.present? && inner_dim_arr.count >= 1
-  end
-
-  #item-specific so either keep here or move to item-description-specific conern or presentor
-  def frame_size
-    outer_dim_arr[0].to_i * outer_dim_arr[1].to_i if outer_dim_arr.present? && outer_dim_arr.count == 2 && dim_type.outer_target == "frame"
-  end
 
   #kill-->(might need this)--covered by pos methods + type loop
   # def substrate_kind
