@@ -16,20 +16,29 @@ module Capitalization
     %w(a an and or of on with from the x).exclude?(word)
   end
 
-  def sub_pat_idx(pat, idx)
-    idx + pat.index(/[a-z]/) if pat.index(/[a-z]/) && pat[0] =~ /[^A-Z]/
+  def sub_pat_idx(pat)
+    pat.index(/[a-z]/) if pat.index(/[a-z]/) && pat[0] =~ /[^A-Z]/
   end
 
-  def sub_pat_ridx(pat, idx)
-    sub_pat_idx(pat, idx) + pat.rindex(/[a-z]/) if pat.rindex(/[a-z]/)
+  def sub_pat_ridx(pat)
+    pat.rindex(/[a-z]/) if pat.rindex(/[a-z]/)
   end
 
-  def sub_pat_idxs(pat, idx)
-    [sub_pat_idx(pat, idx), sub_pat_ridx(pat, idx)] if sub_pat_idx(pat, idx)
+  def word_idx(pat, idx)
+    idx + sub_pat_idx(pat) if sub_pat_idx(pat)
+  end
+
+  def word_ridx(pat, idx)
+    idx + sub_pat_ridx(pat) if word_idx(pat, idx)
+    #word_idx(pat, idx) + sub_pat_ridx(pat) if sub_pat_idx(pat)
+  end
+
+  def word_idxs(pat, idx)
+    [word_idx(pat, idx), word_ridx(pat, idx)] if word_idx(pat, idx)
   end
 
   def word_alpha(str, pat, idx)
-    str[sub_pat_idxs(pat, idx)[0]..sub_pat_idxs(pat, idx)[1]] if sub_pat_idxs(pat, idx) && sub_pat_idxs(pat, idx)[0].present? && sub_pat_idxs(pat, idx)[1].present?
+    str[word_idxs(pat, idx)[0]..word_idxs(pat, idx)[1]] if word_idxs(pat, idx) && word_idxs(pat, idx)[0].present? && word_idxs(pat, idx)[1].present?
   end
 
   def exempt_lower_alpha?(str, pat, idx)
@@ -45,7 +54,7 @@ module Capitalization
   end
 
   def cap_word(str, pat, h)
-    h.merge!(build: replace_pat(h[:build], sub_pat_idxs(pat, h[:idx]), word_alpha(str, pat, h[:idx]).capitalize)) if valid_cap_word?(str, pat, h[:idx])
+    h.merge!(build: replace_pat(h[:build], word_idxs(pat, h[:idx]), word_alpha(str, pat, h[:idx]).capitalize)) if valid_cap_word?(str, pat, h[:idx])
   end
 
   def title_upcase(str)

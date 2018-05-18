@@ -81,15 +81,9 @@ class ItemType < ApplicationRecord
     property_kind_pos(substrate_key)
   end
 
-  # def xl_dim_pos
-  #   if substrate_key != "paper"
-  #     substrate_pos - 1
-  #   elsif substrate_key == "paper" && properties[media_key] != "giclee"
-  #     substrate_pos - 2
-  #   elsif substrate_key == "paper" && properties[media_key] == "giclee"
-  #     substrate_pos - 3
-  #   end
-  # end
+  def frame_ref_key
+    properties[category_names[0]]
+  end
 
   def xl_dim_pos
     case
@@ -134,6 +128,10 @@ class ItemType < ApplicationRecord
     end
     medium.join(" ")
   end
+
+  # def typ_ver_args(ver)
+  #   h = {v: args_loop(ver)} if properties?
+  # end
 
   def typ_ver_args(ver)
     args_loop(ver) if properties?

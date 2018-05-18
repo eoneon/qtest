@@ -14,7 +14,8 @@ class EditionType < ApplicationRecord
     when "edition_numbered_size" then ["numbered out of", h = {v: "edition numbered out of size"}]
     when "edition_numbered" then ["numbered qty", h = {v: "edition numbered"}]
     when "edition" then ["from an edition", h = {occ: 0, pos: "after", pat: "from", v: "from edition edition", ws: 1}]
-    when "unnumbered" then ["not numbered", "this piece is not numbered"] #category_names don't correspond to value -> hsh?/str?
+    when "unnumbered" then ["not numbered", "This piece is not numbered."]
+    #when "unnumbered" then ["not numbered", h = {v: "This piece is not numbered."}]
     end
   end
 
