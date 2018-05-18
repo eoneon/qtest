@@ -1,5 +1,5 @@
 <%= form_for @item, :html => {:id => 'item_form'} do |f| %>
-<p><strong>tagline:</strong> <%= @item.item_list %></p>
+<p><strong>tagline:</strong> <%= @item.includes_edition_and_sign? %></p>
 <p><strong>body:</strong> <%= @item.build_descrp("tag") %></p>
 <p><strong>body:</strong> <%= @item.build_descrp("body") %></p>
   <%= render "items/hidden", f: f %>

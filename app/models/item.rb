@@ -41,7 +41,7 @@ class Item < ApplicationRecord
     to_type(k) if fk_to_meth(k).required_fields.keep_if {|field| valid_properties_required_keys.include?(field)} == fk_to_meth(k).required_fields
   end
 
-  #eg: dependency of valid_types ->validate_properties
+  #eg: dependency of existing_types ->validate_properties
   def validate_properties(k)
     if %w(edition_type_id dim_type_id).include?(k)
       validate_properties_required(k)
@@ -51,13 +51,49 @@ class Item < ApplicationRecord
   end
 
   #eg: (assoc_typs) %w(sku retail item_type_id edition_type_id sign mount_type_id cert_type_id) #=> %w(item edition sign) *unordered list of assoc-typs
-  def valid_types
+  def existing_types
     attribute_names.map {|k| validate_properties(k) if k.index(/_type_id/) && public_send(k).present?}.compact
   end
 
+  def valid_edition?(typ)
+    typ == "edition" && edition_type.category.name != "unnumbered"
+  end
+
+  def valid_dim?(typ)
+    typ == "dim" && xl_dims
+  end
+
+  def valid_sign?(typ)
+    typ == "sign" && sign_type.sign_context != "unsigned"
+  end
+
+  def valid_types(typ)
+    true unless ! valid_edition?(typ) && ! valid_sign?(typ) && ! valid_dim?(typ)
+  end
+
+  def includes_edition?
+    tag_list.include?("edition")
+  end
+
+  def includes_sign?
+    tag_list.include?("sign")
+  end
+
+  def includes_edition_or_sign?
+    includes_edition? || includes_sign?
+  end
+
+  def includes_edition_and_sign?
+    includes_edition? && includes_sign?
+  end
+
+  # def tag_list
+  #  %w(artist item mount dim edition sign cert).keep_if {|typ| valid_types(typ)}
+  # end
+
   #ver_lists
   def tag_list
-    arr = %w(artist item edition sign cert) & valid_types
+    arr = %w(artist item edition sign cert) & existing_types
     if edition_type && edition_type.category.name == "unnumbered"
       arr - ["edition"]
     else
@@ -66,12 +102,12 @@ class Item < ApplicationRecord
   end
 
   def inv_list
-    %w(artist item edition sign cert dim) & valid_types
+    %w(artist item edition sign cert dim) & existing_types
   end
 
   def body_list
-    #%w(item edition sign mount cert dim) & valid_types
-    arr = %w(item edition sign mount cert dim) & valid_types
+    #%w(item edition sign mount cert dim) & existing_types
+    arr = %w(item edition sign mount cert dim) & existing_types
     mount_type.stretched ? arr - ["mount"] : arr
   end
 
@@ -84,7 +120,7 @@ class Item < ApplicationRecord
   end
 
   def item_list
-    typs = %w(mount artist dim) & valid_types
+    typs = %w(mount artist dim) & existing_types
     typs.map {|typ| type_conditions(typ)}.compact if typs.present?
   end
 
