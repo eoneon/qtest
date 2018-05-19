@@ -55,21 +55,29 @@ class Item < ApplicationRecord
     attribute_names.map {|k| validate_properties(k) if k.index(/_type_id/) && public_send(k).present?}.compact
   end
 
-  def valid_edition?(typ)
-    typ == "edition" && edition_type.category.name != "unnumbered"
+  def valid_edition?
+    edition_type && edition_type.category.name != "unnumbered"
   end
 
-  def valid_dim?(typ)
-    typ == "dim" && xl_dims
+  def valid_dim?
+    dim_type && xl_dims
   end
 
-  def valid_sign?(typ)
-    typ == "sign" && sign_type.sign_context != "unsigned"
+  def valid_sign?
+    sign_type && sign_type.sign_context != "unsigned"
   end
 
-  def valid_types(typ)
-    true unless ! valid_edition?(typ) && ! valid_sign?(typ) && ! valid_dim?(typ)
-  end
+  # def valid_types(typ)
+  #   true unless ! valid_edition?(typ) && ! valid_sign?(typ) && ! valid_dim?(typ)
+  # end
+
+  # def conditional_tag_types
+  #   %w(edition dim sign).keep_if {|typ| "valid_" + typ + "?"}
+  # end
+
+  # def valid_types(typ)
+  #   %w(edition dim sign).keep_if {|typ| "valid_" + typ + "?"}
+  # end
 
   def includes_edition?
     tag_list.include?("edition")
@@ -87,19 +95,39 @@ class Item < ApplicationRecord
     includes_edition? && includes_sign?
   end
 
-  # def tag_list
-  #  %w(artist item mount dim edition sign cert).keep_if {|typ| valid_types(typ)}
-  # end
+  def conditional_tag_types
+    %w(edition dim sign)
+  end
+
+  def valid_conditional_types(typ)
+    existing_types.include?(typ) && conditional_tag_types.keep_if {|typ| "valid_" + typ + "?"}
+  end
+
+  def valid_unconditional_types(typ)
+    existing_types.include?(typ) && conditional_tag_types.exclude?(typ)
+  end
+
+  def valid_types(typ)
+    valid_unconditional_types(typ) || valid_conditional_types(typ)
+  end
+
+  def tag_list
+   %w(artist item mount dim edition sign cert).keep_if {|typ| valid_types(typ)}
+  end
+
+  def pad_pat_for_loop(str, v)
+    str.empty? ? v : " #{ v}"
+  end
 
   #ver_lists
-  def tag_list
-    arr = %w(artist item edition sign cert) & existing_types
-    if edition_type && edition_type.category.name == "unnumbered"
-      arr - ["edition"]
-    else
-      arr
-    end
-  end
+  # def tag_list
+  #   arr = %w(artist item edition sign cert) & existing_types
+  #   if edition_type && edition_type.category.name == "unnumbered"
+  #     arr - ["edition"]
+  #   else
+  #     arr
+  #   end
+  # end
 
   def inv_list
     %w(artist item edition sign cert dim) & existing_types
@@ -238,5 +266,28 @@ class Item < ApplicationRecord
     end
     #title_upcase(sub_d.join(" "))
     sub_d.join(" ")
+  end
+
+  def tag_item(h)
+    "#{h[:v]}," if includes_edition_or_sign?
+  end
+
+  def build_item(h, typ, ver)
+    v = public_send(ver + "_item", h)
+    #h[:build] << pad_pat_for_loop(h[:build], v)
+    h[:build] << v
+  end
+
+  def typ_args(typ, ver)
+    type_to_meth(typ).typ_ver_args(ver)
+  end
+
+  def build_d(ver)
+    h = {build: ""}
+    public_send(ver + "_list").each do |typ|
+      #public_send("build_" + typ, h.merge!(typ_args(typ, ver), typ, ver))
+      h[:build] << pad_pat_for_loop(h[:build], typ)
+    end
+    h[:build]
   end
 end
