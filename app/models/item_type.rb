@@ -129,13 +129,13 @@ class ItemType < ApplicationRecord
     medium.join(" ")
   end
 
-  # def typ_ver_args(ver)
-  #   h = {v: args_loop(ver)} if properties?
-  # end
-
   def typ_ver_args(ver)
     args_loop(ver) if properties?
   end
+
+  # def typ_ver_args(ver)
+  #   h = {v: args_loop(ver)} if properties?
+  # end
 
   def description
     args_loop("tag") if properties?

@@ -225,28 +225,28 @@ class Item < ApplicationRecord
     descrp
   end
 
-  def format_artist(ver)
+  def build_artist(ver)
     artist_type.typ_ver_args(ver)
   end
 
-  def format_dim(ver)
+  def build_dim(ver)
     d = dim_type.typ_ver_args(ver)
     pop_type("dim", d)
   end
 
-  def format_mount(ver)
+  def build_mount(ver)
     mount_type.typ_ver_args(ver)
   end
 
-  def format_cert(ver)
+  def build_cert(ver)
     cert_type.typ_ver_args(ver)
   end
 
-  def format_sign(ver)
+  def build_sign(ver)
     sign_type.typ_ver_args(ver)
   end
 
-  def format_edition(ver)
+  def build_edition(ver)
     t_args = edition_type.typ_ver_args(ver)
     return t_args unless t_args.is_a? Hash
     t_args = hsh_args_edition(t_args)
@@ -274,19 +274,21 @@ class Item < ApplicationRecord
 
   def build_item(h, typ, ver)
     v = public_send(ver + "_item", h)
-    #h[:build] << pad_pat_for_loop(h[:build], v)
-    h[:build] << v
+    h[:build] << pad_pat_for_loop(h[:build], v)
   end
 
   def typ_args(typ, ver)
-    type_to_meth(typ).typ_ver_args(ver)
+    v = type_to_meth(typ).typ_ver_args(ver)
+    v.class == String ? h = {v: v} : v
   end
 
   def build_d(ver)
     h = {build: ""}
     public_send(ver + "_list").each do |typ|
-      #public_send("build_" + typ, h.merge!(typ_args(typ, ver), typ, ver))
-      h[:build] << pad_pat_for_loop(h[:build], typ)
+      public_send("build_" + typ, h.merge!(typ_args(typ, ver)), typ, ver)  if typ ==  "item"
+      #public_send("build_" + typ, h, typ, ver)
+      #build_item(h, typ, ver)
+      #h[:build] = typ_args(typ, ver)
     end
     h[:build]
   end
