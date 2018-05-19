@@ -1,5 +1,5 @@
 <%= form_for @item, :html => {:id => 'item_form'} do |f| %>
-<p><strong>typ_ver_args:</strong> <%= @item.typ_args("item","tag") %></p>
+<p><strong>typ_ver_args:</strong> <%= @item.typ_args("artist","tag") %></p>
 <p><strong>body:</strong> <%= @item.build_d("tag") %></p>
 <p><strong>body:</strong> <%#= @item.valid_types %></p>
   <%= render "items/hidden", f: f %>
