@@ -268,17 +268,45 @@ class Item < ApplicationRecord
     sub_d.join(" ")
   end
 
-  def build_artist(h, typ, ver)
-    h[:build] << pad_pat_for_loop(h[:build], h[:v])
+  ####start
+  def insert_mount(h)
+    h[:pat] = item_type.frame_ref_key if h[:v] == "framed"
+    h_args = {str:  h[:build]}
+    h_args.merge!(h)
+    h_args.delete(:build)
+    #h[:build] = insert_rel_to_pat(h_args)
+
+    h[:build] << h_args.to_s
+  end
+
+  def tag_mount(h)
+    #insert_mount(h)
+    #h[:pat] = item_type.frame_ref_key if h[:v] == "framed"
+    pat = h[:v] == "framed" ? item_type.frame_ref_key : h[:pat]
+    h[:build] = insert_rel_to_pat(pos: h[:pos], str: h[:build], occ: h[:occ], pat: pat, v: h[:v], ws: h[:ws])
+  end
+
+  def tag_artist(h)
+    h[:v]
   end
 
   def tag_item(h)
     "#{h[:v]}," if includes_edition_or_sign?
   end
 
+  def build_mount(h, typ, ver)
+    public_send(ver + "_" + typ, h)
+    #h[:build] << h.to_s
+  end
+
+  def build_artist(h, typ, ver)
+    v = public_send(ver + "_" + typ, h)
+    h[:build] << pad_pat_for_loop(h[:build], h[:v])
+  end
+
   def build_item(h, typ, ver)
-    v = public_send(ver + "_item", h)
-    h[:build] << pad_pat_for_loop(h[:build], v)
+    v = public_send(ver + "_" + typ, h)
+    h[:build] << pad_pat_for_loop(h[:build], h[:v])
   end
 
   def typ_args(typ, ver)
@@ -289,7 +317,7 @@ class Item < ApplicationRecord
   def build_d(ver)
     h = {build: ""}
     public_send(ver + "_list").each do |typ|
-      public_send("build_" + typ, h.merge!(typ_args(typ, ver)), typ, ver) if %w(item artist).include?(typ)
+      public_send("build_" + typ, h.merge!(typ_args(typ, ver)), typ, ver) if %w(item artist mount).include?(typ)
     end
     h[:build]
   end

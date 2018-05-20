@@ -82,7 +82,7 @@ class ItemType < ApplicationRecord
   end
 
   def frame_ref_key
-    properties[category_names[0]]
+    properties[valid_properties_ordered[0]]
   end
 
   def xl_dim_pos
