@@ -1,7 +1,9 @@
 <%= form_for @item, :html => {:id => 'item_form'} do |f| %>
-<p><strong>frame_ref_key:</strong> <%#= @item.typ_args("mount", "tag") %></p>
-<p><strong>body:</strong> <%= @item.build_d("tag") %></p>
-<p><strong>body:</strong> <%#= @item.valid_types %></p>
+<p><strong>existing_types:</strong> <%= @item.existing_types %></p>
+<p><strong>valid_conditional_tag_types:</strong> <%= @item.existing_conditional_tag_types %></p>
+<p><strong>valid_conditional_tag_types:</strong> <%= @item.valid_conditional_tag_types %></p>
+<p><strong>existing_types:</strong> <%= @item.tag_list %></p>
+<p><strong>tag_list:</strong> <%#= @item.tag_list %></p>
   <%= render "items/hidden", f: f %>
   <script type="text/javascript">
     function submitform(){

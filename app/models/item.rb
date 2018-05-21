@@ -55,29 +55,21 @@ class Item < ApplicationRecord
     attribute_names.map {|k| validate_properties(k) if k.index(/_type_id/) && public_send(k).present?}.compact
   end
 
+  def valid_mount?
+    mount_type.mount_value != "stretched"
+  end
+
   def valid_edition?
-    edition_type && edition_type.category.name != "unnumbered"
+    edition_type.category.name != "unnumbered"
   end
 
   def valid_dim?
-    dim_type && xl_dims
+    xl_dims
   end
 
   def valid_sign?
-    sign_type && sign_type.sign_context != "unsigned"
+    sign_type.sign_context != "unsigned"
   end
-
-  # def valid_types(typ)
-  #   true unless ! valid_edition?(typ) && ! valid_sign?(typ) && ! valid_dim?(typ)
-  # end
-
-  # def conditional_tag_types
-  #   %w(edition dim sign).keep_if {|typ| "valid_" + typ + "?"}
-  # end
-
-  # def valid_types(typ)
-  #   %w(edition dim sign).keep_if {|typ| "valid_" + typ + "?"}
-  # end
 
   def includes_edition?
     tag_list.include?("edition")
@@ -95,39 +87,33 @@ class Item < ApplicationRecord
     includes_edition? && includes_sign?
   end
 
-  def conditional_tag_types
-    %w(edition dim sign)
+  #1
+  def existing_conditional_tag_types
+    %w(edition dim sign mount) & existing_types
   end
 
-  def valid_conditional_types(typ)
-    existing_types.include?(typ) && conditional_tag_types.keep_if {|typ| "valid_" + typ + "?"}
+  #2
+  def valid_conditional_tag_types
+    existing_conditional_tag_types.keep_if {|typ| public_send("valid_" + typ + "?")}
   end
 
-  def valid_unconditional_types(typ)
-    existing_types.include?(typ) && conditional_tag_types.exclude?(typ)
+  #3
+  def valid_unconditional_tag_types
+    existing_types - existing_conditional_tag_types
   end
 
-  def valid_types(typ)
-    valid_unconditional_types(typ) || valid_conditional_types(typ)
+  #4
+  def valid_types
+    valid_conditional_tag_types + valid_unconditional_tag_types
   end
 
   def tag_list
-   %w(artist item mount dim edition sign cert).keep_if {|typ| valid_types(typ)}
+   %w(artist item mount dim edition sign cert).keep_if {|typ| valid_types.include?(typ)}
   end
 
   def pad_pat_for_loop(str, v)
     str.empty? ? v : " #{ v}"
   end
-
-  #ver_lists
-  # def tag_list
-  #   arr = %w(artist item edition sign cert) & existing_types
-  #   if edition_type && edition_type.category.name == "unnumbered"
-  #     arr - ["edition"]
-  #   else
-  #     arr
-  #   end
-  # end
 
   def inv_list
     %w(artist item edition sign cert dim) & existing_types
@@ -280,10 +266,10 @@ class Item < ApplicationRecord
   end
 
   def tag_mount(h)
-    #insert_mount(h)
-    #h[:pat] = item_type.frame_ref_key if h[:v] == "framed"
-    pat = h[:v] == "framed" ? item_type.frame_ref_key : h[:pat]
-    h[:build] = insert_rel_to_pat(pos: h[:pos], str: h[:build], occ: h[:occ], pat: pat, v: h[:v], ws: h[:ws])
+    # h2 = h
+    # h2[:str] = h2.delete(:build)
+    # h[:build] = insert_rel_to_pat(h2)
+    insert_rel_to_pat(h)
   end
 
   def tag_artist(h)
@@ -295,7 +281,10 @@ class Item < ApplicationRecord
   end
 
   def build_mount(h, typ, ver)
-    public_send(ver + "_" + typ, h)
+    h[:pat] = h[:v] == "framed" ? item_type.frame_ref_key : h[:pat]
+    h2 = h
+    h2[:str] = h2.delete(:build)
+    h[:build] = public_send(ver + "_" + typ, h2) #if h[:pat].present?
     #h[:build] << h.to_s
   end
 
@@ -317,7 +306,7 @@ class Item < ApplicationRecord
   def build_d(ver)
     h = {build: ""}
     public_send(ver + "_list").each do |typ|
-      public_send("build_" + typ, h.merge!(typ_args(typ, ver)), typ, ver) if %w(item artist mount).include?(typ)
+      public_send("build_" + typ, h.merge!(typ_args(typ, ver)), typ, ver) if typ_args(typ, ver) && %w(item artist mount).include?(typ)
     end
     h[:build]
   end
