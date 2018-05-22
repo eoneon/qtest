@@ -174,7 +174,6 @@ class Item < ApplicationRecord
       occ = k == "number" ? -1 : 0
       v = typ == "dim" ? format_metric(properties[k]) : properties[k]
       str = insert_rel_to_pat(pos: "replace", str: str, occ: occ, pat: k, v: v, ws: 0) if str.index(/#{k}/)
-      #str
     end
     str
   end
@@ -255,20 +254,14 @@ class Item < ApplicationRecord
   end
 
   ####start
-  def insert_mount(h)
-    h[:pat] = item_type.frame_ref_key if h[:v] == "framed"
-    h_args = {str:  h[:build]}
-    h_args.merge!(h)
-    h_args.delete(:build)
-    #h[:build] = insert_rel_to_pat(h_args)
-
-    h[:build] << h_args.to_s
+  def tag_dim(h)
+    h2 = h
+    h2[:pat] = item_type.xl_dim_ref
+    h2[:str] = h2.delete(:build)
+    h[:build] = insert_rel_to_pat(h)
   end
 
   def tag_mount(h)
-    # h2 = h
-    # h2[:str] = h2.delete(:build)
-    # h[:build] = insert_rel_to_pat(h2)
     insert_rel_to_pat(h)
   end
 
@@ -280,12 +273,16 @@ class Item < ApplicationRecord
     "#{h[:v]}," if includes_edition_or_sign?
   end
 
+  def build_dim(h, typ, ver)
+    h[:v] = pop_type("dim", h[:v])
+    public_send(ver + "_" + typ, h)
+  end
+
   def build_mount(h, typ, ver)
     h[:pat] = h[:v] == "framed" ? item_type.frame_ref_key : h[:pat]
     h2 = h
     h2[:str] = h2.delete(:build)
-    h[:build] = public_send(ver + "_" + typ, h2) #if h[:pat].present?
-    #h[:build] << h.to_s
+    h[:build] = public_send(ver + "_" + typ, h2)
   end
 
   def build_artist(h, typ, ver)
@@ -306,7 +303,7 @@ class Item < ApplicationRecord
   def build_d(ver)
     h = {build: ""}
     public_send(ver + "_list").each do |typ|
-      public_send("build_" + typ, h.merge!(typ_args(typ, ver)), typ, ver) if typ_args(typ, ver) && %w(item artist mount).include?(typ)
+      public_send("build_" + typ, h.merge!(typ_args(typ, ver)), typ, ver) if typ_args(typ, ver) && %w(item artist mount dim).include?(typ)
     end
     h[:build]
   end
