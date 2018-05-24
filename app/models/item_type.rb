@@ -138,7 +138,7 @@ class ItemType < ApplicationRecord
   # end
 
   def description
-    args_loop("tag") if properties?
+    args_loop("inv") if properties?
   end
 
   def dropdown
