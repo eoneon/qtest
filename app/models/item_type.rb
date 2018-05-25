@@ -133,10 +133,6 @@ class ItemType < ApplicationRecord
     args_loop(ver) if properties?
   end
 
-  # def typ_ver_args(ver)
-  #   h = {v: args_loop(ver)} if properties?
-  # end
-
   def description
     args_loop("inv") if properties?
   end

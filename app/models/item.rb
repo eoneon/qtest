@@ -50,10 +50,14 @@ class Item < ApplicationRecord
     end
   end
 
+  def existing_types
+    list = attribute_names.map {|k| validate_properties(k) if k.index(/_type_id/) && public_send(k).present?}.compact
+    item_type ? list : []
+  end
+
   #eg: (assoc_typs) %w(sku retail item_type_id edition_type_id sign mount_type_id cert_type_id) #=> %w(item edition sign) *unordered list of assoc-typs
   def valid_existing_types
-    types = attribute_names.map {|k| validate_properties(k) if k.index(/_type_id/) && public_send(k).present?}.compact
-    types.delete_if {|typ| typ == "mount" && mount_type.wrapped && item_type.substrate_key != "canvas"}
+    existing_types.delete_if {|typ| typ == "mount" && mount_type.wrapped && item_type.substrate_key != "canvas"}
   end
 
   def valid_tag_mount?
@@ -93,12 +97,12 @@ class Item < ApplicationRecord
   end
 
   def includes_edition_and_sign?
-    includes_edition? && includes_sign?
+    (includes_edition? && ! from_edition?) && includes_sign?
   end
 
   #1
   def existing_conditional_tag_types
-    %w(edition dim sign mount) & valid_existing_types
+    %w(edition dim sign mount) & valid_existing_types if existing_types
   end
 
   #2
@@ -124,7 +128,7 @@ class Item < ApplicationRecord
 
   def tag_list
    list = %w(artist item mount dim edition sign cert).keep_if {|typ| valid_types.include?(typ)}
-   reorder_types(list, "mount", "item") if mount_type.mount_value == "framed"
+   mount_type && mount_type.mount_value == "framed" ? reorder_types(list, "mount", "item") : list 
   end
 
   #pad_for_push/pad_for_insert
@@ -142,37 +146,37 @@ class Item < ApplicationRecord
     mount_type.stretched ? arr - ["mount"] : arr
   end
 
-  def type_conditions(typ)
-    case
-    when typ == "mount" then typ
-    when typ == "artist" then typ
-    when typ == "dim" && xl_dims then typ
-    end
-  end
-
-  def item_list
-    typs = %w(mount artist dim) & valid_existing_types
-    typs.map {|typ| type_conditions(typ)}.compact if typs.present?
-  end
+  # def type_conditions(typ)
+  #   case
+  #   when typ == "mount" then typ
+  #   when typ == "artist" then typ
+  #   when typ == "dim" && xl_dims then typ
+  #   end
+  # end
+  #
+  # def item_list
+  #   typs = %w(mount artist dim) & valid_existing_types
+  #   typs.map {|typ| type_conditions(typ)}.compact if typs.present?
+  # end
 
   # DESCRIPTION METHOCDS
-  def punct(ver, typ, d)
-    case
-    #when typ == "artist" && ver != "body" then d + " - "
-    when typ == public_send(ver + "_list")[-1] && ver != "body" then d + "."
-
-    when typ == "item" && ver == "body" && tag_list.all? {|i| %(edition sign).exclude?(i)} then d + "."
-
-    when typ == "item" && tag_list.any? {|i| %(edition sign).include?(i)} then d + ","
-
-    when typ == "edition" && tag_list.include?("sign") then d + " and"
-
-    when typ == "edition" && ver == "body" && tag_list.exclude?("sign") then d + "."
-
-    when %w(sign mount cert dim).include?(typ) && ver == "body" then d + "."
-    else d
-    end
-  end
+  # def punct(ver, typ, d)
+  #   case
+  #   #when typ == "artist" && ver != "body" then d + " - "
+  #   when typ == public_send(ver + "_list")[-1] && ver != "body" then d + "."
+  #
+  #   when typ == "item" && ver == "body" && tag_list.all? {|i| %(edition sign).exclude?(i)} then d + "."
+  #
+  #   when typ == "item" && tag_list.any? {|i| %(edition sign).include?(i)} then d + ","
+  #
+  #   when typ == "edition" && tag_list.include?("sign") then d + " and"
+  #
+  #   when typ == "edition" && ver == "body" && tag_list.exclude?("sign") then d + "."
+  #
+  #   when %w(sign mount cert dim).include?(typ) && ver == "body" then d + "."
+  #   else d
+  #   end
+  # end
 
   def article_list
     ["HC", "AP", "IP", "original", "etching", "animation", "embellished"]
@@ -188,58 +192,58 @@ class Item < ApplicationRecord
 
 
   #kill
-  def hsh_args_dim(d, t_args)
-    hsh_args = {v: pop_type("dim", t_args[:v]), pat: item_type.xl_dim_ref, str: d, occ: 0}
-    t_args.merge!(hsh_args)
-  end
+  # def hsh_args_dim(d, t_args)
+  #   hsh_args = {v: pop_type("dim", t_args[:v]), pat: item_type.xl_dim_ref, str: d, occ: 0}
+  #   t_args.merge!(hsh_args)
+  # end
+  #
+  # def hsh_args_mount(d, t_args)
+  #   t_args[:str] = d
+  #   t_args[:pat] = d if t_args[:v] == "framed"
+  # end
+  #
+  # def hsh_args_edition(t_args)
+  #   hsh_args = {str: pop_type("edition", t_args[:v]), v: format_article(properties["edition"])}
+  #   t_args.merge!(hsh_args)
+  # end
+  #
+  # def hsh_args_artist(d, t_args)
+  #   hsh_args = {str: d, pat: item_type.artist_ref}
+  #   #hsh_args = {str: d, pat: d}
+  #   t_args.merge!(hsh_args)
+  # end
 
-  def hsh_args_mount(d, t_args)
-    t_args[:str] = d
-    t_args[:pat] = d if t_args[:v] == "framed"
-  end
-
-  def hsh_args_edition(t_args)
-    hsh_args = {str: pop_type("edition", t_args[:v]), v: format_article(properties["edition"])}
-    t_args.merge!(hsh_args)
-  end
-
-  def hsh_args_artist(d, t_args)
-    hsh_args = {str: d, pat: item_type.artist_ref}
-    #hsh_args = {str: d, pat: d}
-    t_args.merge!(hsh_args)
-  end
-
-  def insert_types(d, ver)
-    descrp = ""
-    item_list.each do |t|
-      t_args = type_to_meth(t).typ_ver_args(ver)
-      return d unless t_args.is_a? Hash
-      descrp = public_send("hsh_args_" + t, d, t_args)
-      descrp = insert_rel_to_pat(t_args)
-    end
-    descrp
-  end
-
-  def format_artist(ver)
-    artist_type.typ_ver_args(ver)
-  end
-
-  def format_dim(ver)
-    d = dim_type.typ_ver_args(ver)
-    pop_type("dim", d)
-  end
-
-  def format_mount(ver)
-    mount_type.typ_ver_args(ver)
-  end
-
-  def format_cert(ver)
-    cert_type.typ_ver_args(ver)
-  end
-
-  def format_sign(ver)
-    sign_type.typ_ver_args(ver)
-  end
+  # def insert_types(d, ver)
+  #   descrp = ""
+  #   item_list.each do |t|
+  #     t_args = type_to_meth(t).typ_ver_args(ver)
+  #     return d unless t_args.is_a? Hash
+  #     descrp = public_send("hsh_args_" + t, d, t_args)
+  #     descrp = insert_rel_to_pat(t_args)
+  #   end
+  #   descrp
+  # end
+  #
+  # def format_artist(ver)
+  #   artist_type.typ_ver_args(ver)
+  # end
+  #
+  # def format_dim(ver)
+  #   d = dim_type.typ_ver_args(ver)
+  #   pop_type("dim", d)
+  # end
+  #
+  # def format_mount(ver)
+  #   mount_type.typ_ver_args(ver)
+  # end
+  #
+  # def format_cert(ver)
+  #   cert_type.typ_ver_args(ver)
+  # end
+  #
+  # def format_sign(ver)
+  #   sign_type.typ_ver_args(ver)
+  # end
 
   # def format_edition(ver)
   #   t_args = edition_type.typ_ver_args(ver)
@@ -248,20 +252,20 @@ class Item < ApplicationRecord
   #   t_args[:pat] == "from" ? insert_rel_to_pat(t_args) : t_args[:str]
   # end
 
-  def format_item(ver)
-    d = item_type.typ_ver_args(ver)
-    item_list.present? ? insert_types(d, ver) : d
-  end
-
-  def build_descrp(ver)
-    sub_d = []
-    public_send(ver + "_list").each do |typ|
-      d = public_send("format_" + typ, ver)
-      sub_d << punct(ver, typ, d)
-    end
-    #title_upcase(sub_d.join(" "))
-    sub_d.join(" ")
-  end
+  # def format_item(ver)
+  #   d = item_type.typ_ver_args(ver)
+  #   item_list.present? ? insert_types(d, ver) : d
+  # end
+  #
+  # def build_descrp(ver)
+  #   sub_d = []
+  #   public_send(ver + "_list").each do |typ|
+  #     d = public_send("format_" + typ, ver)
+  #     sub_d << punct(ver, typ, d)
+  #   end
+  #   #title_upcase(sub_d.join(" "))
+  #   sub_d.join(" ")
+  # end
   #end kill
 
   ####start
@@ -319,6 +323,14 @@ class Item < ApplicationRecord
     h[:build] << pad_pat_for_loop(h[:build], h[:v]) #tag
   end
 
+  def build_cert(h, typ, ver)
+    h[:build] << pad_pat_for_loop(h[:build], h[:v])
+  end
+
+  def build_sign(h, typ, ver)
+    h[:build] << pad_pat_for_loop(h[:build], h[:v])
+  end
+
   def build_dim(h, typ, ver)
     h[:v] = pop_type("dim", h[:v])
     public_send(ver + "_" + typ, h)
@@ -350,8 +362,7 @@ class Item < ApplicationRecord
   def build_d(ver)
     h = {build: ""}
     public_send(ver + "_list").each do |typ|
-      #
-      public_send("build_" + typ, h.merge!(typ_args(typ, ver)), typ, ver) if typ_args(typ, ver) && %w(item artist mount dim edition).include?(typ) #edition
+      public_send("build_" + typ, h.merge!(typ_args(typ, ver)), typ, ver) if typ_args(typ, ver) && %w(item artist mount dim edition sign cert).include?(typ) #edition
     end
     h[:build]
   end
