@@ -41,38 +41,42 @@ class ItemType < ApplicationRecord
   # end
 
   #substrate_list
-  def substrates
+  def artwork_keys
+    %w(original limited)
+  end
+
+  def substrate_keys
     %w(canvas paper sericel panel)
   end
 
   #media_list
-  def media
+  def medium_keys
     %w(painting print mixed sketch etching photo animation)
   end
 
   #new: keep properties keys if value present
-  def existing_keys
+  def existing_kv_pairs
     properties.keep_if {|k,v| v.present?}.keys if properties
   end
   #=>["mixed", "panel", "original"]
 
-  #reorder keys and set properties values
-  def existing_ordered_keys
-    category_names.map {|k| k if existing_keys.include?(k)}.compact
+  #ordered_kv_pairs
+  def ordered_keys
+    category_names.map {|k| k if existing_kv_pairs.include?(k)}.compact
   end
   #=> ["original", "monprint", "panel"]
 
   def tag_keys
-    existing_ordered_keys.delete_if {|k| k == "paper" || properties[k] == "giclee" }
+    ordered_keys.delete_if {|k| k == "paper" || properties[k] == "giclee" }
   end
 
   def ver_keys(ver)
-    ver == "tag" ? tag_keys : existing_ordered_keys
+    ver == "tag" ? tag_keys : ordered_keys
   end
 
   #filter key-type (substrate_list, media_list) if exists per valid_keys
   def sub_type_key(sub_type_list)
-    arr = existing_keys & sub_type_list
+    arr = existing_kv_pairs & sub_type_list
     arr[0]
   end
 
@@ -87,7 +91,7 @@ class ItemType < ApplicationRecord
   end
 
   def sub_type_pos(sub_type_key)
-    idx_after_i(existing_ordered_keys, sub_type_key, 0)
+    idx_after_i(ordered_keys, sub_type_key, 0)
   end
 
   def substrate_pos
@@ -95,7 +99,7 @@ class ItemType < ApplicationRecord
   end
 
   def frame_ref_key
-    properties[existing_ordered_keys[0]]
+    properties[ordered_keys[0]]
   end
 
   def xl_dim_pos
@@ -115,23 +119,42 @@ class ItemType < ApplicationRecord
   end
 
   #kill
-  def substrate_args(k, ver)
-   ver == "tag" && k == "paper" ? return : "on #{properties[k]}"
-  end
+  # def substrate_args(k, ver)
+  #  ver == "tag" && k == "paper" ? return : "on #{properties[k]}"
+  # end
 
   #kill
-  def print_args(k, ver)
-   ver == "tag" && properties[k] == "giclee" ? return : properties[k]
+  # def print_args(k, ver)
+  #  ver == "tag" && properties[k] == "giclee" ? return : properties[k]
+  # end
+  def format_painting(k)
+    properties[k] == "painting" ? properties[k] : "#{properties[k]} painting"
   end
 
-  def format_args(k, ver)
+  def format_leafing(k)
+    "with #{properties[k]}"
+  end
+
+  def format_remarque(k)
+    ordered_keys.include?("leafing") ? "and #{properties[k]}" : "with #{properties[k]}"
+  end
+
+  # def format_args(k, ver)
+  #   case
+  #   #when substrates.include?(k) then substrate_args(k, ver)
+  #   #when k == "print" then print_args(k, ver) #kill
+  #   when k == "painting" && properties[k] != "painting" then "#{properties[k]} painting"
+  #   when k == "leafing" then "with #{properties[k]}"
+  #   when k == "remarque" && category_names.include?("leafing") then "and #{properties[k]}"
+  #   when k == "remarque" && category_names.exclude?("leafing") then "with #{properties[k]}"
+  #   else properties[k]
+  #   end
+  # end
+
+  def format_arg(k)
     case
-    #when substrates.include?(k) then substrate_args(k, ver)
-    #when k == "print" then print_args(k, ver) #kill
-    when k == "painting" && properties[k] != "painting" then "#{properties[k]} painting"
-    when k == "leafing" then "with #{properties[k]}"
-    when k == "remarque" && category_names.include?("leafing") then "and #{properties[k]}"
-    when k == "remarque" && category_names.exclude?("leafing") then "with #{properties[k]}"
+    when %w(painting leafing remarque).include?(k) then public_send("format_" + k, k)
+    when substrate_keys.include?(k) then "on #{properties[k]}"
     else properties[k]
     end
   end
@@ -139,7 +162,7 @@ class ItemType < ApplicationRecord
   def args_loop(ver)
     medium = []
     ver_keys(ver).each do |k|
-      medium << format_args(k, ver)
+      medium << format_arg(k)
     end
     medium.join(" ")
   end

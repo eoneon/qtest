@@ -1,7 +1,7 @@
 <%= form_for parent do |f| %>
   <p><%#= parent.valid_properties_ordered.index(parent.property_key(parent.substrates)) %></p>
   <p><%#= @item_type.insert_rel_to_pat(pos: "before", str: @item_type.description[0], pat: @item_type.description[0], v: "dog") %></p>
-  <p><%= @item_type.tag_keys %></p>
+  <p><%= @item_type.args_loop("tag") %></p>
   <%= f.hidden_field :category_id %>
   <div class="field">
     <%= f.label :kind %><br>
