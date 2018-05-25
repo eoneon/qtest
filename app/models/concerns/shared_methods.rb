@@ -4,7 +4,7 @@ module SharedMethods
   extend ActiveSupport::Concern
 
   def test_arr1
-    (0..9)
+    [0,1,2,3,4].insert(5, 5)
   end
 
   def test_hash

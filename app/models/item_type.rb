@@ -24,65 +24,78 @@ class ItemType < ApplicationRecord
   #scope :flat_items, -> {where_any_of("properties ? :key OR properties ? :key", key: "paper", key: "canvas")}
   #scope :flat_items, -> {canvas_items.or.paper_items}
 
-  def self.flat_items
-    canvas_items + paper_items + panel_items + sericel_items
-  end
+  # def self.flat_items
+  #   canvas_items + paper_items + panel_items + sericel_items
+  # end
 
-  def self.print_items
-    printed_items + animation_items + photo_items + etching_items
-  end
+  # def self.print_items
+  #   printed_items + animation_items + photo_items + etching_items
+  # end
 
   #was using for hiding/showing edition on items: refactor dependent on js
-  def art_type
-    case
-    when category_names.any? {|name| name == "original"} then "original"
-    when category_names.any? {|name| name == "limited"} then "limited"
-    end
+  # def art_type
+  #   case
+  #   when category_names.any? {|name| name == "original"} then "original"
+  #   when category_names.any? {|name| name == "limited"} then "limited"
+  #   end
+  # end
+
+  #substrate_list
+  def substrates
+    %w(canvas paper sericel panel)
+  end
+
+  #media_list
+  def media
+    %w(painting print mixed sketch etching photo animation)
   end
 
   #new: keep properties keys if value present
-  def valid_properties
+  def existing_keys
     properties.keep_if {|k,v| v.present?}.keys if properties
   end
   #=>["mixed", "panel", "original"]
 
   #reorder keys and set properties values
-  def valid_properties_ordered
-    category_names.map {|k| k if valid_properties.include?(k)}.compact
+  def existing_ordered_keys
+    category_names.map {|k| k if existing_keys.include?(k)}.compact
   end
   #=> ["original", "monprint", "panel"]
 
-  def substrates
-    %w(canvas paper sericel panel)
+  def tag_keys
+    existing_ordered_keys.delete_if {|k| k == "paper" || properties[k] == "giclee" }
   end
 
-  def media
-    %w(painting print mixed sketch etching photo animation)
+  def ver_keys(ver)
+    ver == "tag" ? tag_keys : existing_ordered_keys
   end
 
-  def property_key(property_kind)
-    arr = category_names & property_kind
+  #filter key-type (substrate_list, media_list) if exists per valid_keys
+  def sub_type_key(sub_type_list)
+    arr = existing_keys & sub_type_list
     arr[0]
   end
 
+  #kill: sub_type_key covers this, just pass in argument
   def media_key
-    property_key(media)
+    sub_type_key(media)
   end
 
+  #kill
   def substrate_key
-    property_key(substrates)
+    sub_type_key(substrates)
   end
 
-  def property_kind_pos(property_key)
-    idx_after_i(category_names, property_key, 0)
+  def sub_type_pos(sub_type_key)
+    idx_after_i(existing_ordered_keys, sub_type_key, 0)
   end
 
   def substrate_pos
-    property_kind_pos(substrate_key)
+    sub_type_pos(substrate_key)
   end
 
   def frame_ref_key
-    properties[valid_properties_ordered[0]]
+    properties[existing_ordered_keys[0]]
   end
 
   def xl_dim_pos
@@ -101,18 +114,20 @@ class ItemType < ApplicationRecord
     properties[category_names[-1]]
   end
 
+  #kill
   def substrate_args(k, ver)
    ver == "tag" && k == "paper" ? return : "on #{properties[k]}"
   end
 
+  #kill
   def print_args(k, ver)
    ver == "tag" && properties[k] == "giclee" ? return : properties[k]
   end
 
   def format_args(k, ver)
     case
-    when substrates.include?(k) then substrate_args(k, ver)
-    when k == "print" then print_args(k, ver)
+    #when substrates.include?(k) then substrate_args(k, ver)
+    #when k == "print" then print_args(k, ver) #kill
     when k == "painting" && properties[k] != "painting" then "#{properties[k]} painting"
     when k == "leafing" then "with #{properties[k]}"
     when k == "remarque" && category_names.include?("leafing") then "and #{properties[k]}"
@@ -123,7 +138,7 @@ class ItemType < ApplicationRecord
 
   def args_loop(ver)
     medium = []
-    valid_properties_ordered.each do |k| #k: property/category_name[i]
+    ver_keys(ver).each do |k|
       medium << format_args(k, ver)
     end
     medium.join(" ")

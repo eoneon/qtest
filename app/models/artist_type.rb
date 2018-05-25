@@ -10,6 +10,5 @@ class ArtistType < ApplicationRecord
 
   def typ_ver_args(ver)
     ver == "body" ? h = {pos: "after", v: "by #{dropdown}", occ: 0, ws: 1} : "#{dropdown},"
-    #ver == "body" ? h = {pos: "after", v: "by #{dropdown}", occ: 0, ws: 1} : h = {v: "#{dropdown},"}
   end
 end
