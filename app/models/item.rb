@@ -55,8 +55,12 @@ class Item < ApplicationRecord
   end
 
   #eg: (assoc_typs) %w(sku retail item_type_id edition_type_id sign mount_type_id cert_type_id) #=> %w(item edition sign) *unordered list of assoc-typs
+  # def valid_existing_types
+  #   existing_types.delete_if {|typ| typ == "mount" && mount_type.wrapped && item_type.substrate_key != "canvas"}
+  # end
+
   def valid_existing_types
-    existing_types.delete_if {|typ| typ == "mount" && mount_type.wrapped && item_type.substrate_key != "canvas"}
+    existing_types.delete_if {|typ| typ == "mount" && mount_type.wrapped && item_type.ordered_keys.exclude?("canvas")}
   end
 
   def valid_tag_mount?
@@ -128,7 +132,7 @@ class Item < ApplicationRecord
 
   #pad_for_push/pad_for_insert
   def pad_pat_for_loop(str, v)
-    str.empty? ? v : " #{ v}"
+    str.empty? ? v : " #{v}"
   end
 
   def inv_list
@@ -136,8 +140,8 @@ class Item < ApplicationRecord
   end
 
   def body_list
-    arr = %w(item edition sign mount cert dim) & valid_existing_types
-    mount_type.stretched ? arr - ["mount"] : arr
+    arr = %w(item artist edition sign mount cert dim) & valid_existing_types
+    mount_type && mount_type.stretched ? arr - ["mount"] : arr
   end
 
   def article_list
@@ -220,19 +224,25 @@ class Item < ApplicationRecord
   end
 
   def build_mount(h, typ, ver)
-    h[:pat] = h[:v] == "framed" ? item_type.frame_ref_key : h[:pat]
+    h[:pat] = h[:v] == "framed" ? item_type.frame_ref : h[:pat]
     h2 = h
     h2[:str] = h2.delete(:build)
     h[:build] = public_send(ver + "_" + typ, h2)
   end
 
-  def build_artist(h, typ, ver)
-    v = public_send(ver + "_" + typ, h)
+  def push_artist(h)
     h[:build] << pad_pat_for_loop(h[:build], h[:v])
   end
 
+  def insert_artist(h)
+    insert_rel_to_pat(pos: "after", str: h[:build], occ: 0, pat: item_type.artist_ref, v: h[:v], ws: 1)
+  end
+
+  def build_artist(h, typ, ver)
+    ver == "body" ? insert_artist(h) : push_artist(h)
+  end
+
   def build_item(h, typ, ver)
-    #v = public_send(ver + "_" + typ, h)
     v = punct_item(h)
     h[:build] << pad_pat_for_loop(h[:build], v)
   end
@@ -245,7 +255,7 @@ class Item < ApplicationRecord
   def build_d(ver)
     h = {build: ""}
     public_send(ver + "_list").each do |typ|
-      public_send("build_" + typ, h.merge!(typ_args(typ, ver)), typ, ver) if typ_args(typ, ver) && %w(item artist mount dim edition sign cert).include?(typ)
+      public_send("build_" + typ, h.merge!(typ_args(typ, ver)), typ, ver) if typ_args(typ, ver) && %w(artist item).include?(typ) #artist mount dim edition sign cert
     end
     h[:build]
   end
