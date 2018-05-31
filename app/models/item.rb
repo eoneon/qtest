@@ -60,7 +60,7 @@ class Item < ApplicationRecord
   # end
 
   def valid_existing_types
-    existing_types.delete_if {|typ| typ == "mount" && mount_type.wrapped && item_type.ordered_keys.exclude?("canvas")}
+    existing_types.delete_if {|typ| typ == "mount" && mount_type.wrapped? && item_type.ordered_keys.exclude?("canvas")}
   end
 
   def valid_tag_mount?
@@ -119,7 +119,7 @@ class Item < ApplicationRecord
     valid_conditional_tag_types + valid_unconditional_tag_types
   end
 
-  def reorder_types(list, typ, typ2)
+  def switch_types(list, typ, typ2)
     idx = list.index(typ2)
     list.delete(typ)
     list.insert(idx, typ)
@@ -127,7 +127,7 @@ class Item < ApplicationRecord
 
   def tag_list
    list = %w(artist item mount dim edition sign cert).keep_if {|typ| valid_types.include?(typ)}
-   mount_type && mount_type.mount_value == "framed" ? reorder_types(list, "mount", "item") : list
+   mount_type && mount_type.mount_value == "framed" ? switch_types(list, "mount", "item") : list
   end
 
   #pad_for_push/pad_for_insert
@@ -136,12 +136,12 @@ class Item < ApplicationRecord
   end
 
   def inv_list
-    %w(artist item edition sign cert dim) & valid_existing_types
+    %w(artist item mount edition sign cert dim) & valid_existing_types
   end
 
   def body_list
-    arr = %w(item artist edition sign mount cert dim) & valid_existing_types
-    mount_type && mount_type.stretched ? arr - ["mount"] : arr
+    list = %w(item artist edition sign mount cert dim) & valid_existing_types
+    mount_type && mount_type.mount_value == "framed" ? switch_types(list, "mount", "artist") : list
   end
 
   def article_list
@@ -223,11 +223,20 @@ class Item < ApplicationRecord
     public_send(ver + "_" + typ, h)
   end
 
+  def mount_ref
+    mount_type.framed? ? item_type.frame_ref : "canvas"
+  end
+
+  def push_mount(h)
+    h[:build] << pad_pat_for_loop(h[:build], h[:v])
+  end
+
+  def insert_mount(h)
+    insert_rel_to_pat(pos: "before", str: h[:build], occ: 0, pat: mount_ref, v: h[:v], ws: 1)
+  end
+
   def build_mount(h, typ, ver)
-    h[:pat] = h[:v] == "framed" ? item_type.frame_ref : h[:pat]
-    h2 = h
-    h2[:str] = h2.delete(:build)
-    h[:build] = public_send(ver + "_" + typ, h2)
+    public_send(mount_type.mount_context(ver), h)
   end
 
   def push_artist(h)
@@ -255,7 +264,7 @@ class Item < ApplicationRecord
   def build_d(ver)
     h = {build: ""}
     public_send(ver + "_list").each do |typ|
-      public_send("build_" + typ, h.merge!(typ_args(typ, ver)), typ, ver) if typ_args(typ, ver) && %w(artist item).include?(typ) #artist mount dim edition sign cert
+      public_send("build_" + typ, h.merge!(typ_args(typ, ver)), typ, ver) if typ_args(typ, ver) && %w(artist item mount).include?(typ) #artist mount dim edition sign cert
     end
     h[:build]
   end
