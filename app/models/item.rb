@@ -54,11 +54,6 @@ class Item < ApplicationRecord
     item_type ? attribute_names.map {|k| validate_properties(k) if k.index(/_type_id/) && public_send(k).present?}.compact : []
   end
 
-  #eg: (assoc_typs) %w(sku retail item_type_id edition_type_id sign mount_type_id cert_type_id) #=> %w(item edition sign) *unordered list of assoc-typs
-  # def valid_existing_types
-  #   existing_types.delete_if {|typ| typ == "mount" && mount_type.wrapped && item_type.substrate_key != "canvas"}
-  # end
-
   def valid_existing_types
     existing_types.delete_if {|typ| typ == "mount" && mount_type.wrapped? && item_type.ordered_keys.exclude?("canvas")}
   end
@@ -201,13 +196,28 @@ class Item < ApplicationRecord
     str.split(" ").drop(1).join(" ")
   end
 
+  # def build_edition(h, typ, ver)
+  #   h[:v] = strip_edition(h[:v]) if edition_field_blank?
+  #   h[:v] = pop_type("edition", h[:v])
+  #   h[:v] = insert_article(h[:v]) if from_edition?
+  #   h[:v] = punct_edition(h[:v]) if from_edition? #tag
+  #   h[:v] = conjunct_edition(h[:v]) unless from_edition? #tag
+  #   h[:build] << pad_pat_for_loop(h[:build], h[:v]) #tag
+  # end
+  def from_edition(h)
+    h[:v] = insert_article(h[:v])
+    h[:v] = punct_edition(h[:v])
+  end
+
+  def not_from_edition(h)
+    h[:v] = conjunct_edition(h[:v])
+  end
+
   def build_edition(h, typ, ver)
     h[:v] = strip_edition(h[:v]) if edition_field_blank?
     h[:v] = pop_type("edition", h[:v])
-    h[:v] = insert_article(h[:v]) if from_edition?
-    h[:v] = punct_edition(h[:v]) if from_edition? #tag
-    h[:v] = conjunct_edition(h[:v]) unless from_edition? #tag
-    h[:build] << pad_pat_for_loop(h[:build], h[:v]) #tag
+    h[:v] = public_send(edition_type.edition_context, h)
+    h[:build] << pad_pat_for_loop(h[:build], h[:v])
   end
 
   def build_cert(h, typ, ver)
@@ -264,7 +274,7 @@ class Item < ApplicationRecord
   def build_d(ver)
     h = {build: ""}
     public_send(ver + "_list").each do |typ|
-      public_send("build_" + typ, h.merge!(typ_args(typ, ver)), typ, ver) if typ_args(typ, ver) && %w(artist item mount).include?(typ) #artist mount dim edition sign cert
+      public_send("build_" + typ, h.merge!(typ_args(typ, ver)), typ, ver) if typ_args(typ, ver) && %w(artist item mount edition).include?(typ) #artist mount dim edition sign cert
     end
     h[:build]
   end
