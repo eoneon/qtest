@@ -71,7 +71,7 @@ class Item < ApplicationRecord
   end
 
   def valid_tag_sign?
-    sign_type.sign_context != "unsigned"
+    ! sign_type.signtype_eql?("not signed")
   end
 
   def includes_edition?
@@ -196,14 +196,6 @@ class Item < ApplicationRecord
     str.split(" ").drop(1).join(" ")
   end
 
-  # def build_edition(h, typ, ver)
-  #   h[:v] = strip_edition(h[:v]) if edition_field_blank?
-  #   h[:v] = pop_type("edition", h[:v])
-  #   h[:v] = insert_article(h[:v]) if from_edition?
-  #   h[:v] = punct_edition(h[:v]) if from_edition? #tag
-  #   h[:v] = conjunct_edition(h[:v]) unless from_edition? #tag
-  #   h[:build] << pad_pat_for_loop(h[:build], h[:v]) #tag
-  # end
   def from_edition(h)
     h[:v] = insert_article(h[:v])
     h[:v] = punct_edition(h[:v])
@@ -274,7 +266,7 @@ class Item < ApplicationRecord
   def build_d(ver)
     h = {build: ""}
     public_send(ver + "_list").each do |typ|
-      public_send("build_" + typ, h.merge!(typ_args(typ, ver)), typ, ver) if typ_args(typ, ver) && %w(artist item mount edition).include?(typ) #artist mount dim edition sign cert
+      public_send("build_" + typ, h.merge!(typ_args(typ, ver)), typ, ver) if typ_args(typ, ver) && %w(artist item mount edition sign).include?(typ) #artist mount dim edition sign cert
     end
     h[:build]
   end
