@@ -9,37 +9,58 @@ class CertType < ApplicationRecord
   end
 
   def required_keys?
-   category_names.sort == valid_keys.sort if properties.present?
+   category_names.sort == valid_keys.sort if properties.present? && category
   end
 
+  def valid_keys_include?(k)
+    category_names.include?(k) if required_keys?
+  end
+
+  def key_valid_and_eql?(k, v)
+    valid_keys_include?(k) && properties[k] == v
+  end
+
+  def key_value(k)
+    properties[k] if valid_keys_include?(k)
+  end
+
+  #kill: valid_keys_include?
   def seal?
     category_names.include?("seal") if required_keys?
   end
 
+  #kill: valid_keys_include?
   def cert?
     category_names.include?("certificate") if required_keys?
   end
 
+  #kill: valid_keys_include?
   def seal_and_cert?
-    seal? && cert?
+    #seal? && cert?
+    valid_keys_include?("seal") && valid_keys_include?("certificate")
   end
 
+  #kill: valid_keys_include?
   def certissuer?
     category_names.include?("certissuer")
   end
 
+  #kill: valid_keys_include?
   def sealissuer?
     category_names.include?("sealissuer")
   end
 
+  #kill: valid_keys_include?
   def issuer?
     certissuer? || sealissuer?
   end
 
+  #kill: key_valid_and_eql?
   def inverso?
     properties["seal"] == "SOA inverso" if required_keys?
   end
 
+  #kill: key_valid_and_eql?
   def na?
     properties["certificate"] == "N/A" if required_keys?
   end

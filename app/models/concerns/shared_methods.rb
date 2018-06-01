@@ -23,7 +23,7 @@ module SharedMethods
   end
 
   def category_names
-    category.name.split("_")
+    category.name.split("_") if category
   end
 
   def arr_match?(arr1, arr2)
