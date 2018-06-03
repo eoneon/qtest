@@ -266,7 +266,7 @@ class Item < ApplicationRecord
   def build_d(ver)
     h = {build: ""}
     public_send(ver + "_list").each do |typ|
-      public_send("build_" + typ, h.merge!(typ_args(typ, ver)), typ, ver) if typ_args(typ, ver) && %w(artist item mount edition sign).include?(typ) #artist mount dim edition sign cert
+      public_send("build_" + typ, h.merge!(typ_args(typ, ver)), typ, ver) if typ_args(typ, ver) && %w(artist item mount edition sign cert).include?(typ) #artist mount dim edition sign cert
     end
     h[:build]
   end

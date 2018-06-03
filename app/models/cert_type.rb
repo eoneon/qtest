@@ -53,7 +53,7 @@ class CertType < ApplicationRecord
   #new: issuer dependency
   def build_issuer(h)
     v = key_value(h[:k][0..3] + "issuer")
-    h[:ver] == "inv" ? "(#{v})" : v
+    h[:ver] == "inv" ? "(#{v})" : "from #{v}"
   end
 
   #new: 4/4 for: credential_authentication_inverso_issuer
@@ -100,8 +100,8 @@ class CertType < ApplicationRecord
 
   #new: 2/3 of combine elements
   def credential_authentication_inverso_issuer(h)
-    delim = issuer?(h) ? " from " : " "
-    [credential_authentication_inverso(h), issuer(h)].compact.join(delim)
+    #delim = issuer?(h) ? " from " : " "
+    [credential_authentication_inverso(h), issuer(h)].compact.join(" ")
   end
 
   #new: 3/3 of combine elements
@@ -287,7 +287,8 @@ class CertType < ApplicationRecord
   end
 
   def dropdown
-    category_names
+    #category_names
+    typ_ver_args("inv")
   #   drop = []
   #   drop_loop.each do |k|
   #     drop << format_drop(k)
