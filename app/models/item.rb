@@ -74,6 +74,10 @@ class Item < ApplicationRecord
     ! sign_type.signtype_eql?("not signed")
   end
 
+  def valid_tag_cert?
+    ! cert_type.key_valid_and_eql?("certificate", "N/A")
+  end
+
   def includes_edition?
     tag_list.include?("edition")
   end
@@ -125,11 +129,6 @@ class Item < ApplicationRecord
    mount_type && mount_type.mount_value == "framed" ? switch_types(list, "mount", "item") : list
   end
 
-  #pad_for_push/pad_for_insert
-  # def pad_pat_for_loop(str, v)
-  #   str.empty? ? v : " #{v}"
-  # end
-
   def inv_list
     %w(artist item mount edition sign cert dim) & valid_existing_types
   end
@@ -160,6 +159,10 @@ class Item < ApplicationRecord
     str
   end
 
+  def body_dim(h)
+    h[:build] << pad_pat_for_loop(h[:build], h[:v])
+  end
+
   def tag_dim(h)
     h2 = h
     h2[:pat] = item_type.xl_dim_ref
@@ -175,8 +178,14 @@ class Item < ApplicationRecord
     h[:v]
   end
 
-  def punct_item(h)
-   includes_edition_or_sign? && ! from_edition? ? "#{h[:v]}," : h[:v]
+  def punct_item(h, ver)
+    #includes_edition_or_sign? && ! from_edition? ? "#{h[:v]}," : h[:v]
+    case
+    when includes_edition_or_sign? && ! from_edition? then h[:v] + ","
+    when ver != "body" && ! includes_edition_or_sign? && ! valid_types.exclude?("cert") then h[:v] + "."
+    #when ver == "body" &&
+    else h[:v]
+    end
   end
 
   def conjunct_edition(v)
@@ -254,7 +263,7 @@ class Item < ApplicationRecord
   end
 
   def build_item(h, typ, ver)
-    v = punct_item(h)
+    v = punct_item(h, ver)
     h[:build] << pad_pat_for_loop(h[:build], v)
   end
 
@@ -266,7 +275,7 @@ class Item < ApplicationRecord
   def build_d(ver)
     h = {build: ""}
     public_send(ver + "_list").each do |typ|
-      public_send("build_" + typ, h.merge!(typ_args(typ, ver)), typ, ver) if typ_args(typ, ver) && %w(artist item mount edition sign cert).include?(typ) #artist mount dim edition sign cert
+      public_send("build_" + typ, h.merge!(typ_args(typ, ver)), typ, ver) if typ_args(typ, ver) && %w(artist item mount edition sign cert dim).include?(typ) #artist mount dim edition sign cert
     end
     h[:build]
   end

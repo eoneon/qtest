@@ -1,7 +1,5 @@
 <h1>CertificateType#Edit</h1>
-<%#= @cert_type.global_credential?("certificate") %>
 <p><%= @cert_type.typ_ver_args("inv") %></p>
-<p><%#= @cert_type.key_value("certificate") %></p>
 <p><%= @cert_type.category_names %></p>
 
 <%= render 'item_types/form', parent: @cert_type %>
