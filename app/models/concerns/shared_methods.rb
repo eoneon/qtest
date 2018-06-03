@@ -12,8 +12,7 @@ module SharedMethods
   end
 
   def test_str
-    #{}"framed oriinal painting on canvas (40\" x 40\"), hand signed with certificate of authenticity."
-    "framed hand colored sold out limited edition with gold leaf, AP numbered 1/100 with official seal from Warner Bros. and certificate of authenticity from Linda Jones Enterprises."
+    "PSA/DNA"
   end
 
   def test_hash
@@ -24,6 +23,10 @@ module SharedMethods
 
   def category_names
     category.name.split("_") if category
+  end
+
+  def pad_pat_for_loop(str, v)
+    str.empty? ? v : " #{v}"
   end
 
   def arr_match?(arr1, arr2)

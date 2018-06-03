@@ -126,9 +126,9 @@ class Item < ApplicationRecord
   end
 
   #pad_for_push/pad_for_insert
-  def pad_pat_for_loop(str, v)
-    str.empty? ? v : " #{v}"
-  end
+  # def pad_pat_for_loop(str, v)
+  #   str.empty? ? v : " #{v}"
+  # end
 
   def inv_list
     %w(artist item mount edition sign cert dim) & valid_existing_types
