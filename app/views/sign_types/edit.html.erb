@@ -1,6 +1,6 @@
 <h1>SignatureType#Edit</h1>
 <p><%= @sign_type.category_names %></p>
-<p><%= @sign_type.typ_ver_args("tag") %></p>
+<p><%= @sign_type.typ_ver_args("body") %></p>
 <p><%#= @sign_type.arr_match?(@sign_type.properties["signmethod"].split(" "), ["hand", "autographed"]) %></p>
 <%= render 'item_types/form', parent: @sign_type %>
 

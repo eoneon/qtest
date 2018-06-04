@@ -52,22 +52,22 @@ class ItemType < ApplicationRecord
   end
 
   def original
-    "original" if existing_kv_pairs.include?("original")
+    "original" if valid_keys.include?("original")
   end
 
   def limited
-    "limited" if existing_kv_pairs.include?("limited")
+    "limited" if valid_keys.include?("limited")
   end
 
   #new: keep properties keys if value present
-  def existing_kv_pairs
+  def valid_keys
     properties.keep_if {|k,v| v.present?}.keys if properties
   end
   #=>["mixed", "panel", "original"]
 
   #ordered_kv_pairs
   def ordered_keys
-    category_names.map {|k| k if existing_kv_pairs.include?(k)}.compact
+    category_names.map {|k| k if valid_keys.include?(k)}.compact
   end
   #=> ["original", "monprint", "panel"]
 
@@ -79,30 +79,6 @@ class ItemType < ApplicationRecord
     ver == "tag" ? tag_keys : ordered_keys
   end
 
-  #filter key-type (substrate_list, media_list) if exists per valid_keys
-  # def sub_type_key(key_group)
-  #   arr = existing_kv_pairs & key_group
-  #   arr[0]
-  # end
-
-  #kill: sub_type_key covers this, just pass in argument
-  # def media_key
-  #   sub_type_key(media)
-  # end
-
-  #kill
-  # def substrate_key
-  #   sub_type_key(substrates)
-  # end
-  #
-  # def sub_type_pos(sub_type_key)
-  #   idx_after_i(ordered_keys, sub_type_key, 0)
-  # end
-  #
-  # def substrate_pos
-  #   sub_type_pos(substrate_key)
-  # end
-
   def frame_ref
     properties[ordered_keys[0]]
   end
@@ -111,18 +87,6 @@ class ItemType < ApplicationRecord
     keys = substrate_keys + medium_keys + artwork_keys
     keys.map {|k| return k if ver_keys(ver).include?(k)}
   end
-
-  # def xl_dim_pos
-  #   case
-  #   when substrate_key != "paper" then substrate_pos - 1
-  #   when substrate_key == "paper" && properties[media_key] != "giclee" then substrate_pos - 2
-  #   when substrate_key == "paper" && properties[media_key] == "giclee" then substrate_pos - 3
-  #   end
-  # end
-
-  # def xl_dim_ref
-  #   properties[category_names[xl_dim_pos]]
-  # end
 
   def xl_dim_ref
     properties[dim_ref_key("tag")]

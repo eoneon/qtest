@@ -5,23 +5,19 @@ class CertType < ApplicationRecord
   has_many :items
 
   def valid_keys
-    properties.map {|k,v| k if v.present?}.compact if properties.present?
+    properties.keep_if {|k,v| v.present?}.keys if properties && category_names
   end
 
   def required_keys?
-   category_names.sort == valid_keys.sort if properties.present? && category
+   valid_keys.sort == category_names.sort if valid_keys
   end
 
-  def valid_keys_include?(k)
-    category_names.include?(k) if required_keys?
-  end
-
-  def key_valid_and_eql?(k, v)
-    valid_keys_include?(k) && properties[k] == v
+  def key_value_eql?(k, v)
+    valid_keys.include?(k) && properties[k] == v
   end
 
   def key_value(k)
-    properties[k] if valid_keys_include?(k)
+    properties[k] if valid_keys.include?(k)
   end
 
   #new: ver-specific or universal?
@@ -45,11 +41,6 @@ class CertType < ApplicationRecord
   end
 
   #new: issuer dependency
-  def issuer?(h)
-    category_names.include?(h[:k][0..3] + "issuer")
-  end
-
-  #new: issuer dependency
   def build_issuer(h)
     v = key_value(h[:k][0..3] + "issuer")
     h[:ver] == "inv" ? "(#{v})" : "from #{v}"
@@ -57,7 +48,7 @@ class CertType < ApplicationRecord
 
   #new: 4/4 for: credential_authentication_inverso_issuer
   def issuer(h)
-    build_issuer(h) if issuer?(h)
+    build_issuer(h) if valid_keys.include?(h[:k][0..3] + "issuer")
   end
 
   #new: 3/3 for: credential_authentication_inverso_issuer
@@ -87,8 +78,7 @@ class CertType < ApplicationRecord
 
   #new: 1/4 of credential_authentication_inverso_issuer
   def credential(h)
-    k = key_value(h[:k])
-    k = k[0].downcase.to_sym
+    k = key_value(h[:k])[0].downcase.to_sym
     global_credential_hsh[k]
   end
 
@@ -102,24 +92,23 @@ class CertType < ApplicationRecord
     [credential_authentication_inverso(h), issuer(h)].compact.join(" ")
   end
 
+  def join_seal(ver)
+    ver == "inv" ? "&" : "and"
+  end
+
   #new: 3/3 of combine elements
   def certificate_value(h)
     v = credential_authentication_inverso_issuer(h)
-    h[:k] == "seal" && valid_keys_include?("certificate") ? "#{v} and" : v
+    h[:k] == "seal" && valid_keys.include?("certificate") ?  "#{v} #{join_seal(h[:ver])}" : v
   end
 
   def build_hsh
-    h = {tag: "with", inv: "", body: "Includes"}
+    h = {tag: "with", inv: "with", body: "Includes"}
   end
 
   def initialize_build(h)
     build_hsh[h[:ver].to_sym]
   end
-
-  # def punct_cert(h)
-  #   #h[:build] + "."
-  #   h[:ver] == "body" ? h[:build] + "." : h[:build]
-  # end
 
   def build_cert(h)
     h[:build] = initialize_build(h)
@@ -134,22 +123,22 @@ class CertType < ApplicationRecord
   def route_to_target_method(h)
     case
     when h[:ver] == "body" && ! global_credential?(credential_keys[0]) then body_credential_hsh[key_value("certificate").downcase[0].to_sym]
-    when h[:ver] == "inv" && key_valid_and_eql?("certificate", "N/A") then "(Cert N/A)"
+    when h[:ver] == "inv" && key_value_eql?("certificate", "N/A") then "(Cert N/A)"
     else build_cert(h)
     end
   end
 
   #use hsh
   def typ_ver_args(ver)
-    route_to_target_method(h = {ver: ver})
+    route_to_target_method(h = {ver: ver}) if required_keys?
   end
 
   #revisit
-  def key_valid_and_included?(k)
-    key_value(k) && authentication_list.include?(properties[k])
-  end
+  # def key_valid_and_included?(k)
+  #   key_value(k) && authentication_list.include?(properties[k])
+  # end
 
   def dropdown
-    typ_ver_args("inv")
+    typ_ver_args("inv").gsub("with ", "")
   end
 end

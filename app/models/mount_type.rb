@@ -14,8 +14,16 @@ class MountType < ApplicationRecord
   end
   #=> "custom framed", "gallery wrapped", "stretched"...
 
+  def mount_key_eql?(v)
+    mount_key == v
+  end
+
+  def mount_value_eql?(v)
+    mount_value == v
+  end
+
   def mount_clause
-    "This piece comes #{mount_value}"
+    "This piece comes #{mount_value}."
   end
 
   #used on item.rb
@@ -37,7 +45,8 @@ class MountType < ApplicationRecord
   end
 
   def mount_context(ver)
-    ver == "tag" && gallery_wrapped? || ver == "inv" && mount_key == "wrapped" || stretched? && ver == "body" ? "insert_mount" : "push_mount"
+    #ver == "tag" && gallery_wrapped? || ver == "inv" && mount_key == "wrapped" || stretched? && ver == "body" ? "insert_mount" : "push_mount"
+    ver == "tag" && mount_value_eql?("gallery wrapped") || ver == "inv" && mount_key_eql?("wrapped") || ver == "body" && mount_value_eql?("stretched") ? "insert_mount" : "push_mount"
   end
 
   def tag_wrapped
@@ -49,7 +58,7 @@ class MountType < ApplicationRecord
   end
 
   def body_wrapped
-    stretched? ? mount_value : mount_clause
+    mount_value_eql?("stretched") ? mount_value : mount_clause
   end
 
   def tag_framed

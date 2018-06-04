@@ -1,8 +1,8 @@
 <p id="notice"><%= notice %></p>
 
-<h1>ArtistType#index</h1>
-<% if @artist_types.empty? %>
-  <p><strong>No ArtistTypes</strong></p>
+<h1>EditionType#index</h1>
+<% if @edition_types.empty? %>
+  <p><strong>No EditionTypes</strong></p>
 <% end %>
 
 <table class="table table-striped">
@@ -12,11 +12,11 @@
     </tr>
   </thead>
   <tbody>
-    <% @artist_types.each do |artist_type| %>
-      <%= render 'artist_types/artist_type', artist_type: artist_type %>
+    <% @edition_types.each do |edition_type| %>
+      <%= render 'edition_types/edition_type', edition_type: edition_type %>
     <% end %>
   </tbody>
 </table>
 
 <br>
-<%= link_to "New artist_type", new_artist_type_path %>
+<%= link_to "New edition_type", new_edition_type_path %>

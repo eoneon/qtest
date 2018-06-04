@@ -12,11 +12,20 @@ class SignType < ApplicationRecord
    category_names.sort == valid_keys.sort
   end
 
-  def key_valid_and_eql?(k, v)
+  ##new: properties_values
+  def key_value(k)
+    properties[k] if valid_keys.include?(k)
+  end
+
+  def key_value_eql?(k, v)
     valid_keys.include?(k) && properties[k] == v
   end
 
-  ##properties_values
+  def key_value_include?(k, v)
+    key_value(k) && key_value(k).split(" ").include?(v)
+  end
+
+  #key_value("signmethod")
   def signmethod
     properties["signmethod"] if valid_keys.include?("signmethod")
   end
@@ -30,9 +39,9 @@ class SignType < ApplicationRecord
   end
 
   #unsigned?
-  def signtype_eql?(v)
-    signtype && signtype == v
-  end
+  # def signtype_eql?(v)
+  #   signtype && signtype == v
+  # end
 
   #hand_signed?
   def signmethod_include?(v)
@@ -42,6 +51,7 @@ class SignType < ApplicationRecord
   #context-specific: signed, autographed
   def tag_signmethod_value
     signtype if signmethod_include?("autgraphed") || signmethod_include?("authorized")
+    #signtype if key_value_include?("signmethod", "autgraphed") || key_value_include?("signmethod", "authorized")
   end
 
   def tag_signmethod_signtype_value
@@ -58,11 +68,11 @@ class SignType < ApplicationRecord
   end
 
   def inv_unsigned_value
-    "(unsigned)" if signtype_eql?("not signed")
+    "(unsigned)" if key_value_eql?("signtype", "not signed")
   end
 
   def parenth_signed
-    [inv_authorized_value, inv_unsigned_value].compact[0] if signmethod_include?("authorized") || signtype_eql?("not signed")
+    [inv_authorized_value, inv_unsigned_value].compact[0] if signmethod_include?("authorized") || key_value_eql?("signtype", "not signed")
   end
 
   def inv_value
@@ -74,12 +84,17 @@ class SignType < ApplicationRecord
     [tag_signmethod_signtype_value, "by the", signer].join(" ") if signmethod_include?("hand")
   end
 
+  def proxy_signature_value
+    "#{key_value("signmethod")} #{key_value("signtype").gsub("signed", "signature")}"
+  end
+
   def body_proxy_signed
-    ["bearing the", tag_signmethod_signtype_value.sub("sign", "signature"), "of the", signer].join(" ") if signmethod_include?("authorized") || signmethod_include?("plate") || signmethod_include?("estate")
+    #["bearing the", tag_signmethod_signtype_value.gsub("sign", "signature"), "of the", signer].join(" ") if signmethod_include?("authorized") || signmethod_include?("plate") || signmethod_include?("estate")
+    ["bearing the", proxy_signature_value, "of the", signer].join(" ") if signmethod_include?("authorized") || signmethod_include?("plate") || signmethod_include?("estate")
   end
 
   def body_unsigned
-   "This piece is not signed." if signtype_eql?("not signed")
+   "This piece is not signed." if key_value_eql?("signtype", "not signed")
   end
 
   def body_value

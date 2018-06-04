@@ -89,7 +89,7 @@ class DimType < ApplicationRecord
   #=>[“frm:”, “img:”]
 
   def inv_2d
-    inv_targets_2d.zip(dims_2d).map {|i| i.join(" ")}.join(", ")
+    inv_targets_2d.zip(dims_2d).map {|i| i.join(" ")}.join(", ") if inv_targets_2d
   end
   #=>“frm: outerwidth x outerheight, img: innerwidth x innerheight”
 

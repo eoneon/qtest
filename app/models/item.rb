@@ -71,37 +71,38 @@ class Item < ApplicationRecord
   end
 
   def valid_tag_sign?
-    ! sign_type.signtype_eql?("not signed") if sign_type
-    #! sign_type.key_valid_and_eql?("signtype", "not signed")
+    #! sign_type.signtype_eql?("not signed") if sign_type
+    ! sign_type.key_value_eql?("signtype", "not signed") if sign_type
   end
 
   def valid_tag_cert?
-    ! cert_type.key_valid_and_eql?("certificate", "N/A") if cert_type
+    ! cert_type.key_value_eql?("certificate", "N/A") if cert_type
   end
 
-  def includes_edition?
-    tag_list.include?("edition")
-  end
+  # def includes_edition?
+  #   tag_list.include?("edition")
+  # end
 
   def from_edition?
-    edition_type.category.name == "edition" if includes_edition?
+    edition_type.category.name == "edition" if tag_list.include?("edition") #includes_edition?
   end
 
   def edition_field_blank?
-    edition_type.category_names[0] == "edition" && properties["edition"].blank? if includes_edition?
+    edition_type.category_names[0] == "edition" && properties["edition"].blank? if tag_list.include?("edition") #includes_edition?
   end
 
-  def includes_sign?
-    tag_list.include?("sign")
-  end
+  # def includes_sign?
+  #   tag_list.include?("sign")
+  # end
 
-  def includes_edition_or_sign?
-    includes_edition? || includes_sign?
-  end
-
-  def includes_edition_and_sign?
-    (includes_edition? && ! from_edition?) && includes_sign?
-  end
+  # def includes_edition_or_sign?
+  #   #includes_edition? || includes_sign?
+  #   tag_list.include?("edition") || tag_list.include?("sign")
+  # end
+  #
+  # def includes_edition_and_sign?
+  #   (includes_edition? && ! from_edition?) && includes_sign?
+  # end
 
   def existing_conditional_tag_types
     %w(edition dim sign mount) & valid_existing_types if existing_types
@@ -131,12 +132,12 @@ class Item < ApplicationRecord
   end
 
   def inv_list
-    %w(artist item mount edition sign cert dim) & valid_existing_types
+    tag_list.include?("dim") ? tag_list.delete("dim").push("dim") : tag_list.push("dim")
   end
 
   def body_list
     list = %w(item artist edition sign mount cert dim) & valid_existing_types
-    mount_type && mount_type.mount_value == "framed" ? switch_types(list, "mount", "artist") : list
+    mount_type && mount_type.mount_value == "stretched" ? switch_types(list, "mount", "artist") : list
   end
 
   def article_list
@@ -162,6 +163,10 @@ class Item < ApplicationRecord
 
   def body_dim(h)
     h[:build] << pad_pat_for_loop(h[:build], h[:v])
+  end
+
+  def inv_dim(h)
+    body_dim(h)
   end
 
   def tag_dim(h)
@@ -206,7 +211,7 @@ class Item < ApplicationRecord
   end
 
   def conjunct_edition(v)
-   "#{v} and" if includes_sign?
+   "#{v} and" if tag_list.include?("sign") #includes_sign?
   end
 
   def punct_edition(h, ver)
