@@ -12,6 +12,10 @@ class SignType < ApplicationRecord
    category_names.sort == valid_keys.sort
   end
 
+  def key_valid_and_eql?(k, v)
+    valid_keys.include?(k) && properties[k] == v
+  end
+
   ##properties_values
   def signmethod
     properties["signmethod"] if valid_keys.include?("signmethod")

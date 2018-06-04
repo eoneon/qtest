@@ -71,11 +71,12 @@ class Item < ApplicationRecord
   end
 
   def valid_tag_sign?
-    ! sign_type.signtype_eql?("not signed")
+    ! sign_type.signtype_eql?("not signed") if sign_type
+    #! sign_type.key_valid_and_eql?("signtype", "not signed")
   end
 
   def valid_tag_cert?
-    ! cert_type.key_valid_and_eql?("certificate", "N/A")
+    ! cert_type.key_valid_and_eql?("certificate", "N/A") if cert_type
   end
 
   def includes_edition?
@@ -179,11 +180,27 @@ class Item < ApplicationRecord
   end
 
   def punct_item(h, ver)
-    #includes_edition_or_sign? && ! from_edition? ? "#{h[:v]}," : h[:v]
     case
-    when includes_edition_or_sign? && ! from_edition? then h[:v] + ","
-    when ver != "body" && ! includes_edition_or_sign? && ! valid_types.exclude?("cert") then h[:v] + "."
-    #when ver == "body" &&
+    when ! from_edition? && (tag_list.include?("edition") || tag_list.include?("sign")) then h[:v] + ","
+    when ver != "body" && tag_list.exclude?("edition") && tag_list.exclude?("sign") && valid_types.exclude?("cert") then h[:v] + "."
+    else h[:v]
+    end
+  end
+
+  def punct_sign(h, ver)
+    case
+    when ver != "body" && valid_types.exclude?("cert") then h[:v] + "."
+    when ver == "body" then h[:v] + "."
+    else h[:v]
+    end
+  end
+
+  def punct_build(h, typ, ver)
+    case
+    when typ == "item" then punct_item(h, ver)
+    when typ == "edition" then punct_edition(h, ver)
+    when typ == "sign" then punct_sign(h, ver)
+    when typ == "cert" then h[:v] + "."
     else h[:v]
     end
   end
@@ -192,8 +209,13 @@ class Item < ApplicationRecord
    "#{v} and" if includes_sign?
   end
 
-  def punct_edition(v)
-   "#{v}," if includes_sign?
+  def punct_edition(h, ver)
+    case
+    when edition_type.edition_context == "from_edition" && valid_tag_sign? then h[:v] + ","
+    when ver != "body" && ! valid_tag_sign? && ! valid_tag_cert? then h[:v] + "."
+    when ver == "body" && ! valid_tag_sign? then h[:v] + "."
+    else h[:v]
+    end
   end
 
   def insert_article(str)
@@ -207,7 +229,7 @@ class Item < ApplicationRecord
 
   def from_edition(h)
     h[:v] = insert_article(h[:v])
-    h[:v] = punct_edition(h[:v])
+    #h[:v] = punct_edition(h[:v])
   end
 
   def not_from_edition(h)
@@ -218,14 +240,18 @@ class Item < ApplicationRecord
     h[:v] = strip_edition(h[:v]) if edition_field_blank?
     h[:v] = pop_type("edition", h[:v])
     h[:v] = public_send(edition_type.edition_context, h)
+    #h[:v] = punct_edition(h, ver)
+    h[:v] = punct_build(h, typ, ver)
     h[:build] << pad_pat_for_loop(h[:build], h[:v])
   end
 
   def build_cert(h, typ, ver)
+    h[:v] = punct_build(h, typ, ver)
     h[:build] << pad_pat_for_loop(h[:build], h[:v])
   end
 
   def build_sign(h, typ, ver)
+    h[:v] = punct_build(h, typ, ver)
     h[:build] << pad_pat_for_loop(h[:build], h[:v])
   end
 
@@ -263,7 +289,8 @@ class Item < ApplicationRecord
   end
 
   def build_item(h, typ, ver)
-    v = punct_item(h, ver)
+    #v = punct_item(h, ver)
+    v = punct_build(h, typ, ver)
     h[:build] << pad_pat_for_loop(h[:build], v)
   end
 

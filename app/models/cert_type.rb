@@ -116,10 +116,10 @@ class CertType < ApplicationRecord
     build_hsh[h[:ver].to_sym]
   end
 
-  def punct_cert(h)
-    #h[:build] + "."
-    h[:ver] == "body" ? h[:build] + "." : h[:build]
-  end
+  # def punct_cert(h)
+  #   #h[:build] + "."
+  #   h[:ver] == "body" ? h[:build] + "." : h[:build]
+  # end
 
   def build_cert(h)
     h[:build] = initialize_build(h)
@@ -127,7 +127,8 @@ class CertType < ApplicationRecord
       h[:k] = k
       h[:build] << pad_pat_for_loop(h[:build], certificate_value(h))
     end
-    punct_cert(h)
+    # punct_cert(h)
+    h[:build]
   end
 
   def route_to_target_method(h)
