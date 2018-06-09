@@ -4,6 +4,18 @@ class MountType < ApplicationRecord
   belongs_to :category
   has_many :items
 
+  def valid_keys
+    properties.keep_if {|k,v| k if v.present?} if properties.present?
+  end
+
+  def key_value(k)
+    properties[k] if valid_keys.include?(k)
+  end
+
+  def key_value_eql?(k, v)
+    valid_keys.include?(k) && properties[k] == v
+  end
+
   def mount_key
     category_names[0] if category_names && category_names[0] != "flat"
   end

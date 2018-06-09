@@ -1,9 +1,9 @@
 <%= form_for @item, :html => {:id => 'item_form'} do |f| %>
-<p><strong>existing_types:</strong> <%= @item.body_list %></p>
-<p><strong>valid_conditional_tag_types:</strong> <%#= @item.body_list %></p>
-<p><strong>tag_list:</strong> <%#= @item.test_arr1 %></p>
+<p><strong>valid_keys:</strong> <%= @item.ordered_keys("inv") %></p>
+<p><strong>valid_tag_mount?:</strong> <%= @item.insert_at_idx(@item.ordered_keys("inv"), "dog", "sign", -1) %></p>
+<p><strong>tag_list:</strong> <%#= @item.insert_item(@item.ordered_keys("inv"), "dog", ) %></p>
 <p><strong>valid_existing_types:</strong> <%#= @item.valid_existing_types %></p>
-<p><strong>build_d:</strong> <%= @item.build_d("body") %></p>
+<p><strong>build_d:</strong> <%#= @item.build_d("tag") %></p>
   <%= render "items/hidden", f: f %>
   <script type="text/javascript">
     function submitform(){

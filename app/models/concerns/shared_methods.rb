@@ -149,4 +149,31 @@ module SharedMethods
     idx = arr.index(i)
     arr.fill(v, idx, 1)
   end
+
+  #insert item into array relative (before/after) to other_item
+  def first_item?(arr, other_item)
+   arr[0] == other_item
+  end
+
+  def last_item?(arr, other_item)
+    arr[-1] == other_item
+  end
+
+  def insert_pos(idx, pos)
+    pos == 0 ? idx : idx + 1
+  end
+
+  def target_idx(arr, other_item)
+    case
+    when first_item?(arr, other_item) then 0
+    when last_item?(arr, other_item) then -2
+    else arr.index(other_item)
+    end
+  end
+
+  def insert_at_idx(arr, item, other_item, pos)
+    idx = target_idx(arr, other_item)
+    idx = insert_pos(idx, pos)
+    arr.insert(idx, item)
+  end
 end

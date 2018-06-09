@@ -1,5 +1,6 @@
 class Item < ApplicationRecord
   include SharedMethods
+  include ObjectMethods
   include Capitalization
   include Dim
 
@@ -11,135 +12,190 @@ class Item < ApplicationRecord
   belongs_to :cert_type, optional: true
   belongs_to :dim_type, optional: true
 
-  #eg: "Hello" -> String -> "String" -> "string" *unused utility meth
-  def class_to_str(obj)
-    obj.class.to_s.downcase
+  def key_value(k)
+    properties[k] if valid_keys.include?(k)
   end
 
-  #eg: "dim_type_id" -> :dim_type
-  def fk_to_meth(k)
-    public_send(k.remove("_id"))
+  def key_value_include?(k, v)
+    key_value(k) && key_value(k).split(" ").include?(v)
   end
 
-  #eg: "dim" -> :dim_type
-  def type_to_meth(type)
-    public_send(type + "_type")
+  #new
+  def all_keys
+    %w(item_type_id artist_type_id edition_type_id sign_type_id mount_type_id cert_type_id dim_type_id)
+  end
+  #new
+  def local_keys
+    %w(edition_type_id dim_type_id)
+  end
+  #new
+  def key_value_hsh
+    h = {"edition" => {k: "unnumbered", v: "not numbered"}, "mount" => {k: "wrapped", v: "stretched"}, "sign" => {k: "signtype", v: "not signed"}, "cert" => {k: "certificate", v:"N/A"}}
+  end
+  #new
+  def type_key(fk)
+    key_value_hsh[fk_to_type(fk)]
   end
 
-  #eg: "dim_type_id" -> "dim"
-  def to_type(k)
-    k[-8..-1] == "_type_id" ? k.remove("_type_id") : k.remove("_id")
+  def scoped_properties(fk)
+    local_keys.include?(fk) ? properties : fk_to_meth(fk).properties
+  end
+  #new
+  def key_value_eql?(fk)
+    scoped_properties(fk)[type_key(fk)[:k]].present? && scoped_properties(fk)[type_key(fk)[:k]] == type_key(fk)[:v]
+  end
+  #new
+  def valid_or_unconditional?(fk)
+    type_key(fk).nil? || ! key_value_eql?(fk) #first step: top-level key present?
+  end
+  #new
+  def valid_body?(fk)
+    fk
+  end
+  #new
+  def valid_inv?(fk)
+    valid_or_unconditional?(fk)
+  end
+  #new
+  def valid_tag?(fk)
+    fk == "dim_type_id" ? xl_dims : valid_or_unconditional?(fk)
+  end
+  #new
+  def required_remote_key?(fk)
+    fk_to_meth(fk).properties
   end
 
-  #eg: dependency of validate_properties_required
-  def valid_properties_required_keys
-    properties.keep_if {|k,v| v.present?}.keys if properties
+  def required_local_key?(fk)
+    fk_to_meth(fk).required_fields.keep_if {|f| valid_keys.include?(f)} == fk_to_meth(fk).required_fields
   end
 
-  #eg: dependency of validate_types
-  def validate_properties_required(k)
-    to_type(k) if fk_to_meth(k).required_fields.keep_if {|field| valid_properties_required_keys.include?(field)} == fk_to_meth(k).required_fields
+  def required_properties?(fk)
+    local_keys.include?(fk) ? required_local_key?(fk) : required_remote_key?(fk)
   end
 
-  #eg: dependency of valid_existing_types ->validate_properties
-  def validate_properties(k)
-    if %w(edition_type_id dim_type_id).include?(k)
-      validate_properties_required(k)
-    elsif fk_to_meth(k) && fk_to_meth(k).properties.present?
-      to_type(k)
+  def global_keys
+    all_keys.reject{|fk| fk == "mount_type_id" && item_type.valid_keys.exclude?("canvas")}
+  end
+
+  def ver_types(ver)
+    global_keys.map {|fk| fk_to_type(fk) if required_properties?(fk) && send("valid_" + ver + "?", fk)}.compact
+  end
+
+  def order_rules(build, ver, fk)
+    case
+    when ver != "body" && fk_to_type(fk) == "artist" then insert_at_idx(build, "artist", "item", 0)
+    when ver != "body" && fk_to_type(fk) == "mount" && mount_type.mount_value == "framed" then insert_at_idx(build, "mount", "item", 0)
+    when fk_to_type(fk) == "mount" && mount_type.mount_value == "wrapped" then insert_at_idx(build, "mount", "item", -1)
+    else build << fk_to_type(fk)
     end
   end
 
-  def existing_types
-    item_type ? attribute_names.map {|k| validate_properties(k) if k.index(/_type_id/) && public_send(k).present?}.compact : []
+  def ordered_keys(ver)
+    all_keys.map {|fk| fk_to_type(fk) if ver_types(ver).include?(fk_to_type(fk))}.compact
   end
 
+  ###kill
+  def valid_keys
+    properties.map {|k,v| k if v.present?}.compact if properties
+  end
+  #kill
+  def valid_remote_key?(k)
+    fk_to_meth(k).properties unless k == "mount_type_id" && mount_type.wrapped? && item_type.ordered_keys.exclude?("canvas")
+  end
+  #kill
+  def valid_local_key?(k)
+    fk_to_meth(k).required_fields.keep_if {|field| valid_keys.include?(field)} == fk_to_meth(k).required_fields
+  end
+  #kill
+  def valid_key?(k)
+    %w(edition_type_id dim_type_id).include?(k) ? valid_local_key?(k) : valid_remote_key?(k)
+  end
+  #kill
+  def type_attr?(k)
+    k.index(/_type_id/) && fk_to_meth(k) #&& fk_to_meth(k).properties.present?
+  end
+
+  ##kill
+  def existing_types
+    item_type ? attribute_names.map {|k| fk_to_type(k) if type_attr?(k) && valid_key?(k) }.compact : []
+  end
+
+  #kill
   def valid_existing_types
     existing_types.delete_if {|typ| typ == "mount" && mount_type.wrapped? && item_type.ordered_keys.exclude?("canvas")}
   end
-
+  #kill
   def valid_tag_mount?
-    mount_type.mount_value != "stretched"
+    #mount_type.mount_value != "stretched"
+    ! mount_type.key_value_eql?("wrapped", "stretched") if mount_type
   end
 
+  ##kill
   def valid_tag_edition?
     edition_type.category.name != "unnumbered"
+    #! edition_type.key_value_eql?("unnumbered", "not numbered") if edition_type
   end
-
+  #kill
   def valid_tag_dim?
     xl_dims
   end
-
+  #kill
   def valid_tag_sign?
-    #! sign_type.signtype_eql?("not signed") if sign_type
     ! sign_type.key_value_eql?("signtype", "not signed") if sign_type
   end
-
+  #kill
   def valid_tag_cert?
     ! cert_type.key_value_eql?("certificate", "N/A") if cert_type
   end
 
-  # def includes_edition?
-  #   tag_list.include?("edition")
-  # end
-
+  #keep
   def from_edition?
     edition_type.category.name == "edition" if tag_list.include?("edition") #includes_edition?
   end
-
+  #keep
   def edition_field_blank?
     edition_type.category_names[0] == "edition" && properties["edition"].blank? if tag_list.include?("edition") #includes_edition?
   end
 
-  # def includes_sign?
-  #   tag_list.include?("sign")
-  # end
-
-  # def includes_edition_or_sign?
-  #   #includes_edition? || includes_sign?
-  #   tag_list.include?("edition") || tag_list.include?("sign")
-  # end
-  #
-  # def includes_edition_and_sign?
-  #   (includes_edition? && ! from_edition?) && includes_sign?
-  # end
-
+  #kill
   def existing_conditional_tag_types
     %w(edition dim sign mount) & valid_existing_types if existing_types
   end
-
+  #kill
   def valid_conditional_tag_types
     existing_conditional_tag_types.keep_if {|typ| public_send("valid_tag_" + typ + "?")}
   end
-
+  #kill
   def valid_unconditional_tag_types
     valid_existing_types - existing_conditional_tag_types
   end
-
+  #kill
   def valid_types
     valid_conditional_tag_types + valid_unconditional_tag_types
   end
-
+  #keep: refactor
   def switch_types(list, typ, typ2)
     idx = list.index(typ2)
     list.delete(typ)
     list.insert(idx, typ)
   end
 
+  #kill: incorporate re-order
   def tag_list
    list = %w(artist item mount dim edition sign cert).keep_if {|typ| valid_types.include?(typ)}
    mount_type && mount_type.mount_value == "framed" ? switch_types(list, "mount", "item") : list
   end
-
+  #kill: incorporate re-order
   def inv_list
     tag_list.include?("dim") ? tag_list.delete("dim").push("dim") : tag_list.push("dim")
   end
-
+  #kill: incorporate re-order
   def body_list
     list = %w(item artist edition sign mount cert dim) & valid_existing_types
     mount_type && mount_type.mount_value == "stretched" ? switch_types(list, "mount", "artist") : list
   end
 
+  ###
   def article_list
     ["HC", "AP", "IP", "original", "etching", "animation", "embellished"]
   end
