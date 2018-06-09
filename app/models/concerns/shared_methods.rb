@@ -4,7 +4,7 @@ module SharedMethods
   extend ActiveSupport::Concern
 
   def test_arr1
-    [0,1,2,3,4].insert(5, 5)
+    ["a", "b", "c", "d"]
   end
 
   def test_hash
@@ -175,5 +175,10 @@ module SharedMethods
     idx = target_idx(arr, other_item)
     idx = insert_pos(idx, pos)
     arr.insert(idx, item)
+  end
+
+  #new
+  def intersection?(arr, filter, test_values)
+    test_values.public_send(filter) {|v| arr.include?(v)}
   end
 end

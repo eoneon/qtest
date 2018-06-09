@@ -22,7 +22,7 @@ class Item < ApplicationRecord
 
   #new
   def all_keys
-    %w(item_type_id artist_type_id edition_type_id sign_type_id mount_type_id cert_type_id dim_type_id)
+    item_type ? %w(item_type_id artist_type_id edition_type_id sign_type_id mount_type_id cert_type_id dim_type_id) : []
   end
   #new
   def local_keys
@@ -31,6 +31,10 @@ class Item < ApplicationRecord
   #new
   def key_value_hsh
     h = {"edition" => {k: "unnumbered", v: "not numbered"}, "mount" => {k: "wrapped", v: "stretched"}, "sign" => {k: "signtype", v: "not signed"}, "cert" => {k: "certificate", v:"N/A"}}
+  end
+
+  def valid_local_keys
+    properties.map {|k,v| k if v.present?}.compact if properties
   end
   #new
   def type_key(fk)
@@ -61,16 +65,16 @@ class Item < ApplicationRecord
     fk == "dim_type_id" ? xl_dims : valid_or_unconditional?(fk)
   end
   #new
-  def required_remote_key?(fk)
-    fk_to_meth(fk).properties
+  def valid_required_remote_key?(fk)
+    fk_to_meth(fk).properties if fk_to_meth(fk)
   end
 
-  def required_local_key?(fk)
-    fk_to_meth(fk).required_fields.keep_if {|f| valid_keys.include?(f)} == fk_to_meth(fk).required_fields
+  def valid_required_local_key?(fk)
+    fk_to_meth(fk).required_fields.keep_if {|f| valid_local_keys.include?(f)} == fk_to_meth(fk).required_fields if fk_to_meth(fk)
   end
 
   def required_properties?(fk)
-    local_keys.include?(fk) ? required_local_key?(fk) : required_remote_key?(fk)
+    local_keys.include?(fk) ? valid_required_local_key?(fk) : valid_required_remote_key?(fk)
   end
 
   def global_keys
@@ -91,7 +95,11 @@ class Item < ApplicationRecord
   end
 
   def ordered_keys(ver)
-    all_keys.map {|fk| fk_to_type(fk) if ver_types(ver).include?(fk_to_type(fk))}.compact
+    build = []
+    all_keys.each do |fk|
+      order_rules(build, ver, fk) if ver_types(ver).include?(fk_to_type(fk))
+    end
+    build
   end
 
   ###kill
@@ -240,18 +248,27 @@ class Item < ApplicationRecord
     h[:v]
   end
 
-  def punct_item(h, ver)
+  def punct_sign(h, ver)
     case
-    when ! from_edition? && (tag_list.include?("edition") || tag_list.include?("sign")) then h[:v] + ","
-    when ver != "body" && tag_list.exclude?("edition") && tag_list.exclude?("sign") && valid_types.exclude?("cert") then h[:v] + "."
+    when ver != "body" && ver_types("tag").exclude?("cert") then h[:v] + "."
+    when ver == "body" then h[:v] + "."
     else h[:v]
     end
   end
 
-  def punct_sign(h, ver)
+  def punct_edition(h, ver)
     case
-    when ver != "body" && valid_types.exclude?("cert") then h[:v] + "."
-    when ver == "body" then h[:v] + "."
+    when edition_type.edition_context == "from_edition" && valid_tag_sign? then h[:v] + ","
+    when ver != "body" && ! valid_tag_sign? && ! valid_tag_cert? then h[:v] + "."
+    when ver == "body" && ! valid_tag_sign? then h[:v] + "."
+    else h[:v]
+    end
+  end
+
+  def punct_item(h, ver)
+    case
+    when ! from_edition? && (ver_types("tag").include?("edition") || ver_types("tag").include?("sign")) then h[:v] + ","
+    when ver != "body" && ver_types("tag").exclude?("edition") && ver_types("tag").exclude?("sign") && ver_types("tag").exclude?("cert") then h[:v] + "."
     else h[:v]
     end
   end
@@ -270,14 +287,7 @@ class Item < ApplicationRecord
    "#{v} and" if tag_list.include?("sign") #includes_sign?
   end
 
-  def punct_edition(h, ver)
-    case
-    when edition_type.edition_context == "from_edition" && valid_tag_sign? then h[:v] + ","
-    when ver != "body" && ! valid_tag_sign? && ! valid_tag_cert? then h[:v] + "."
-    when ver == "body" && ! valid_tag_sign? then h[:v] + "."
-    else h[:v]
-    end
-  end
+
 
   def insert_article(str)
     idx = str.index(properties["edition"])
@@ -362,7 +372,8 @@ class Item < ApplicationRecord
 
   def build_d(ver)
     h = {build: ""}
-    public_send(ver + "_list").each do |typ|
+    #public_send(ver + "_list").each do |typ|
+    ordered_keys(ver).each do |typ|
       public_send("build_" + typ, h.merge!(typ_args(typ, ver)), typ, ver) if typ_args(typ, ver) && %w(artist item mount edition sign cert dim).include?(typ) #artist mount dim edition sign cert
     end
     h[:build]
