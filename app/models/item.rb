@@ -29,41 +29,61 @@ class Item < ApplicationRecord
     %w(edition_type_id dim_type_id)
   end
   #new
-  def key_value_hsh
-    h = {"edition" => {k: "unnumbered", v: "not numbered"}, "mount" => {k: "wrapped", v: "stretched"}, "sign" => {k: "signtype", v: "not signed"}, "cert" => {k: "certificate", v:"N/A"}}
-  end
+  # def key_value_hsh
+  #   h = {"edition" => {k: "unnumbered", v: "not numbered"}, "mount" => {k: "wrapped", v: "stretched"}, "sign" => {k: "signtype", v: "not signed"}, "cert" => {k: "certificate", v:"N/A"}}
+  # end
 
   def valid_local_keys
     properties.map {|k,v| k if v.present?}.compact if properties
   end
   #new
-  def type_key(fk)
-    key_value_hsh[fk_to_type(fk)]
-  end
+  # def type_key(fk)
+  #   key_value_hsh[fk_to_type(fk)]
+  # end
 
   def scoped_properties(fk)
     local_keys.include?(fk) ? properties : fk_to_meth(fk).properties
   end
   #new
-  def key_value_eql?(fk)
-    scoped_properties(fk)[type_key(fk)[:k]].present? && scoped_properties(fk)[type_key(fk)[:k]] == type_key(fk)[:v]
+  # def key_value_eql?(fk)
+  #   scoped_properties(fk)[type_key(fk)[:k]].present? && scoped_properties(fk)[type_key(fk)[:k]] == type_key(fk)[:v]
+  # end
+  # def key_value_eql?(fk, k, v)
+  #   scoped_properties(fk)[:k].present? && scoped_properties(fk)[:k] == [:v]
+  # end
+  #
+  # def valid_tag_fk?(fk, k, v)
+  #   key_value_eql?(fk, type_key(fk)[:k], type_key(fk)[:v])
+  # end
+  # #new
+  # def valid_or_unconditional?(fk)
+  #   type_key(fk).nil? || ! key_value_eql?(fk) #first step: top-level key present?
+  # end
+  # #new
+  # def valid_body?(fk)
+  #   fk
+  # end
+  # #new
+  # def valid_inv?(fk)
+  #   valid_or_unconditional?(fk)
+  # end
+  # #new
+  # def valid_tag?(fk)
+  #   fk == "dim_type_id" ? xl_dims : valid_or_unconditional?(fk)
+  # end
+
+  def valid_type?(ver, fk)
+    case
+    when fk == "mount_type_id" && fk_to_meth(fk).mount_key == "wrapped" && item_type.valid_keys.exclude?("canvas") then false
+    when ver == "tag" && fk == "mount_type_id" && fk_to_meth(fk).mount_value == "streched" then false
+    when ver == "tag" && fk == "dim_type_id" && ! xl_dims then false
+    when ver != "body" && fk == "edition_type_id" && properties["unnumbered"].present? then false
+    when ver != "body" && fk == "sign_type_id" && fk_to_meth(fk).properties["signtype"].present? && fk_to_meth(fk).properties["signtype"] == "not numbered" then false
+    when ver != "body" && fk == "cert_type_id" && fk_to_meth(fk).properties["certificate"].present? && fk_to_meth(fk).properties["certificate"] == "N/A" then false
+    else true
+    end
   end
-  #new
-  def valid_or_unconditional?(fk)
-    type_key(fk).nil? || ! key_value_eql?(fk) #first step: top-level key present?
-  end
-  #new
-  def valid_body?(fk)
-    fk
-  end
-  #new
-  def valid_inv?(fk)
-    valid_or_unconditional?(fk)
-  end
-  #new
-  def valid_tag?(fk)
-    fk == "dim_type_id" ? xl_dims : valid_or_unconditional?(fk)
-  end
+
   #new
   def valid_required_remote_key?(fk)
     fk_to_meth(fk).properties if fk_to_meth(fk)
@@ -82,7 +102,8 @@ class Item < ApplicationRecord
   end
 
   def ver_types(ver)
-    global_keys.map {|fk| fk_to_type(fk) if required_properties?(fk) && send("valid_" + ver + "?", fk)}.compact
+    #global_keys.map {|fk| fk_to_type(fk) if required_properties?(fk) && send("valid_" + ver + "?", fk)}.compact
+    global_keys.map {|fk| fk_to_type(fk) if required_properties?(fk) && valid_type?(ver, fk)}.compact
   end
 
   def order_rules(build, ver, fk)
@@ -102,108 +123,109 @@ class Item < ApplicationRecord
     build
   end
 
-  ###kill
-  def valid_keys
-    properties.map {|k,v| k if v.present?}.compact if properties
-  end
-  #kill
-  def valid_remote_key?(k)
-    fk_to_meth(k).properties unless k == "mount_type_id" && mount_type.wrapped? && item_type.ordered_keys.exclude?("canvas")
-  end
-  #kill
-  def valid_local_key?(k)
-    fk_to_meth(k).required_fields.keep_if {|field| valid_keys.include?(field)} == fk_to_meth(k).required_fields
-  end
-  #kill
-  def valid_key?(k)
-    %w(edition_type_id dim_type_id).include?(k) ? valid_local_key?(k) : valid_remote_key?(k)
-  end
-  #kill
-  def type_attr?(k)
-    k.index(/_type_id/) && fk_to_meth(k) #&& fk_to_meth(k).properties.present?
-  end
-
-  ##kill
-  def existing_types
-    item_type ? attribute_names.map {|k| fk_to_type(k) if type_attr?(k) && valid_key?(k) }.compact : []
-  end
-
-  #kill
-  def valid_existing_types
-    existing_types.delete_if {|typ| typ == "mount" && mount_type.wrapped? && item_type.ordered_keys.exclude?("canvas")}
-  end
-  #kill
-  def valid_tag_mount?
-    #mount_type.mount_value != "stretched"
-    ! mount_type.key_value_eql?("wrapped", "stretched") if mount_type
-  end
-
-  ##kill
-  def valid_tag_edition?
-    edition_type.category.name != "unnumbered"
-    #! edition_type.key_value_eql?("unnumbered", "not numbered") if edition_type
-  end
-  #kill
-  def valid_tag_dim?
-    xl_dims
-  end
-  #kill
-  def valid_tag_sign?
-    ! sign_type.key_value_eql?("signtype", "not signed") if sign_type
-  end
-  #kill
-  def valid_tag_cert?
-    ! cert_type.key_value_eql?("certificate", "N/A") if cert_type
-  end
+  ###kill - start here
+  # def valid_keys
+  #   properties.map {|k,v| k if v.present?}.compact if properties
+  # end
+  # #kill
+  # def valid_remote_key?(k)
+  #   fk_to_meth(k).properties unless k == "mount_type_id" && mount_type.wrapped? && item_type.ordered_keys.exclude?("canvas")
+  # end
+  # #kill
+  # def valid_local_key?(k)
+  #   fk_to_meth(k).required_fields.keep_if {|field| valid_keys.include?(field)} == fk_to_meth(k).required_fields
+  # end
+  # #kill
+  # def valid_key?(k)
+  #   %w(edition_type_id dim_type_id).include?(k) ? valid_local_key?(k) : valid_remote_key?(k)
+  # end
+  # #kill
+  # def type_attr?(k)
+  #   k.index(/_type_id/) && fk_to_meth(k) #&& fk_to_meth(k).properties.present?
+  # end
+  #
+  # ##kill
+  # def existing_types
+  #   item_type ? attribute_names.map {|k| fk_to_type(k) if type_attr?(k) && valid_key?(k) }.compact : []
+  # end
+  #
+  # #kill
+  # def valid_existing_types
+  #   existing_types.delete_if {|typ| typ == "mount" && mount_type.wrapped? && item_type.ordered_keys.exclude?("canvas")}
+  # end
+  # #kill
+  # def valid_tag_mount?
+  #   #mount_type.mount_value != "stretched"
+  #   ! mount_type.key_value_eql?("wrapped", "stretched") if mount_type
+  # end
+  #
+  # ##kill
+  # def valid_tag_edition?
+  #   edition_type.category.name != "unnumbered"
+  #   #! edition_type.key_value_eql?("unnumbered", "not numbered") if edition_type
+  # end
+  # #kill
+  # def valid_tag_dim?
+  #   xl_dims
+  # end
+  # #kill
+  # def valid_tag_sign?
+  #   ! sign_type.key_value_eql?("signtype", "not signed") if sign_type
+  # end
+  # #kill
+  # def valid_tag_cert?
+  #   ! cert_type.key_value_eql?("certificate", "N/A") if cert_type
+  # end
 
   #keep
   def from_edition?
-    edition_type.category.name == "edition" if tag_list.include?("edition") #includes_edition?
+    edition_type.category.name == "edition" if ver_types("tag").include?("edition") #includes_edition?
   end
   #keep
   def edition_field_blank?
-    edition_type.category_names[0] == "edition" && properties["edition"].blank? if tag_list.include?("edition") #includes_edition?
+    edition_type.category_names[0] == "edition" && properties["edition"].blank? if ver_types("tag").include?("edition") #includes_edition?
   end
 
   #kill
-  def existing_conditional_tag_types
-    %w(edition dim sign mount) & valid_existing_types if existing_types
-  end
-  #kill
-  def valid_conditional_tag_types
-    existing_conditional_tag_types.keep_if {|typ| public_send("valid_tag_" + typ + "?")}
-  end
-  #kill
-  def valid_unconditional_tag_types
-    valid_existing_types - existing_conditional_tag_types
-  end
-  #kill
-  def valid_types
-    valid_conditional_tag_types + valid_unconditional_tag_types
-  end
-  #keep: refactor
-  def switch_types(list, typ, typ2)
-    idx = list.index(typ2)
-    list.delete(typ)
-    list.insert(idx, typ)
-  end
+  # def existing_conditional_tag_types
+  #   %w(edition dim sign mount) & valid_existing_types if existing_types
+  # end
+  # #kill
+  # def valid_conditional_tag_types
+  #   existing_conditional_tag_types.keep_if {|typ| public_send("valid_tag_" + typ + "?")}
+  # end
+  # #kill
+  # def valid_unconditional_tag_types
+  #   valid_existing_types - existing_conditional_tag_types
+  # end
+  # #kill
+  # def valid_types
+  #   valid_conditional_tag_types + valid_unconditional_tag_types
+  # end
+  # #keep: refactor
+  # def switch_types(list, typ, typ2)
+  #   idx = list.index(typ2)
+  #   list.delete(typ)
+  #   list.insert(idx, typ)
+  # end
+  #
+  # #kill: incorporate re-order
+  # def tag_list
+  #  list = %w(artist item mount dim edition sign cert).keep_if {|typ| valid_types.include?(typ)}
+  #  mount_type && mount_type.mount_value == "framed" ? switch_types(list, "mount", "item") : list
+  # end
+  # #kill: incorporate re-order
+  # def inv_list
+  #   tag_list.include?("dim") ? tag_list.delete("dim").push("dim") : tag_list.push("dim")
+  # end
+  # #kill: incorporate re-order
+  # def body_list
+  #   list = %w(item artist edition sign mount cert dim) & valid_existing_types
+  #   mount_type && mount_type.mount_value == "stretched" ? switch_types(list, "mount", "artist") : list
+  # end
 
-  #kill: incorporate re-order
-  def tag_list
-   list = %w(artist item mount dim edition sign cert).keep_if {|typ| valid_types.include?(typ)}
-   mount_type && mount_type.mount_value == "framed" ? switch_types(list, "mount", "item") : list
-  end
-  #kill: incorporate re-order
-  def inv_list
-    tag_list.include?("dim") ? tag_list.delete("dim").push("dim") : tag_list.push("dim")
-  end
-  #kill: incorporate re-order
-  def body_list
-    list = %w(item artist edition sign mount cert dim) & valid_existing_types
-    mount_type && mount_type.mount_value == "stretched" ? switch_types(list, "mount", "artist") : list
-  end
+  ###- end of kill
 
-  ###
   def article_list
     ["HC", "AP", "IP", "original", "etching", "animation", "embellished"]
   end
@@ -250,7 +272,7 @@ class Item < ApplicationRecord
 
   def punct_sign(h, ver)
     case
-    when ver != "body" && ver_types("tag").exclude?("cert") then h[:v] + "."
+    when ver != "body" && ver_types("tag").exclude?(fk_to_type("sign")) then h[:v] + "."
     when ver == "body" then h[:v] + "."
     else h[:v]
     end
@@ -258,9 +280,9 @@ class Item < ApplicationRecord
 
   def punct_edition(h, ver)
     case
-    when edition_type.edition_context == "from_edition" && valid_tag_sign? then h[:v] + ","
-    when ver != "body" && ! valid_tag_sign? && ! valid_tag_cert? then h[:v] + "."
-    when ver == "body" && ! valid_tag_sign? then h[:v] + "."
+    when edition_type.edition_context == "from_edition" && ver_types("tag").include?("sign") then h[:v] + ","
+    when ver != "body" && ! intersection?(ver_types("tag"), "any?", ["sign", "cert"]) then h[:v] + "."
+    when ver == "body" && ! ver_types("tag").include?("sign") then h[:v] + "."
     else h[:v]
     end
   end
@@ -283,12 +305,6 @@ class Item < ApplicationRecord
     end
   end
 
-  def conjunct_edition(v)
-   "#{v} and" if tag_list.include?("sign") #includes_sign?
-  end
-
-
-
   def insert_article(str)
     idx = str.index(properties["edition"])
     str.insert(idx, "#{format_article(properties["edition"])} ")
@@ -298,9 +314,12 @@ class Item < ApplicationRecord
     str.split(" ").drop(1).join(" ")
   end
 
+  def conjunct_edition(h)
+   h[:v] = ver_types("tag").include?("sign") ? "#{h[:v]} and" : h[:v]
+  end
+
   def from_edition(h)
     h[:v] = insert_article(h[:v])
-    #h[:v] = punct_edition(h[:v])
   end
 
   def not_from_edition(h)
@@ -374,7 +393,7 @@ class Item < ApplicationRecord
     h = {build: ""}
     #public_send(ver + "_list").each do |typ|
     ordered_keys(ver).each do |typ|
-      public_send("build_" + typ, h.merge!(typ_args(typ, ver)), typ, ver) if typ_args(typ, ver) && %w(artist item mount edition sign cert dim).include?(typ) #artist mount dim edition sign cert
+      public_send("build_" + typ, h.merge!(typ_args(typ, ver)), typ, ver) if typ_args(typ, ver) && %w(artist item mount edition sign cert dim).include?(typ) #artist mount dim  sign cert
     end
     h[:build]
   end

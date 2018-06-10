@@ -21,7 +21,7 @@ class EditionType < ApplicationRecord
   end
 
   def edition_context
-    category.name == "edition" ? "from_edition" : "not_from_edition"
+    category.name == "edition" ? "from_edition" : "conjunct_edition"
   end
 
   def edition_numbered_number_size
