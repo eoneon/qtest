@@ -3,8 +3,9 @@ class Item < ApplicationRecord
   include ObjectMethods
   include Punctuation
   include Capitalization
+  include Edition
   include Dim
-  include LocalKeyBuild
+  include PopKeys
 
   belongs_to :artist_type, optional: true
   belongs_to :mount_type, optional: true
@@ -80,12 +81,7 @@ class Item < ApplicationRecord
   end
 
   def from_edition?
-    edition_type.category.name == "edition" if ver_types("tag").include?("edition") #includes_edition?
-  end
-
-  #local_keys
-  def edition_field_blank?
-    edition_type.category_names[0] == "edition" && properties["edition"].blank? if ver_types("tag").include?("edition") #includes_edition?
+    edition_type.edition_context == "from_edition" if ver_types("tag").include?("edition")
   end
 
   def article_list
@@ -96,135 +92,10 @@ class Item < ApplicationRecord
     article_list.any? {|word| word == pat} ? "an" : "a"
   end
 
-  #local_keys:format_metric(k)
-  #local_keys: pop_type(typ, str)
-
-  # def punct_sign(h, ver)
-  #   case
-  #   when ver != "body" && ver_types("tag").exclude?(fk_to_type("sign")) then h[:v] + "."
-  #   when ver == "body" then h[:v] + "."
-  #   else h[:v]
-  #   end
-  # end
-  #
-  # def punct_edition(h, ver)
-  #   case
-  #   when edition_type.edition_context == "from_edition" && ver_types("tag").include?("sign") then h[:v] + ","
-  #   when ver != "body" && ! intersection?(ver_types("tag"), "any?", ["sign", "cert"]) then h[:v] + "."
-  #   when ver == "body" && ! ver_types("tag").include?("sign") then h[:v] + "."
-  #   else h[:v]
-  #   end
-  # end
-  #
-  # def punct_item(h, ver)
-  #   case
-  #   when ! from_edition? && intersection?(ver_types("tag"), "any?", ["edition", "sign"]) then h[:v] + ","
-  #   when ver != "body" && ! intersection?(ver_types("tag"), "any?", ["edition", "sign", "cert"]) then h[:v] + "."
-  #   when ver == "body" && ! intersection?(ver_types("tag"), "any?", ["edition", "sign"]) then h[:v] + "."
-  #   else h[:v]
-  #   end
-  # end
-  #
-  # def punct_cert(h, ver)
-  #   ! [cert_type.body_credential_hsh[:p], cert_type.body_credential_hsh[:n]].include?(h[:v]) ? h[:v] + "." : h[:v]
-  #   #h[:v] + "." unless h[:v] == [:p, :n].keep_if {|k| cert_type.body_credential_hsh[k] == h[:v]}.compact
-  # end
-  #
-  # def punct_build(h, typ, ver)
-  #   case
-  #   when typ == "item" then punct_item(h, ver)
-  #   when typ == "edition" then punct_edition(h, ver)
-  #   when typ == "sign" then punct_sign(h, ver)
-  #   when typ == "cert" then punct_cert(h, ver)
-  #   else h[:v]
-  #   end
-  # end
-  #
-  # def body_dim(h)
-  #   h[:build] << pad_pat_for_loop(h[:build], h[:v])
-  # end
-  #
-  # def inv_dim(h)
-  #   body_dim(h)
-  # end
-  #
-  # def tag_dim(h)
-  #   h2 = h
-  #   h2[:pat] = item_type.xl_dim_ref
-  #   h2[:str] = h2.delete(:build)
-  #   h[:build] = insert_rel_to_pat(h)
-  # end
-  #
-  # def tag_mount(h)
-  #   insert_rel_to_pat(h)
-  # end
-  #
-  # def tag_artist(h)
-  #   h[:v]
-  # end
-
-  #local_keys: insert_article(str)
-  #local_keys: strip_edition(str)
-  #local_keys: conjunct_edition(h)
-  #local_keys: from_edition(h)
-
-  # def build_edition(h, typ, ver)
-  #   h[:v] = strip_edition(h[:v]) if edition_field_blank?
-  #   h[:v] = pop_type("edition", h[:v])
-  #   h[:v] = public_send(edition_type.edition_context, h)
-  #   h[:v] = punct_build(h, typ, ver)
-  #   h[:build] << pad_pat_for_loop(h[:build], h[:v])
-  # end
-  #
-  # def build_cert(h, typ, ver)
-  #   h[:v] = punct_build(h, typ, ver)
-  #   h[:build] << pad_pat_for_loop(h[:build], h[:v])
-  # end
-  #
-  # def build_sign(h, typ, ver)
-  #   h[:v] = punct_build(h, typ, ver)
-  #   h[:build] << pad_pat_for_loop(h[:build], h[:v])
-  # end
-  #
-  # def build_dim(h, typ, ver)
-  #   h[:v] = pop_type("dim", h[:v])
-  #   public_send(ver + "_" + typ, h)
-  # end
-
   def mount_ref
     mount_type.framed? ? item_type.frame_ref : "canvas"
   end
 
-  def push_mount(h)
-    h[:build] << pad_pat_for_loop(h[:build], h[:v])
-  end
-
-  def insert_mount(h)
-    insert_rel_to_pat(pos: "before", str: h[:build], occ: 0, pat: mount_ref, v: h[:v], ws: 1)
-  end
-
-  def build_mount(h, typ, ver)
-    public_send(mount_type.mount_context(ver), h)
-  end
-
-  def push_artist(h)
-    h[:build] << pad_pat_for_loop(h[:build], h[:v])
-  end
-
-  def insert_artist(h)
-    insert_rel_to_pat(pos: "after", str: h[:build], occ: 0, pat: item_type.artist_ref, v: h[:v], ws: 1)
-  end
-
-  def build_artist(h, typ, ver)
-    ver == "body" ? insert_artist(h) : push_artist(h)
-  end
-
-  def build_item(h, typ, ver)
-    v = punct_build(h, typ, ver)
-    h[:build] << pad_pat_for_loop(h[:build], v)
-  end
-
-  #start
   def assign_dim(h)
     h = {v: xl_dims, str: h[:build],pos: "after", pat: item_type.xl_dim_ref, occ: 0, ws: 1}
   end
@@ -249,7 +120,6 @@ class Item < ApplicationRecord
     push_conditions(h, typ, ver) ? push_assign(h) : insert_rel_to_pat(public_send("assign_" + typ, h))
   end
 
-  #new build: replacment for public_send/build_item -> return either h[:v] or formatted h[:v]
   def build_type(h, typ, ver)
     local_keys.include?(typ + "_type_id") ? public_send("format_" + typ, h, typ, ver) : h[:v]
   end
@@ -262,13 +132,10 @@ class Item < ApplicationRecord
   def build_d(ver)
     h = {build: ""}
     ordered_keys(ver).each do |typ|
-      build_type(h.merge!(typ_args(typ, ver)), typ, ver) if typ_args(typ, ver) #&& %w(item artist).include?(typ)
-      punct_type(h, typ, ver) if %w(item edition sign cert).include?(typ) ###&& %w(artist item mount edition sign cert dim).include?(typ)
-      #title_upcase(str) if ver != "body"
+      build_type(h.merge!(typ_args(typ, ver)), typ, ver) if typ_args(typ, ver)
+      punct_type(h, typ, ver) if %w(item edition sign cert).include?(typ)
       assign_type(h, typ, ver) if typ_args(typ, ver) && %w(item mount artist edition sign cert dim).include?(typ)
-
-      #public_send("build_" + typ, h.merge!(typ_args(typ, ver)), typ, ver) if typ_args(typ, ver) && %w(artist item mount edition sign cert dim).include?(typ) #artist mount dim  sign cert
     end
-    h[:build]
+    ver == "body" ? h[:build] : title_upcase(h[:build])
   end
 end

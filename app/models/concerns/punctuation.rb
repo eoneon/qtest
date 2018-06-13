@@ -12,7 +12,7 @@ module Punctuation
   end
 
   def edition_comma(h, ver)
-    edition_type.edition_context == "from_edition" && ver_types("tag").include?("sign")
+    from_edition? && ver_types("tag").include?("sign")
   end
 
   def edition_period(h, ver)

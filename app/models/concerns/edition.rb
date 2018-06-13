@@ -1,20 +1,7 @@
 require 'active_support/concern'
 
-module LocalKeyBuild
+module Edition
   extend ActiveSupport::Concern
-
-  def format_metric(k)
-    k == "weight" ? "#{k}lbs" : "#{k}\""
-  end
-
-  def pop_type(typ, str)
-    type_to_meth(typ).category_names.each do |k|
-      occ = k == "number" ? -1 : 0
-      v = typ == "dim" ? format_metric(properties[k]) : properties[k]
-      str = insert_rel_to_pat(pos: "replace", str: str, occ: occ, pat: k, v: v, ws: 0) if str.index(/#{k}/)
-    end
-    str
-  end
 
   def insert_article(str)
     idx = str.index(properties["edition"])
@@ -31,6 +18,10 @@ module LocalKeyBuild
 
   def strip_edition(str)
     str.split(" ").drop(1).join(" ")
+  end
+
+  def edition_field_blank?
+    edition_type.category_names[0] == "edition" && properties["edition"].blank? if ver_types("tag").include?("edition")
   end
 
   def format_dim(h, typ, ver)
