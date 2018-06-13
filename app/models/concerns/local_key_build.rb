@@ -21,15 +21,25 @@ module LocalKeyBuild
     str.insert(idx, "#{format_article(properties["edition"])} ")
   end
 
-  def strip_edition(str)
-    str.split(" ").drop(1).join(" ")
-  end
-
   def conjunct_edition(h)
    h[:v] = ver_types("tag").include?("sign") ? "#{h[:v]} and" : h[:v]
   end
 
   def from_edition(h)
     h[:v] = insert_article(h[:v])
+  end
+
+  def strip_edition(str)
+    str.split(" ").drop(1).join(" ")
+  end
+
+  def format_dim(h, typ, ver)
+    h[:v] = pop_type("dim", h[:v])
+  end
+
+  def format_edition(h, typ, ver)
+    h[:v] = strip_edition(h[:v]) if edition_field_blank?
+    h[:v] = pop_type("edition", h[:v])
+    h[:v] = public_send(edition_type.edition_context, h)
   end
 end

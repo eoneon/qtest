@@ -57,8 +57,7 @@ class MountType < ApplicationRecord
   end
 
   def mount_context(ver)
-    #ver == "tag" && gallery_wrapped? || ver == "inv" && mount_key == "wrapped" || stretched? && ver == "body" ? "insert_mount" : "push_mount"
-    ver == "tag" && mount_value_eql?("gallery wrapped") || ver == "inv" && mount_key_eql?("wrapped") || ver == "body" && mount_value_eql?("stretched") ? "insert_mount" : "push_mount"
+    ver == "tag" && mount_value_eql?("gallery wrapped") || ver == "inv" && mount_key_eql?("wrapped") || ver == "body" && mount_value_eql?("stretched") ? "insert" : "push"
   end
 
   def tag_wrapped

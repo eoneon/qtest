@@ -1,6 +1,7 @@
 class Item < ApplicationRecord
   include SharedMethods
   include ObjectMethods
+  include Punctuation
   include Capitalization
   include Dim
   include LocalKeyBuild
@@ -12,24 +13,6 @@ class Item < ApplicationRecord
   belongs_to :sign_type, optional: true
   belongs_to :cert_type, optional: true
   belongs_to :dim_type, optional: true
-
-  # def key_value(k)
-  #   properties[k] if valid_keys.include?(k)
-  # end
-  #
-  # def key_value_include?(k, v)
-  #   key_value(k) && key_value(k).split(" ").include?(v)
-  # end
-
-  #new
-  # def key_value_hsh
-  #   h = {"edition" => {k: "unnumbered", v: "not numbered"}, "mount" => {k: "wrapped", v: "stretched"}, "sign" => {k: "signtype", v: "not signed"}, "cert" => {k: "certificate", v:"N/A"}}
-  # end
-
-  #new
-  # def type_key(fk)
-  #   key_value_hsh[fk_to_type(fk)]
-  # end
 
   def all_keys
     item_type ? %w(item_type_id artist_type_id edition_type_id sign_type_id mount_type_id cert_type_id dim_type_id) : []
@@ -116,97 +99,97 @@ class Item < ApplicationRecord
   #local_keys:format_metric(k)
   #local_keys: pop_type(typ, str)
 
-  def punct_sign(h, ver)
-    case
-    when ver != "body" && ver_types("tag").exclude?(fk_to_type("sign")) then h[:v] + "."
-    when ver == "body" then h[:v] + "."
-    else h[:v]
-    end
-  end
-
-  def punct_edition(h, ver)
-    case
-    when edition_type.edition_context == "from_edition" && ver_types("tag").include?("sign") then h[:v] + ","
-    when ver != "body" && ! intersection?(ver_types("tag"), "any?", ["sign", "cert"]) then h[:v] + "."
-    when ver == "body" && ! ver_types("tag").include?("sign") then h[:v] + "."
-    else h[:v]
-    end
-  end
-
-  def punct_item(h, ver)
-    case
-    when ! from_edition? && intersection?(ver_types("tag"), "any?", ["edition", "sign"]) then h[:v] + ","
-    when ver != "body" && ! intersection?(ver_types("tag"), "any?", ["edition", "sign", "cert"]) then h[:v] + "."
-    when ver == "body" && ! intersection?(ver_types("tag"), "any?", ["edition", "sign"]) then h[:v] + "."
-    else h[:v]
-    end
-  end
-
-  def punct_cert(h, ver)
-    ! [cert_type.body_credential_hsh[:p], cert_type.body_credential_hsh[:n]].include?(h[:v]) ? h[:v] + "." : h[:v] 
-    #h[:v] + "." unless h[:v] == [:p, :n].keep_if {|k| cert_type.body_credential_hsh[k] == h[:v]}.compact
-  end
-
-  def punct_build(h, typ, ver)
-    case
-    when typ == "item" then punct_item(h, ver)
-    when typ == "edition" then punct_edition(h, ver)
-    when typ == "sign" then punct_sign(h, ver)
-    when typ == "cert" then punct_cert(h, ver)
-    else h[:v]
-    end
-  end
-
-  def body_dim(h)
-    h[:build] << pad_pat_for_loop(h[:build], h[:v])
-  end
-
-  def inv_dim(h)
-    body_dim(h)
-  end
-
-  def tag_dim(h)
-    h2 = h
-    h2[:pat] = item_type.xl_dim_ref
-    h2[:str] = h2.delete(:build)
-    h[:build] = insert_rel_to_pat(h)
-  end
-
-  def tag_mount(h)
-    insert_rel_to_pat(h)
-  end
-
-  def tag_artist(h)
-    h[:v]
-  end
+  # def punct_sign(h, ver)
+  #   case
+  #   when ver != "body" && ver_types("tag").exclude?(fk_to_type("sign")) then h[:v] + "."
+  #   when ver == "body" then h[:v] + "."
+  #   else h[:v]
+  #   end
+  # end
+  #
+  # def punct_edition(h, ver)
+  #   case
+  #   when edition_type.edition_context == "from_edition" && ver_types("tag").include?("sign") then h[:v] + ","
+  #   when ver != "body" && ! intersection?(ver_types("tag"), "any?", ["sign", "cert"]) then h[:v] + "."
+  #   when ver == "body" && ! ver_types("tag").include?("sign") then h[:v] + "."
+  #   else h[:v]
+  #   end
+  # end
+  #
+  # def punct_item(h, ver)
+  #   case
+  #   when ! from_edition? && intersection?(ver_types("tag"), "any?", ["edition", "sign"]) then h[:v] + ","
+  #   when ver != "body" && ! intersection?(ver_types("tag"), "any?", ["edition", "sign", "cert"]) then h[:v] + "."
+  #   when ver == "body" && ! intersection?(ver_types("tag"), "any?", ["edition", "sign"]) then h[:v] + "."
+  #   else h[:v]
+  #   end
+  # end
+  #
+  # def punct_cert(h, ver)
+  #   ! [cert_type.body_credential_hsh[:p], cert_type.body_credential_hsh[:n]].include?(h[:v]) ? h[:v] + "." : h[:v]
+  #   #h[:v] + "." unless h[:v] == [:p, :n].keep_if {|k| cert_type.body_credential_hsh[k] == h[:v]}.compact
+  # end
+  #
+  # def punct_build(h, typ, ver)
+  #   case
+  #   when typ == "item" then punct_item(h, ver)
+  #   when typ == "edition" then punct_edition(h, ver)
+  #   when typ == "sign" then punct_sign(h, ver)
+  #   when typ == "cert" then punct_cert(h, ver)
+  #   else h[:v]
+  #   end
+  # end
+  #
+  # def body_dim(h)
+  #   h[:build] << pad_pat_for_loop(h[:build], h[:v])
+  # end
+  #
+  # def inv_dim(h)
+  #   body_dim(h)
+  # end
+  #
+  # def tag_dim(h)
+  #   h2 = h
+  #   h2[:pat] = item_type.xl_dim_ref
+  #   h2[:str] = h2.delete(:build)
+  #   h[:build] = insert_rel_to_pat(h)
+  # end
+  #
+  # def tag_mount(h)
+  #   insert_rel_to_pat(h)
+  # end
+  #
+  # def tag_artist(h)
+  #   h[:v]
+  # end
 
   #local_keys: insert_article(str)
   #local_keys: strip_edition(str)
   #local_keys: conjunct_edition(h)
   #local_keys: from_edition(h)
 
-  def build_edition(h, typ, ver)
-    h[:v] = strip_edition(h[:v]) if edition_field_blank?
-    h[:v] = pop_type("edition", h[:v])
-    h[:v] = public_send(edition_type.edition_context, h)
-    h[:v] = punct_build(h, typ, ver)
-    h[:build] << pad_pat_for_loop(h[:build], h[:v])
-  end
-
-  def build_cert(h, typ, ver)
-    h[:v] = punct_build(h, typ, ver)
-    h[:build] << pad_pat_for_loop(h[:build], h[:v])
-  end
-
-  def build_sign(h, typ, ver)
-    h[:v] = punct_build(h, typ, ver)
-    h[:build] << pad_pat_for_loop(h[:build], h[:v])
-  end
-
-  def build_dim(h, typ, ver)
-    h[:v] = pop_type("dim", h[:v])
-    public_send(ver + "_" + typ, h)
-  end
+  # def build_edition(h, typ, ver)
+  #   h[:v] = strip_edition(h[:v]) if edition_field_blank?
+  #   h[:v] = pop_type("edition", h[:v])
+  #   h[:v] = public_send(edition_type.edition_context, h)
+  #   h[:v] = punct_build(h, typ, ver)
+  #   h[:build] << pad_pat_for_loop(h[:build], h[:v])
+  # end
+  #
+  # def build_cert(h, typ, ver)
+  #   h[:v] = punct_build(h, typ, ver)
+  #   h[:build] << pad_pat_for_loop(h[:build], h[:v])
+  # end
+  #
+  # def build_sign(h, typ, ver)
+  #   h[:v] = punct_build(h, typ, ver)
+  #   h[:build] << pad_pat_for_loop(h[:build], h[:v])
+  # end
+  #
+  # def build_dim(h, typ, ver)
+  #   h[:v] = pop_type("dim", h[:v])
+  #   public_send(ver + "_" + typ, h)
+  # end
 
   def mount_ref
     mount_type.framed? ? item_type.frame_ref : "canvas"
@@ -241,6 +224,36 @@ class Item < ApplicationRecord
     h[:build] << pad_pat_for_loop(h[:build], v)
   end
 
+  #start
+  def assign_dim(h)
+    h = {v: xl_dims, str: h[:build],pos: "after", pat: item_type.xl_dim_ref, occ: 0, ws: 1}
+  end
+
+  def assign_mount(h)
+    h = {v: h[:v], str: h[:build], pos: "before", pat: mount_ref, occ: 0, ws: 1}
+  end
+
+  def assign_artist(h)
+    h = {v: h[:v], str: h[:build], pos: "after", pat: item_type.artist_ref, occ: 0, ws: 1}
+  end
+
+  def push_assign(h)
+    h[:build] << pad_pat_for_loop(h[:build], h[:v])
+  end
+
+  def push_conditions(h, typ, ver)
+    %w(item sign edition cert).include?(typ) || (typ == "artist" && ver != "body") || (typ == "mount" && mount_type.mount_context(ver) == "push") || (typ == "dim" &&  ver != "tag")
+  end
+
+  def assign_type(h, typ, ver)
+    push_conditions(h, typ, ver) ? push_assign(h) : insert_rel_to_pat(public_send("assign_" + typ, h))
+  end
+
+  #new build: replacment for public_send/build_item -> return either h[:v] or formatted h[:v]
+  def build_type(h, typ, ver)
+    local_keys.include?(typ + "_type_id") ? public_send("format_" + typ, h, typ, ver) : h[:v]
+  end
+
   def typ_args(typ, ver)
     args = type_to_meth(typ).typ_ver_args(ver)
     args.class == String ? h = {v: args} : args
@@ -249,7 +262,12 @@ class Item < ApplicationRecord
   def build_d(ver)
     h = {build: ""}
     ordered_keys(ver).each do |typ|
-      public_send("build_" + typ, h.merge!(typ_args(typ, ver)), typ, ver) if typ_args(typ, ver) && %w(artist item mount edition sign cert dim).include?(typ) #artist mount dim  sign cert
+      build_type(h.merge!(typ_args(typ, ver)), typ, ver) if typ_args(typ, ver) #&& %w(item artist).include?(typ)
+      punct_type(h, typ, ver) if %w(item edition sign cert).include?(typ) ###&& %w(artist item mount edition sign cert dim).include?(typ)
+      #title_upcase(str) if ver != "body"
+      assign_type(h, typ, ver) if typ_args(typ, ver) && %w(item mount artist edition sign cert dim).include?(typ)
+
+      #public_send("build_" + typ, h.merge!(typ_args(typ, ver)), typ, ver) if typ_args(typ, ver) && %w(artist item mount edition sign cert dim).include?(typ) #artist mount dim  sign cert
     end
     h[:build]
   end
