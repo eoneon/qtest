@@ -55,12 +55,12 @@ class Item < ApplicationRecord
     local_keys.include?(fk) ? valid_required_local_key?(fk) : valid_required_remote_key?(fk)
   end
 
-  def global_keys
-    all_keys.reject{|fk| fk == "mount_type_id" && item_type.valid_keys.exclude?("canvas")}
-  end
+  # def global_keys
+  #   all_keys.reject{|fk| fk == "mount_type_id" && mount_type.mount_key == "wrapped" && item_type.valid_keys.exclude?("canvas")}
+  # end
 
   def ver_types(ver)
-    global_keys.map {|fk| fk_to_type(fk) if required_properties?(fk) && valid_type?(ver, fk)}.compact
+    all_keys.map {|fk| fk_to_type(fk) if required_properties?(fk) && valid_type?(ver, fk)}.compact
   end
 
   def order_rules(build, ver, fk)
@@ -74,8 +74,8 @@ class Item < ApplicationRecord
 
   def ordered_keys(ver)
     build = []
-    all_keys.each do |fk|
-      order_rules(build, ver, fk) if ver_types(ver).include?(fk_to_type(fk))
+    ver_types(ver).each do |fk|
+      order_rules(build, ver, fk) #if ver_types(ver).include?(fk_to_type(fk))
     end
     build
   end

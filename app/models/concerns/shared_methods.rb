@@ -12,7 +12,7 @@ module SharedMethods
   end
 
   def test_str
-    "PSA/DNA"
+    "PSA/DNA".remove("RNA")
   end
 
   def test_hash
