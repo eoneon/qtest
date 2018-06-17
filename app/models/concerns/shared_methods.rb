@@ -145,6 +145,7 @@ module SharedMethods
   end
 
   #replace item in array
+  #replace_at_idx(arr, old_item, new_item)
   def replace_i_at_idx(arr, i, v)
     idx = arr.index(i)
     arr.fill(v, idx, 1)
@@ -171,7 +172,8 @@ module SharedMethods
     end
   end
 
-  def insert_at_idx(arr, item, other_item, pos)
+  def reorder_items(arr, item, other_item, pos)
+    arr.delete(item)
     idx = target_idx(arr, other_item)
     idx = insert_pos(idx, pos)
     arr.insert(idx, item)

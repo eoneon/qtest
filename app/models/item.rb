@@ -5,6 +5,7 @@ class Item < ApplicationRecord
   include Capitalization
   include Edition
   include Dim
+  include Title
   include PopKeys
 
   belongs_to :artist_type, optional: true
@@ -15,12 +16,23 @@ class Item < ApplicationRecord
   belongs_to :cert_type, optional: true
   belongs_to :dim_type, optional: true
 
+  after_initialize :init
+
+  def init
+    self.title = "untitled" if title.blank?
+  end
+
   def all_keys
-    item_type ? %w(item_type_id artist_type_id edition_type_id sign_type_id mount_type_id cert_type_id dim_type_id) : []
+    #item_type ? %w(item_type_id artist_type_id edition_type_id sign_type_id mount_type_id cert_type_id dim_type_id) : []
+    item_type ? %w(item_type_id title artist_type_id edition_type_id sign_type_id mount_type_id cert_type_id dim_type_id) : []
   end
 
   def local_keys
     %w(edition_type_id dim_type_id)
+  end
+
+  def item_attrs
+    %w(title)
   end
 
   def valid_local_keys
@@ -33,6 +45,7 @@ class Item < ApplicationRecord
 
   def valid_type?(ver, fk)
     case
+    #when fk == "title" && (ver == "tag" && title != "untitld" || ver != "tag") then true
     when fk == "mount_type_id" && fk_to_meth(fk).mount_key == "wrapped" && item_type.valid_keys.exclude?("canvas") then false
     when ver == "tag" && fk == "mount_type_id" && fk_to_meth(fk).mount_value == "streched" then false
     when ver == "tag" && fk == "dim_type_id" && ! xl_dims then false
@@ -41,6 +54,10 @@ class Item < ApplicationRecord
     when ver != "body" && fk == "cert_type_id" && fk_to_meth(fk).properties["certificate"].present? && fk_to_meth(fk).properties["certificate"] == "N/A" then false
     else true
     end
+  end
+
+  def present_item_attr?(attr)
+    item_attrs.include?(attr) && public_send(attr).present?
   end
 
   def valid_required_remote_key?(fk)
@@ -60,22 +77,54 @@ class Item < ApplicationRecord
   # end
 
   def ver_types(ver)
-    all_keys.map {|fk| fk_to_type(fk) if required_properties?(fk) && valid_type?(ver, fk)}.compact
+    all_keys.map {|k| fk_to_type(k) if present_item_attr?(k) || required_properties?(k) && valid_type?(ver, k)}.compact
+    #all_keys.map {|fk| fk_to_type(fk) if required_properties?(fk) && valid_type?(ver, fk)}.compact
   end
 
+  #replce with reorder_typ
   def order_rules(build, ver, fk)
     case
-    when ver != "body" && fk_to_type(fk) == "artist" then insert_at_idx(build, "artist", "item", 0)
-    when ver != "body" && fk_to_type(fk) == "mount" && mount_type.mount_value == "framed" then insert_at_idx(build, "mount", "item", 0)
-    when fk_to_type(fk) == "mount" && mount_type.mount_value == "wrapped" then insert_at_idx(build, "mount", "item", -1)
+    when ver != "body" && fk_to_type(fk) == "artist" then reorder_items(build, "artist", "item", 0)
+    when ver != "body" && fk_to_type(fk) == "mount" && mount_type.mount_value == "framed" then reorder_items(build, "mount", "item", 0)
+    when fk_to_type(fk) == "mount" && mount_type.mount_value == "wrapped" then reorder_items(build, "mount", "item", -1)
     else build << fk_to_type(fk)
     end
   end
 
+  #title
+  def reorder_title(build, ver)
+    reorder_items(build, "title", "item", 0)
+  end
+
+  #artist
+  def reorder_artist(build, ver)
+    # target = ver_types(ver).include?("title") ? "title" : "item"
+    # if ver == "body"
+    #   build << "artist"
+    # else
+    #   reorder_items(build, "artist", "title", 0)
+    # end
+    if ver != "body"
+      target = ver_types(ver).include?("title") ? "title" : "item"
+      reorder_items(build, "artist", "title", 0)
+    end
+  end
+
+  #mount
+  def reorder_mount(build, ver)
+    if ver != "body" && mount_type.mount_key == "framed"
+      reorder_items(build, "mount", "item", 0) #if ver != "body" && mount_type.mount_key == "framed"
+    end
+  end
+
+  #ver_keys(ver)
   def ordered_keys(ver)
     build = []
-    ver_types(ver).each do |fk|
-      order_rules(build, ver, fk) #if ver_types(ver).include?(fk_to_type(fk))
+    #ver_types(ver).each do |fk|
+    ver_types(ver).each do |typ|
+      #respond_to?("reorder_" + typ) ? public_send("reorder_" + typ, build, ver) : build << typ
+      respond_to?("reorder_" + typ) && public_send("reorder_" + typ, build, ver) ? public_send("reorder_" + typ, build, ver) : build << typ
+      #order_rules(build, ver, fk) #if ver_types(ver).include?(fk_to_type(fk))
     end
     build
   end
@@ -125,6 +174,7 @@ class Item < ApplicationRecord
   end
 
   def typ_args(typ, ver)
+    #args = item_attrs.include?(typ) ? public_send(typ + "_" + ver + "_args") : type_to_meth(typ).typ_ver_args(ver)
     args = type_to_meth(typ).typ_ver_args(ver)
     args.class == String ? h = {v: args} : args
   end
