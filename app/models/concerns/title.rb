@@ -3,20 +3,20 @@ require 'active_support/concern'
 module Title
   extend ActiveSupport::Concern
 
-  # def untitled?
-  #   title.blank?
-  # end
+  def first_word_in_item
+    item_type.typ_ver_args("body").split(" ")[0]
+  end
 
   def title_tag_args
-    title_inv_args unless title.blank?
+    "\"#{title}\"" #title_inv_args unless title == "untitled"
   end
 
   def title_inv_args
-    "\"#{title_upcase(title)}\""
+    title_tag_args
   end
 
   def title_body_args
-    v  = title.blank? ? "This" : title_inv_args
-    "#{v} is #{format_article(item_type.typ_ver_args("body"))}"
+    v  = title == "untitled" ? "This" : title_tag_args
+    "#{v} is #{format_article(first_word_in_item)}"
   end
 end

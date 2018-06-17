@@ -43,4 +43,8 @@ module Dim
   def xl_dims
     frame_size && frame_size > 1200 || frame_size.blank? && image_size && image_size > 1200
   end
+
+  def format_dim(h, typ, ver)
+    h[:v] = pop_type("dim", h[:v])
+  end
 end
