@@ -12,11 +12,8 @@ module SharedMethods
   end
 
   def hsh
-    str = "a peter/Max, \"Snoop dog\" framed original oil painting on canvas (40\" x 40\"), hand signed with Certificate of Authenticity."
+    str = "peter/Max, \"snoop dog\" framed original oil painting on canvas (40\" x 40\"), hand signed with Certificate of Authenticity."
     h = {build: str}
-    #str.rindex(/[[:alpha:]]/)
-    #str.index(/[\s\.\,\?\!\-\;\(\)\"\/]/, 2)
-    #str.index(/[[:punct:]]/)
   end
 
   def test_hash

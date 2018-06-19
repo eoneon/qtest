@@ -3,7 +3,7 @@
 <p><strong>hsh:</strong> <%= @item.hsh[:build] %></p>
 <p><strong>cap:</strong> <%= @item.cap(@item.hsh[:build]) %></p>
 <p><strong>replace:</strong> <%= @item.replace(@item.hsh[:build], 0, @item.hsh[:build][0].upcase) %></p>
-<p><strong>build_d:</strong> <%= @item.build_d("tag") %></p>
+<p><strong>build_d:</strong> <%= @item.build_d("inv") %></p>
   <%= render "items/hidden", f: f %>
   <script type="text/javascript">
     function submitform(){
