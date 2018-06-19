@@ -177,7 +177,7 @@ class Item < ApplicationRecord
       punct_type(h, typ, ver) if %w(item edition sign cert).include?(typ)
       assign_type(h, typ, ver) if typ_args(typ, ver) && %w(item title mount artist edition sign cert dim).include?(typ)
     end
-    ver == "body" ? h[:build] : title_upcase(h[:build])
+    ver == "body" ? h[:build] : cap(h[:build])
     #h[:build]
   end
 end
