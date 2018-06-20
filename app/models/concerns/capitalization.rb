@@ -4,6 +4,14 @@ module Capitalization
   extend ActiveSupport::Concern
   #include SharedMethods
 
+  def next_non_alpha(str, idx)
+    str.index(/[\s\.\,\?\!\-\;\(\)\"\/]/, idx)
+  end
+
+  def word_break(str, idx, max_idx)
+    next_non_alpha(str, idx) ? next_non_alpha(str, idx) - 1 : max_idx
+  end
+
   def lower_alpha?(char)
     char =~ /[a-z]/ if char
   end
@@ -17,7 +25,7 @@ module Capitalization
   end
 
   def alpha_ridx(str, h)
-    h[:idx] < h[:max_idx] ? str.index(/[\s\.\,\?\!\-\;\(\)\"\/]/, h[:idx] + 1) - 1 : h[:idx]
+    h[:idx] < h[:max_idx] ? word_break(str, h[:idx], h[:max_idx]) : h[:idx]
   end
 
   def cap_conditions(str, h)

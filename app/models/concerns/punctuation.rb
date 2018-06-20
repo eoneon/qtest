@@ -8,7 +8,7 @@ module Punctuation
   end
 
   def sign_period(h, ver)
-    ver != "body" && ver_types("tag").exclude?(fk_to_type("sign")) || ver == "body"
+    ver != "body" && ver_types("tag").exclude?(fk_to_type("cert")) || ver == "body"
   end
 
   def edition_comma(h, ver)

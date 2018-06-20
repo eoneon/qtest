@@ -1,9 +1,9 @@
 <%= form_for @item, :html => {:id => 'item_form'} do |f| %>
 <p><strong>test_str:</strong> <%#= @item.test_str[0].upcase %></p>
-<p><strong>hsh:</strong> <%= @item.hsh[:build] %></p>
-<p><strong>cap:</strong> <%= @item.cap(@item.hsh[:build]) %></p>
-<p><strong>replace:</strong> <%= @item.replace(@item.hsh[:build], 0, @item.hsh[:build][0].upcase) %></p>
-<p><strong>build_d:</strong> <%= @item.build_d("inv") %></p>
+<p><strong>hsh:</strong> <%#= @item.hsh[:build] %></p>
+<p><strong>cap:</strong> <%#= @item.cap(@item.hsh[:build]) %></p>
+<p><strong>replace:</strong> <%#= @item.replace(@item.hsh[:build], 0, @item.hsh[:build][0].upcase) %></p>
+<p><strong>build_d:</strong> <%= @item.build_d("tag") %></p>
   <%= render "items/hidden", f: f %>
   <script type="text/javascript">
     function submitform(){
