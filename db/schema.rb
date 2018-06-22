@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180615172033) do
+ActiveRecord::Schema.define(version: 20180622001646) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -46,6 +46,15 @@ ActiveRecord::Schema.define(version: 20180615172033) do
     t.datetime "updated_at", null: false
     t.bigint "category_id"
     t.index ["category_id"], name: "index_dim_types_on_category_id"
+  end
+
+  create_table "disclaimer_types", force: :cascade do |t|
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.hstore "properties"
+    t.bigint "category_id"
+    t.index ["category_id"], name: "index_disclaimer_types_on_category_id"
   end
 
   create_table "edition_types", force: :cascade do |t|
@@ -105,9 +114,11 @@ ActiveRecord::Schema.define(version: 20180615172033) do
     t.bigint "dim_type_id"
     t.bigint "artist_type_id"
     t.string "title"
+    t.bigint "disclaimer_type_id"
     t.index ["artist_type_id"], name: "index_items_on_artist_type_id"
     t.index ["cert_type_id"], name: "index_items_on_cert_type_id"
     t.index ["dim_type_id"], name: "index_items_on_dim_type_id"
+    t.index ["disclaimer_type_id"], name: "index_items_on_disclaimer_type_id"
     t.index ["edition_type_id"], name: "index_items_on_edition_type_id"
     t.index ["item_type_id"], name: "index_items_on_item_type_id"
     t.index ["mount_type_id"], name: "index_items_on_mount_type_id"

@@ -1,0 +1,2 @@
+class DisclaimerType < ApplicationRecord
+end
