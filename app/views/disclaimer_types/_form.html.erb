@@ -1,0 +1,22 @@
+<%= form_for parent do |f| %>
+  <%#= parent.format_disclaimer %>
+  <%= f.hidden_field :category_id %>
+  <div class="field">
+    <%= f.label :kind %><br>
+    <%= f.collection_select(:category_id, Category.where(kind: "disclaimer_type"), :id, :name, { :include_blank => true }) %>
+  </div>
+
+  <div class="field">
+    <%= f.label :name %><br>
+    <%= f.text_field :name %>
+  </div>
+  <div class="col-md-12">
+    <h4>Properties!:</h4>
+    <% if parent.category_id? %>
+      <% parent.category.item_fields.each do |field| %>
+        <%= render 'disclaimer_types/properties', f: f, parent: parent, field: field %>
+      <% end %>
+    <% end %>
+  </div>
+  <%= f.submit "Save" %>
+<% end %>

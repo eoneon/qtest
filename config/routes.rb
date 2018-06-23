@@ -7,6 +7,7 @@ Rails.application.routes.draw do
   resources :sign_types
   resources :cert_types
   resources :dim_types
+  resources :disclaimer_types
   resources :categories
   resources :item_fields
   resources :field_values

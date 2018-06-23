@@ -5,6 +5,7 @@ class Item < ApplicationRecord
   include Capitalization
   include Edition
   include Dim
+  include Disclaimer
   include Title
   include PopKeys
 
@@ -15,6 +16,7 @@ class Item < ApplicationRecord
   belongs_to :sign_type, optional: true
   belongs_to :cert_type, optional: true
   belongs_to :dim_type, optional: true
+  belongs_to :disclaimer_type, optional: true
 
   after_initialize :init
 
@@ -23,11 +25,11 @@ class Item < ApplicationRecord
   end
 
   def all_keys
-    item_type ? %w(item_type_id title artist_type_id edition_type_id sign_type_id mount_type_id cert_type_id dim_type_id) : []
+    item_type ? %w(item_type_id title artist_type_id edition_type_id sign_type_id mount_type_id cert_type_id dim_type_id disclaimer_type_id) : []
   end
 
   def local_keys
-    %w(edition_type_id dim_type_id)
+    %w(edition_type_id dim_type_id disclaimer_type_id)
   end
 
   def item_attrs
@@ -137,7 +139,7 @@ class Item < ApplicationRecord
   end
 
   def push_conditions(h, typ, ver)
-    %w(item title sign edition cert).include?(typ) || (typ == "artist" && ver != "body") || (typ == "mount" && mount_type.mount_context(ver) == "push") || (typ == "dim" &&  ver != "tag")
+    %w(item title sign edition cert disclaimer).include?(typ) || (typ == "artist" && ver != "body") || (typ == "mount" && mount_type.mount_context(ver) == "push") || (typ == "dim" &&  ver != "tag")
   end
 
   def assign_type(h, typ, ver)
@@ -145,7 +147,7 @@ class Item < ApplicationRecord
   end
 
   def build_type(h, typ, ver)
-    local_keys.include?(typ + "_type_id") ? public_send("format_" + typ, h, typ, ver) : h[:v]
+    local_keys.include?(typ + "_type_id") ? public_send("build_" + typ, h, typ, ver) : h[:v]
   end
 
   def typ_args(typ, ver)
@@ -158,7 +160,7 @@ class Item < ApplicationRecord
     ordered_keys(ver).each do |typ|
       build_type(h.merge!(typ_args(typ, ver)), typ, ver) if typ_args(typ, ver)
       punct_type(h, typ, ver) if %w(item edition sign cert).include?(typ)
-      assign_type(h, typ, ver) if typ_args(typ, ver) && %w(item title mount artist edition sign cert dim).include?(typ)
+      assign_type(h, typ, ver) if typ_args(typ, ver) && %w(item title mount artist edition sign cert dim disclaimer).include?(typ)
     end
     ver == "body" ? h[:build] : cap(h[:build])
   end

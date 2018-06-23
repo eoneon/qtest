@@ -8,6 +8,7 @@ class Category < ApplicationRecord
   has_many :sign_types
   has_many :cert_types
   has_many :dim_types
+  has_many :disclaimer_types
 
   has_many :field_groups, dependent: :destroy
   has_many :item_fields, through: :field_groups

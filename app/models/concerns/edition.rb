@@ -24,11 +24,11 @@ module Edition
     edition_type.category_names[0] == "edition" && properties["edition"].blank? if ver_types("tag").include?("edition")
   end
 
-  def format_dim(h, typ, ver)
-    h[:v] = pop_type("dim", h[:v])
-  end
+  # def format_dim(h, typ, ver)
+  #   h[:v] = pop_type("dim", h[:v])
+  # end
 
-  def format_edition(h, typ, ver)
+  def build_edition(h, typ, ver)
     h[:v] = strip_edition(h[:v]) if edition_field_blank?
     h[:v] = pop_type("edition", h[:v])
     h[:v] = public_send(edition_type.edition_context, h)

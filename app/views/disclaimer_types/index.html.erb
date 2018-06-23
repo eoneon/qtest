@@ -1,0 +1,22 @@
+<p id="notice"><%= notice %></p>
+
+<h1>DisclaimerType#index</h1>
+<% if @disclaimer_types.empty? %>
+  <p><strong>No EditionTypes</strong></p>
+<% end %>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @disclaimer_types.each do |disclaimer_type| %>
+      <%= render 'disclaimer_types/disclaimer_type', disclaimer_type: disclaimer_type %>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+<%= link_to "New disclaimer_type", new_disclaimer_type_path %>

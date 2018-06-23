@@ -59,6 +59,6 @@ module ApplicationHelper
   # end
 
   def properties_list(parent)
-    parent.item_type && parent.item_type.art_type == "limited" ? [EditionType, DimType] : [DimType]
+    parent.item_type && parent.item_type.art_type == "limited" ? [EditionType, DimType, DisclaimerType] : [DimType, DisclaimerType]
   end
 end
