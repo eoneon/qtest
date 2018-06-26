@@ -20,10 +20,13 @@ class Item < ApplicationRecord
   belongs_to :disclaimer_type, optional: true
   belongs_to :invoice, optional: true
 
+  validates :sku, presence: true, numericality: true, uniqueness: true, length: { is: 6 }
+
   after_initialize :init
 
   def init
     self.title = "untitled" if title.blank?
+    self.retail = 0 if retail.blank?
   end
 
   def all_keys
@@ -39,7 +42,7 @@ class Item < ApplicationRecord
   end
 
   def valid_local_keys
-    properties.map {|k,v| k if v.present?}.compact if properties
+    properties.map {|k,v| k if v.present?}.compact if properties.present?
   end
 
   def scoped_properties(fk)
@@ -68,7 +71,7 @@ class Item < ApplicationRecord
   end
 
   def valid_required_local_key?(fk)
-    fk_to_meth(fk).required_fields.keep_if {|f| valid_local_keys.include?(f)} == fk_to_meth(fk).required_fields if fk_to_meth(fk)
+    fk_to_meth(fk).required_fields.keep_if {|f| valid_local_keys.include?(f)} == fk_to_meth(fk).required_fields if fk_to_meth(fk) && properties
   end
 
   def required_properties?(fk)
