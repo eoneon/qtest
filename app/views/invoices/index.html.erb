@@ -1,0 +1,16 @@
+<h1>Invoice#index</h1>
+
+<% if @invoices.empty? %>
+  <p><strong>No invoice</strong></p>
+<% end %>
+<%= link_to "New Invoice", new_invoice_path %>
+
+<table class="table">
+  <thead>
+    <th>Invoice Number</th>
+    <th>Invoice Name</th>
+  </thead>
+  <tbody>
+    <%= render @invoices %>
+  </tbody>
+</table>

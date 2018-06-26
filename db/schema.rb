@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180622001646) do
+ActiveRecord::Schema.define(version: 20180623190031) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -83,6 +83,13 @@ ActiveRecord::Schema.define(version: 20180622001646) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "invoices", force: :cascade do |t|
+    t.integer "invoice"
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "item_fields", force: :cascade do |t|
     t.string "name"
     t.string "field_type"
@@ -115,11 +122,13 @@ ActiveRecord::Schema.define(version: 20180622001646) do
     t.bigint "artist_type_id"
     t.string "title"
     t.bigint "disclaimer_type_id"
+    t.bigint "invoice_id"
     t.index ["artist_type_id"], name: "index_items_on_artist_type_id"
     t.index ["cert_type_id"], name: "index_items_on_cert_type_id"
     t.index ["dim_type_id"], name: "index_items_on_dim_type_id"
     t.index ["disclaimer_type_id"], name: "index_items_on_disclaimer_type_id"
     t.index ["edition_type_id"], name: "index_items_on_edition_type_id"
+    t.index ["invoice_id"], name: "index_items_on_invoice_id"
     t.index ["item_type_id"], name: "index_items_on_item_type_id"
     t.index ["mount_type_id"], name: "index_items_on_mount_type_id"
     t.index ["properties"], name: "index_items_on_properties", using: :gist

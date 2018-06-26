@@ -35,4 +35,10 @@ Rails.application.routes.draw do
       post :import
     end
   end
+
+  resources :invoices do
+    resources :items
+  end
+
+  root to: 'invoices#index'
 end

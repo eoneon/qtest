@@ -1,5 +1,6 @@
-<%= form_for @item, :html => {:id => 'item_form'} do |f| %>
-<p><strong>test_str:</strong> <%= @item.valid_local_keys %></p>
+<%#= form_for @item, :html => {:id => 'item_form'} do |f| %>
+<%= form_for [@invoice, @item ], :html => {:id => 'item_form'} do |f| %>
+<p><strong>invoice:</strong> <%= @item.invoice %></p>
 <p><strong>hsh:</strong> <%#= @item.disclaimer_type.typ_ver_args("body")[:v] %></p>
 <p><strong>replace:</strong> <%#= @item.body_disclaimer(@item.disclaimer_type.typ_ver_args("body")[:v]) %></p>
 <p><strong>build_d:</strong> <%= @item.build_d("body") %></p>

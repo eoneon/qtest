@@ -11,18 +11,19 @@
   <body>
     <div class="container">
       <ul class="nav nav-tabs">
+        <li><%= link_to "Invoices", invoices_path %></li>
         <li><%= link_to "Items", items_path %></li>
         <li><%= link_to "Categories", categories_path %></li>
-        <li><%= link_to "ArtistTypes", artist_types_path %></li>
-        <li><%= link_to "MountTypes", mount_types_path %></li>
+        <li><%= link_to "Artists", artist_types_path %></li>
+        <li><%= link_to "Mountings", mount_types_path %></li>
         <li><%= link_to "ItemTypes", item_types_path %></li>
-        <li><%= link_to "EditionTypes", edition_types_path %></li>
-        <li><%= link_to "SignTypes", sign_types_path %></li>
-        <li><%= link_to "CertTypes", cert_types_path %></li>
-        <li><%= link_to "DimTypes", dim_types_path %></li>
-        <li><%= link_to "DisclaimerTypes", disclaimer_types_path %></li>
+        <li><%= link_to "Edition", edition_types_path %></li>
+        <li><%= link_to "Signatures", sign_types_path %></li>
+        <li><%= link_to "Certificates", cert_types_path %></li>
+        <li><%= link_to "Dimensions", dim_types_path %></li>
+        <li><%= link_to "Disclaimers", disclaimer_types_path %></li>
         <li><%= link_to "Fields", item_fields_path %></li>
-        <li><%= link_to "Field Values", field_values_path %></li>
+        <li><%= link_to "Values", field_values_path %></li>
       </ul>
       <%= yield %>
     </div>

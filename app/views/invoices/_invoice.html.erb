@@ -1,0 +1,9 @@
+<div class="media">
+  <div class="media-body">
+    <tr>
+    <td><%= link_to invoice.invoice, invoice_path(invoice) %></td>
+    <td><%= invoice.name %></td>
+    <td><%= link_to 'Edit', edit_invoice_path(invoice) %> | <%= link_to 'Delete', invoice,  method: :delete, remote: true, data: {confirm: "Are you sure?"} %></td>
+    </tr>
+ </div>
+</div>

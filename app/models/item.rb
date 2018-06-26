@@ -9,6 +9,7 @@ class Item < ApplicationRecord
   include Title
   include PopKeys
 
+  #optional: true: https://github.com/thoughtbot/shoulda-matchers/issues/870
   belongs_to :artist_type, optional: true
   belongs_to :mount_type, optional: true
   belongs_to :item_type, optional: true
@@ -17,6 +18,7 @@ class Item < ApplicationRecord
   belongs_to :cert_type, optional: true
   belongs_to :dim_type, optional: true
   belongs_to :disclaimer_type, optional: true
+  belongs_to :invoice, optional: true
 
   after_initialize :init
 
