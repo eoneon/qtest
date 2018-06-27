@@ -2,7 +2,6 @@ require 'active_support/concern'
 
 module Capitalization
   extend ActiveSupport::Concern
-  #include SharedMethods
 
   def next_non_alpha(str, idx)
     str.index(/[\s\.\,\?\!\-\;\(\)\"\/]/, idx)

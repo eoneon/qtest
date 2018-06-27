@@ -1,4 +1,5 @@
 class Item < ApplicationRecord
+  include ActionView::Helpers::NumberHelper
   include SharedMethods
   include ObjectMethods
   include Punctuation
@@ -7,6 +8,8 @@ class Item < ApplicationRecord
   include Dim
   include Disclaimer
   include Title
+  include Retail
+  include Proom
   include PopKeys
 
   #optional: true: https://github.com/thoughtbot/shoulda-matchers/issues/870
@@ -168,5 +171,12 @@ class Item < ApplicationRecord
       assign_type(h, typ, ver) if typ_args(typ, ver) && %w(item title mount artist edition sign cert dim disclaimer).include?(typ)
     end
     ver == "body" ? h[:build] : cap(h[:build])
+  end
+
+  def build_pr
+    if build_d("tag")
+      build = retail_proom ? build_d("tag") + " " + retail_proom : build_d("tag")
+      abbrv_description(build)
+    end
   end
 end
