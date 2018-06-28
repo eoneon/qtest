@@ -18,6 +18,12 @@ Rails.application.routes.draw do
     end
   end
 
+  # resources :items, only: [:index] do
+  #   collection do
+  #     post :import
+  #   end
+  # end
+
   resources :item_fields do
     collection do
       post :import

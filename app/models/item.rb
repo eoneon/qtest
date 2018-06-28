@@ -1,5 +1,8 @@
 class Item < ApplicationRecord
+  attr_accessor :tagline
+
   include ActionView::Helpers::NumberHelper
+  include Importable
   include SharedMethods
   include ObjectMethods
   include Punctuation
@@ -26,6 +29,14 @@ class Item < ApplicationRecord
   validates :sku, presence: true, numericality: true, uniqueness: true, length: { is: 6 }
 
   after_initialize :init
+  before_save :set_descriptions
+
+  def set_descriptions
+    self.tagline = build_d("tag") #if build_d("tag").present?
+    self.property_room = build_pr if build_pr.present?
+    self.description = build_d("body") if build_d("tag").present?
+    self.invoice_tag = build_d("inv") if build_d("tag").present?
+  end
 
   def init
     self.title = "untitled" if title.blank?
@@ -179,4 +190,8 @@ class Item < ApplicationRecord
       abbrv_description(build)
     end
   end
+
+  # def tagline
+  #   build_d("tag")
+  # end
 end

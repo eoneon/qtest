@@ -1,7 +1,4 @@
-<h1>Edit: Item: <%#= @item.valid_keys %></h1>
+<h1>Edit: Item: <%#= Item.tagline %></h1>
 <h4>Invoice: <%= link_to "#{@item.invoice.invoice} - #{@item.invoice.name}", invoice_path(@item.invoice) %></h4><br>
-<p><strong>Tagline:</strong> <%= @item.build_d("tag") %></p>
-<p><strong>Property Room:</strong> <%= @item.build_pr %></p>
-<p><strong>Description:</strong> <%= @item.build_d("body") %></p>
 
 <%= render 'items/form' %>

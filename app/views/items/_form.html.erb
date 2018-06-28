@@ -1,5 +1,4 @@
 <%= form_for [@invoice, @item ], :html => {:id => 'item_form'} do |f| %>
-<p><strong>replace:</strong> <%#= @item.body_disclaimer(@item.disclaimer_type.typ_ver_args("body")[:v]) %></p>
   <%= render "items/hidden", f: f %>
   <script type="text/javascript">
     function submitform(){
@@ -13,6 +12,27 @@
       $('#item_item_type_id').val('item_type_id');
     }
   </script>
+
+  <div class="row">
+    <div class="col-md-2">
+      <%= f.label :tagline %><br>
+      <%= f.text_area :tagline %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-2">
+      <%= f.label :property_room %><br>
+      <%= f.text_area :property_room %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-2">
+      <%= f.label :description %><br>
+      <%= f.text_area :description %>
+    </div>
+  </div>
 
   <div class="row">
     <div class="col-md-2">

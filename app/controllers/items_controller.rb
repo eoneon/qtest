@@ -1,6 +1,14 @@
 class ItemsController < ApplicationController
   def index
     @items = Item.all
+    respond_to do |format|
+      format.html
+      #format.csv { send_data @field_values.to_csv }
+      #format.csv { send_data @items.to_csv('sku', 'artist', 'title', 'tagline', 'descripion', 'property_room') }
+      format.csv { send_data @items.to_csv(['sku', 'title', 'tagline']) }
+      #format.xls { send_data @field_values.to_csv(col_sep: "\t") }
+      format.xls { send_data @items.to_csv(['sku', 'artist', 'title', 'tagline', 'descripion', 'property_room']) }
+    end
   end
 
   def show
