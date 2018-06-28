@@ -1,7 +1,5 @@
 <%= form_for [@invoice, @item ], :html => {:id => 'item_form'} do |f| %>
-<p><strong>build_pr:</strong> <%= @item.build_pr %></p>
 <p><strong>replace:</strong> <%#= @item.body_disclaimer(@item.disclaimer_type.typ_ver_args("body")[:v]) %></p>
-<p><strong>build_d:</strong> <%= @item.build_d("tag") %></p>
   <%= render "items/hidden", f: f %>
   <script type="text/javascript">
     function submitform(){
