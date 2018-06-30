@@ -28,7 +28,7 @@ New Item:
     <%= link_to "Excel", items_path(format: "xls") %>
   </p>
   <tbody>
-    <% @invoice.items.each do |item| %>
+    <% @invoice.items.order(:sku).each do |item| %>
       <tr>
         <td><%= link_to item.sku, edit_item_path(item) %></td>
         <td><%= item.invoice_tag %></td>

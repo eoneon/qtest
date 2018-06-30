@@ -1,2 +1,3 @@
 <h1>New Item</h1>
+<h4>Invoice: <%= link_to "#{@invoice.invoice} - #{@invoice.name}", invoice_path(@invoice) %></h4><br>
 <%= render 'items/form' %>

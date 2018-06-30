@@ -4,6 +4,14 @@ class ArtistType < ApplicationRecord
   belongs_to :category
   has_many :items
 
+  def full_name
+    if properties
+      first = properties["firstname"] if properties["firstname"].present?
+      last = properties["lastname"] if properties["lastname"].present?
+      [first, last].compact.join(" ")
+    end
+  end
+
   def dropdown
     category_names.map {|k| properties[k]}.join(" ")
   end

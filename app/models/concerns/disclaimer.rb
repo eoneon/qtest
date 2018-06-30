@@ -29,11 +29,11 @@ module Disclaimer
 
   ###caveat
   def caveat_inspection(k)
-    "that is only only noticeable upon close inspection" if properties[k] == "inspection"
+    "that #{defect_form} only only noticeable upon close inspection" if properties[k] == "inspection"
   end
 
-  def caveat_conceal(k)
-    "that may be concealed when framed" if properties[k] == "conceal"
+  def caveat_concealed(k)
+    "that may be concealed when framed" if properties[k] == "concealed"
   end
 
   def format_caveat(k)
@@ -42,7 +42,7 @@ module Disclaimer
 
   ###quadrant
   def format_quadrant(k)
-    along? ? "the #{properties[k]}" : properties[k]
+    along? ? "#{properties[k]} the" : properties[k]
   end
 
   ###category

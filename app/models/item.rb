@@ -1,5 +1,5 @@
 class Item < ApplicationRecord
-  attr_accessor :tagline
+  #attr_accessor :tagline
 
   include ActionView::Helpers::NumberHelper
   include Importable
@@ -32,10 +32,14 @@ class Item < ApplicationRecord
   before_save :set_descriptions
 
   def set_descriptions
-    self.tagline = build_d("tag") #if build_d("tag").present?
-    self.property_room = build_pr if build_pr.present?
-    self.description = build_d("body") if build_d("tag").present?
-    self.invoice_tag = build_d("inv") if build_d("tag").present?
+    self.tagline = build_d("tag") if item_type.present?
+    self.property_room = build_pr if item_type.present?
+    self.description = build_d("body") if item_type.present?
+    self.invoice_tag = build_d("inv") if item_type.present?
+    self.artist = artist_type.full_name if artist_type.present?
+    self.artistid = artist_type.adminid if artist_type.present? && artist_type.adminid.present?
+    self.width = properties["innerwidth"].to_s if item_type.present?
+    self.height = properties["innerheight"].to_s if item_type.present?
   end
 
   def init
