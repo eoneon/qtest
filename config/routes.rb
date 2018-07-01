@@ -43,7 +43,7 @@ Rails.application.routes.draw do
   end
 
   resources :invoices do
-    resources :items
+    resources :items, except: [:index]
   end
 
   root to: 'invoices#index'

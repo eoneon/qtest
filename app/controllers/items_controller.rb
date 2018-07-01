@@ -5,7 +5,7 @@ class ItemsController < ApplicationController
       format.html
       #format.csv { send_data @field_values.to_csv }
       #format.csv { send_data @items.to_csv('sku', 'artist', 'title', 'tagline', 'descripion', 'property_room') }
-      format.csv { send_data @items.to_csv(['sku', 'title', 'tagline', 'retail', 'property_room', 'descripion', 'width', 'height']) }
+      format.csv { send_data @items.to_csv(['sku', 'title', 'tagline', 'retail', 'property_room', 'descripion', 'width', 'height', 'dog']) }
       #format.xls { send_data @field_values.to_csv(col_sep: "\t") }
       format.xls { send_data @items.to_csv(['sku', 'artist', 'title', 'tagline', 'descripion', 'property_room']) }
     end

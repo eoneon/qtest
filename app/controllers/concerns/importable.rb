@@ -7,8 +7,9 @@ module Importable
     # def to_csv(options = {})
     def to_csv(fields = column_names, options = {})
       CSV.generate(options) do |csv|
-        # csv << column_names
         csv << fields
+
+        #invoice.item.each do |field|
         all.each do |field|
           #csv << field.attributes.values_at(*column_names)
           #field["tagline"] = Item.tagline

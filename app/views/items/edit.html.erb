@@ -1,4 +1,4 @@
-<h1>Edit: Item: <%#= Item.tagline %></h1>
+<h1>Edit: Item: <%= @item.test_arr1 %></h1>
 <h4>Invoice: <%= link_to "#{@item.invoice.invoice} - #{@item.invoice.name}", invoice_path(@item.invoice) %></h4><br>
 
 <%= render 'items/form' %>
