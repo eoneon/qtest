@@ -26,6 +26,8 @@ class Item < ApplicationRecord
   belongs_to :disclaimer_type, optional: true
   belongs_to :invoice, optional: true
 
+  attr_accessor :skus
+  
   validates :sku, presence: true, numericality: true, uniqueness: true, length: { is: 6 }
 
   after_initialize :init

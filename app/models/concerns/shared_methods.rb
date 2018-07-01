@@ -5,9 +5,9 @@ module SharedMethods
 
   def test_arr1
     a = [1,2,3,4] << (5..6).map {|i| i}
-    a.flatten
-    skus = "222100 - 222105"
-    skus = skus.gsub(/\D/, "").size
+    # a.flatten
+    # skus = "222100 - 222105"
+    # skus = skus.gsub(/\D/, "").size
     #sku_range = (skus[0..5].to_i..skus[6..-1].to_i)
     #sku_range.map {|i| i}
   end

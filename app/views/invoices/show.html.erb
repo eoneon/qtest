@@ -30,9 +30,9 @@ New Item:
   <tbody>
     <% @invoice.items.order(:sku).each do |item| %>
       <tr>
-        <td><%= link_to item.sku, edit_item_path(item) %></td>
+        <td><%= link_to item.sku, edit_invoice_item_path(item.invoice, item) %></td>
         <td><%= item.invoice_tag %></td>
-        <td><%= link_to 'show', item_path(item) %> | <%= link_to 'Delete', item, method: :delete %></td>
+        <td><%= link_to 'show', invoice_item_path(item.invoice, item) %> | <%= link_to 'Delete', item, method: :delete %></td>
       </tr>
     <% end %>
   </tbody>
