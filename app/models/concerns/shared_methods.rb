@@ -4,7 +4,8 @@ module SharedMethods
   extend ActiveSupport::Concern
 
   def test_arr1
-    a = [1,2,3,4] << (5..6).map {|i| i}
+    "123456".split(",")
+    "123456".gsub(/\D/, "").to_i.size
     # a.flatten
     # skus = "222100 - 222105"
     # skus = skus.gsub(/\D/, "").size

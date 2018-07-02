@@ -1,7 +1,8 @@
 <p id="notice"><%= notice %></p>
-
+<p> <%= @item.test_arr1 %> </p>
 <h1><%= @item.sku %> | <%= @item.title %> | <%= @item.artist %></h1><br>
 <h2><%= @item.tagline %></h2><br>
+
 <h4>Duplicate Sku</h4>
 <p><%= render 'items/sku_form', invoice: @invoice, item: @item %></p>
 <%= link_to 'Edit', edit_item_path(@item) %> |

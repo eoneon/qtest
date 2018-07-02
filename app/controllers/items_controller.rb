@@ -3,10 +3,7 @@ class ItemsController < ApplicationController
     @items = Item.all
     respond_to do |format|
       format.html
-      #format.csv { send_data @field_values.to_csv }
-      #format.csv { send_data @items.to_csv('sku', 'artist', 'title', 'tagline', 'descripion', 'property_room') }
       format.csv { send_data @items.to_csv(['sku', 'title', 'tagline', 'retail', 'property_room', 'descripion', 'width', 'height', 'dog']) }
-      #format.xls { send_data @field_values.to_csv(col_sep: "\t") }
       format.xls { send_data @items.to_csv(['sku', 'artist', 'title', 'tagline', 'descripion', 'property_room']) }
     end
   end
@@ -65,7 +62,59 @@ class ItemsController < ApplicationController
     end
   end
 
+  def create_skus
+    @item = Item.find(params[:id])
+    if sku_set
+      build_skus
+      flash[:notice] = "Skus successfully created."
+      redirect_to @item.invoice
+    else
+      redirect_to @item
+      flash[:alert] = "Invalid sku range."
+    end
+  end
+
   private
+  def to_range(sku_value)
+    sku_range = (sku_value[0..5].to_i..sku_value[6..-1].to_i)
+    sku_range.map {|i| i}
+  end
+
+  def valid_range(sku_value)
+    sku_value[0..5].to_i <= sku_value[6..-1].to_i
+  end
+
+  def validate_skus(sku_value)
+    case
+    when sku_value.length == 6 then sku_value.to_i
+    when sku_value.length == 12 && valid_range(sku_value) then to_range(sku_value)
+    end
+  end
+
+  def extract_digits(sku_value)
+    sku_value.gsub(/\D/, "")
+  end
+
+  def sku_set
+    sku_arr = []
+    params[:skus].split(",").each do |sku_value|
+      v = extract_digits(sku_value)
+      if validate_skus(v).blank?
+        return false
+      else
+        sku_arr << validate_skus(v)
+      end
+    end
+    sku_arr.flatten.uniq.sort
+  end
+
+  def build_skus
+    sku_set.each do |new_sku|
+      new_item = @item.dup
+      new_item.update(sku: new_sku, title: "untitled", invoice_id: @item.invoice_id)
+      new_item.save
+    end
+  end
 
   def item_params
     params.require(:item).permit!

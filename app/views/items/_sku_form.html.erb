@@ -1,7 +1,7 @@
 <%= form_tag(create_skus_invoice_item_path(item.invoice, item), method: "get") do |f| %>
   <div class="field">
     <%= label_tag :skus %><br>
-    <%= text_field_tag :skus, nil %>
+    <%= text_field_tag :skus %>
   </div>
   <%= submit_tag "Save" %>
 <% end %>

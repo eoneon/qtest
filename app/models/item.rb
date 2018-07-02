@@ -27,8 +27,8 @@ class Item < ApplicationRecord
   belongs_to :invoice, optional: true
 
   attr_accessor :skus
-  
-  validates :sku, presence: true, numericality: true, uniqueness: true, length: { is: 6 }
+
+  #validates :sku, presence: true, numericality: true, uniqueness: true, length: { is: 6 }
 
   after_initialize :init
   before_save :set_descriptions
