@@ -44,10 +44,6 @@ class Item < ApplicationRecord
     self.height = properties["innerheight"].to_s if properties.present? && item_type.present? && properties["innerheight"]
   end
 
-  def self.dog
-    "dog"
-  end
-
   def init
     self.title = "untitled" if title.blank?
     self.retail = 0 if retail.blank?

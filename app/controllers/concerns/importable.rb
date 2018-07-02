@@ -4,15 +4,10 @@ module Importable
   extend ActiveSupport::Concern
 
   class_methods do
-    # def to_csv(options = {})
     def to_csv(fields = column_names, options = {})
       CSV.generate(options) do |csv|
         csv << fields
-
-        #invoice.item.each do |field|
         all.each do |field|
-          #csv << field.attributes.values_at(*column_names)
-          #field["tagline"] = Item.tagline
           csv << field.attributes.values_at(*fields)
         end
       end

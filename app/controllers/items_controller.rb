@@ -3,8 +3,8 @@ class ItemsController < ApplicationController
     @items = Item.all
     respond_to do |format|
       format.html
-      format.csv { send_data @items.to_csv(['sku', 'title', 'tagline', 'retail', 'property_room', 'descripion', 'width', 'height', 'dog']) }
-      format.xls { send_data @items.to_csv(['sku', 'artist', 'title', 'tagline', 'descripion', 'property_room']) }
+      format.csv { send_data @items.to_csv(['sku', 'artist', 'artistid', 'title', 'tagline', 'retail', 'property_room', 'description', 'width', 'height']) }
+      format.xls { send_data @items.to_csv(['sku', 'artist', 'artistid', 'title', 'tagline', 'retail', 'property_room', 'description', 'width', 'height']) }
     end
   end
 
