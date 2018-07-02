@@ -45,7 +45,7 @@ Rails.application.routes.draw do
   resources :invoices do
     resources :items, except: [:index] do
       member do
-        get :create_skus
+        get :create_skus, :export
       end
     end
   end

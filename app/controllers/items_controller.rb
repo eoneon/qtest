@@ -1,11 +1,6 @@
 class ItemsController < ApplicationController
   def index
     @items = Item.all
-    respond_to do |format|
-      format.html
-      format.csv { send_data @items.to_csv(['sku', 'artist', 'artistid', 'title', 'tagline', 'retail', 'property_room', 'description', 'width', 'height']) }
-      format.xls { send_data @items.to_csv(['sku', 'artist', 'artistid', 'title', 'tagline', 'retail', 'property_room', 'description', 'width', 'height']) }
-    end
   end
 
   def show
@@ -74,7 +69,17 @@ class ItemsController < ApplicationController
     end
   end
 
+  def export
+    @items = Item.where(invoice_id: params[:invoice_id])
+    respond_to do |format|
+      format.html
+      format.csv { send_data @items.to_csv(['sku', 'artist', 'artistid', 'title', 'tagline', 'retail', 'property_room', 'description', 'width', 'height']) }
+      format.xls { send_data @items.to_csv(['sku', 'artist', 'artistid', 'title', 'tagline', 'retail', 'property_room', 'description', 'width', 'height'], col_sep: "\t") }
+    end
+  end
+
   private
+
   def to_range(sku_value)
     sku_range = (sku_value[0..5].to_i..sku_value[6..-1].to_i)
     sku_range.map {|i| i}

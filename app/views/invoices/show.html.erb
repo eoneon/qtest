@@ -17,15 +17,12 @@ New Item:
   <thead>
     <th>Item</th>
   </thead>
-  <!-- <tbody class="js-items">
-    <%#= render @invoice.items.all.order(:sku) %>
-    <%#= render @invoice.items %>
-  </tbody> -->
+
   <h4>Export Field Values</h4>
   <p>
     Download:
-    <%= link_to "CSV", items_path(format: "csv") %> |
-    <%= link_to "Excel", items_path(format: "xls") %>
+    <%= link_to "Export Items to CSV", export_invoice_item_path(@invoice, format: "csv") %> |
+    <%= link_to "Export Items to Excel", export_invoice_item_path(@invoice, format: "xls") %>
   </p>
   <tbody>
     <% @invoice.items.order(:sku).each do |item| %>
