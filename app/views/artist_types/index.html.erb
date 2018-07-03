@@ -4,7 +4,7 @@
 <% if @artist_types.empty? %>
   <p><strong>No ArtistTypes</strong></p>
 <% end %>
-
+<%= link_to "New Artist", new_artist_type_path %>
 <table class="table table-striped">
   <thead>
     <tr>
@@ -19,4 +19,3 @@
 </table>
 
 <br>
-<%= link_to "New artist_type", new_artist_type_path %>

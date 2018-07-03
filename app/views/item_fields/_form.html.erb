@@ -1,10 +1,4 @@
-<p>Note:</p>
-<!-- <ul>
-  <li>item_field.sub_item.name == field_value.kind: a field's parent's name is equal to a value's kind attribute</li>
-  <li>item_field.name.split("_").first == field_value.sub_kind: a field's name-prefix is equal to a value's sub_kind attribute</li>
-</ul> -->
 <%= form_for parent do |f| %>
-<%#= parent.field_values.map {|value| value.kind if value.kind == parent.name.split("_").first} %>
   <div class="field">
     <%= f.label :field_type %><br>
     <%= f.select :field_type, %w[text_field check_box number_field text_area], include_blank: true %>

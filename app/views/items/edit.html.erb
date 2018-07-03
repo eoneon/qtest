@@ -1,4 +1,5 @@
-<h1>Edit: Item: <%#= @item.test_arr1 %></h1>
+<h1>Edit: Item: <%= @item.sku %></h1>
 <h4>Invoice: <%= link_to "#{@item.invoice.invoice} - #{@item.invoice.name}", invoice_path(@item.invoice) %></h4><br>
-
+<h4>Duplicate Sku</h4>
+<p><%= render 'items/sku_form', invoice: @invoice, item: @item %></p>
 <%= render 'items/form' %>

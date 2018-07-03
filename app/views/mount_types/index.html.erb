@@ -3,7 +3,9 @@
 <h1>MountingType#index</h1>
 <% if @mount_types.empty? %>
   <p><strong>No ItemTypes</strong></p>
-<% end %>
+<% end %><br>
+
+<%= link_to "New mounting", new_mount_type_path %><br>
 
 <table class="table table-striped">
   <thead>
@@ -19,4 +21,3 @@
 </table>
 
 <br>
-<%= link_to "New mount_type", new_mount_type_path %>
