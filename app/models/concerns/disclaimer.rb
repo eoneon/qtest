@@ -27,6 +27,11 @@ module Disclaimer
     quadrant? && properties["quadrant"] == "along"
   end
 
+  ###custom
+  def custom
+    properties["custom"] if properties["custom"].present?
+  end
+
   ###caveat
   def caveat_inspection(k)
     "that #{defect_form} only only noticeable upon close inspection" if properties[k] == "inspection"
@@ -93,7 +98,8 @@ module Disclaimer
       v = respond_to?("format_" + k) ? public_send("format_" + k, k) : properties[k]
       build << pad_pat_for_loop(build, v)
     end
-    properties["disclaimer"] == "alert" ? "** #{build}. **" : "#{build}."
+    #properties["disclaimer"] == "alert" ? "** #{build}. #{custom}. **" : "#{build}. #{custom}."
+    properties["disclaimer"] == "alert" ? ["**", "#{build}.", "#{custom}.", "**"].join(" ") : ["#{build}.", "#{custom}."].join(" ")
   end
 
   def tag_disclaimer
