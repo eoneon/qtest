@@ -71,9 +71,11 @@ class ItemsController < ApplicationController
 
   def export
     @items = Item.where(invoice_id: params[:invoice_id])
+    @invoice = @items.first.invoice
+
     respond_to do |format|
       format.html
-      format.csv { send_data @items.to_csv(['sku', 'artist', 'artistid', 'title', 'tagline', 'retail', 'property_room', 'description', 'width', 'height']) }
+      format.csv { send_data @items.to_csv(['sku', 'artist', 'artistid', 'title', 'tagline', 'retail', 'property_room', 'description', 'width', 'height']), filename: "#{@invoice.invoice} #{@invoice.name}.csv" }
       format.xls { send_data @items.to_csv(['sku', 'artist', 'artistid', 'title', 'tagline', 'retail', 'property_room', 'description', 'width', 'height'], col_sep: "\t") }
     end
   end
