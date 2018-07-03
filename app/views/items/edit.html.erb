@@ -1,5 +1,13 @@
-<h1>Edit: Item: <%= @item.sku %></h1>
+<h1>Edit: <%= @item.sku %> | <%= @item.title %> | <%= @item.artist %></h1><br>
+
 <h4>Invoice: <%= link_to "#{@item.invoice.invoice} - #{@item.invoice.name}", invoice_path(@item.invoice) %></h4><br>
+<h4>
+  First Sku: <%= link_to sku_nav(@item)[:first_item].sku, edit_invoice_item_path(@item.invoice, sku_nav(@item)[:first_item]) %> |
+  Prev Sku: <%= link_to sku_nav(@item)[:prev_item].sku, edit_invoice_item_path(@item.invoice, sku_nav(@item)[:prev_item]) %> |
+  Next Sku: <%= link_to sku_nav(@item)[:next_item].sku, edit_invoice_item_path(@item.invoice, sku_nav(@item)[:next_item]) %> |
+  Last Sku: <%= link_to sku_nav(@item)[:last_item].sku, edit_invoice_item_path(@item.invoice, sku_nav(@item)[:last_item]) %>
+</h4><br>
+
 <h4>Duplicate Sku</h4>
-<p><%= render 'items/sku_form', invoice: @invoice, item: @item %></p>
+<p><%= render 'items/sku_form', invoice: @invoice, item: @item %></p><br>
 <%= render 'items/form' %>

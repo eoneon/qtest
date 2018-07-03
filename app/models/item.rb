@@ -29,6 +29,7 @@ class Item < ApplicationRecord
   attr_accessor :skus
 
   #validates :sku, presence: true, numericality: true, uniqueness: true, length: { is: 6 }
+  #scope :invoice_skus, -> {where(invoice_id: self.invoice_id)}
 
   after_initialize :init
   before_save :set_descriptions
