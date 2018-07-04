@@ -98,8 +98,7 @@ module Disclaimer
       v = respond_to?("format_" + k) ? public_send("format_" + k, k) : properties[k]
       build << pad_pat_for_loop(build, v)
     end
-    #properties["disclaimer"] == "alert" ? "** #{build}. #{custom}. **" : "#{build}. #{custom}."
-    properties["disclaimer"] == "alert" ? ["**", "#{build}.", "#{custom}.", "**"].join(" ") : ["#{build}.", "#{custom}."].join(" ")
+    properties["disclaimer"] == "note" ?  "#{build}. #{custom}" : "** #{build}. #{custom} **"
   end
 
   def tag_disclaimer
