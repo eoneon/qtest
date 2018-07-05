@@ -43,6 +43,8 @@ class Item < ApplicationRecord
     self.artistid = artist_type.adminid if artist_type.present? && artist_type.adminid.present?
     self.width = properties["innerwidth"].to_s if properties.present? && item_type.present? && properties["innerwidth"]
     self.height = properties["innerheight"].to_s if properties.present? && item_type.present? && properties["innerheight"]
+    self.frame_width = properties["outerwidth"].to_s if properties.present? && dim_type.present? && properties["outerwidth"] && dim_type.outer_target == "frame"
+    self.frame_height = properties["outerheight"].to_s if properties.present? && dim_type.present? && properties["outerheight"] && dim_type.outer_target == "frame"
   end
 
   def init

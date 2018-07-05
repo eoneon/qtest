@@ -33,8 +33,12 @@ module Disclaimer
   end
 
   ###caveat
+  def caveat?
+    valid_local_keys.include?("caveat")
+  end
+
   def caveat_inspection(k)
-    "that #{defect_form} only only noticeable upon close inspection" if properties[k] == "inspection"
+    "that #{defect_form} only noticeable upon close inspection." if properties[k] == "inspection"
   end
 
   def caveat_concealed(k)
@@ -52,9 +56,10 @@ module Disclaimer
 
   ###category
   def format_category(k)
+    category = ! caveat? ? "#{properties[k]}." : properties[k]
     case
-    when general_damage? then "to the #{properties[k]}"
-    when quadrant? || subcategory? then "of the #{properties[k]}"
+    when general_damage? then "to the #{category}"
+    when quadrant? || subcategory? then "of the #{category}"
     else properties[k]
     end
   end
@@ -64,8 +69,7 @@ module Disclaimer
     case
     when along? then properties[k]
     when border_subcategory? then "#{properties[k]} in the"
-    when general_damage? && ! quadrant? && ! subcategory? then "shows signs of #{properties[k]}"
-    #else "on the #{properties[k]}"
+    when general_damage? && ! quadrant? && ! subcategory? then "signs of #{properties[k]}"
     else "#{properties[k]} on the"
     end
   end
@@ -80,7 +84,7 @@ module Disclaimer
   end
 
   def defect_form
-    plural_defect? ? "are" : "is"
+    plural_defect? || general_damage? ? "are" : "is"
   end
 
   def flag(k)
@@ -98,7 +102,8 @@ module Disclaimer
       v = respond_to?("format_" + k) ? public_send("format_" + k, k) : properties[k]
       build << pad_pat_for_loop(build, v)
     end
-    properties["disclaimer"] == "note" ?  "#{build}. #{custom}" : "** #{build}. #{custom} **"
+    #build = custom.present? ? "#{build}. #{custom}" : "#{build}."
+    properties["disclaimer"] == "note" ?  build : "** #{build} **"
   end
 
   def tag_disclaimer

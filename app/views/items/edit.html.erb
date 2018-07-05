@@ -1,5 +1,6 @@
 <h1>Edit: <%= @item.sku %> | <%= @item.title %> | <%= @item.artist %></h1><br>
 <%#= ItemType.original_items.map {|item| item.dropdown}.uniq %>
+<%#= @item.valid_local_keys %>
 <h4>Invoice: <%= link_to "#{@item.invoice.invoice} - #{@item.invoice.name}", invoice_path(@item.invoice) %></h4><br>
 <h4>
   First Sku: <%= link_to sku_nav(@item)[:first_item].sku, edit_invoice_item_path(@item.invoice, sku_nav(@item)[:first_item]) %> |
