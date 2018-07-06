@@ -3,13 +3,15 @@
   <head>
     <title>Qtest</title>
     <%= csrf_meta_tags %>
-
     <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track': 'reload' %>
-    <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
+    <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload'), false %>
+    <%= stylesheet_link_tag href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" %>
   </head>
 
-  <body>
-    <div class="container">
+  <body class="fixed skin-blue-light">
+    <div class="wrapper">
+      <%= render 'layouts/navigation/layout'%>
+      <div class="content-wrapper">
       <ul class="nav nav-tabs">
         <li><%= link_to "Invoices", invoices_path %></li>
         <li><%= link_to "Categories", categories_path %></li>
@@ -24,7 +26,29 @@
         <li><%= link_to "Fields", item_fields_path %></li>
         <li><%= link_to "Values", field_values_path %></li>
       </ul>
+
+      <!-- added -->
+      <div class="flash">
+        <% if flash[:notice] %>
+           <div class="alert alert-success">
+             <button type="button" class="close" data-dismiss="alert">&times;</button>
+             <%= flash[:notice] %>
+           </div>
+         <% elsif flash.now[:alert] %>
+           <div class="alert alert-danger">
+             <button type="button" class="close" data-dismiss="alert">&times;</button>
+             <%= flash.now[:alert] %>
+           </div>
+         <% elsif flash[:alert] %>
+           <div class="alert alert-warning">
+             <button type="button" class="close" data-dismiss="alert">&times;</button>
+             <%= flash[:alert] %>
+           </div>
+         <% end %>
+       </div>
       <%= yield %>
+      </div>
+      <%= render 'layouts/navigation/footer' %>
     </div>
   </body>
 </html>
