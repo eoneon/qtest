@@ -1,7 +1,10 @@
 <%= form_tag(create_skus_invoice_item_path(item.invoice, item), method: "get") do |f| %>
-  <div class="field">
-    <%= label_tag :skus %><br>
-    <%= text_field_tag :skus %>
+<div class="form-inline">
+  <div class="form-group">
+    <label for="skus" class="sr-only">Skus</label>
+    <input type="text" class="form-control" name="skus" placeholder="enter skus">
+    </label>
   </div>
-  <%= submit_tag "Save" %>
+  <button type="submit" class="btn btn-primary">Save</button>
+</div>
 <% end %>
