@@ -4,7 +4,7 @@
       <%= f.label obj_to_s(type) %><br>
       <%= f.collection_select obj_to_fk(type), value_list(type), :id, :dropdown, {class: 'form-control', :include_blank => true}, onchange: 'submitform()' %>
     </div>
-    <div class="form-group">
+    <div class="form-row">
       <% if parent.public_send(obj_to_fk(type)).present? %>
         <% parent.public_send(obj_to_s(type)).category.item_fields.where(name: parent.public_send(obj_to_s(type)).category_names).each do |field| %>
         <%= render "items/item_fields/#{field.field_type}", parent: parent, type: type, field: field, f: builder %>
