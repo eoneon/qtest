@@ -1,5 +1,8 @@
 <h1>Invoice: <%= @invoice.name %>  |  <%= @invoice.invoice %></h1>
-
+<%#= (inv_skus[0]..last_sku).map.with_index {|sku, idx| "#{sku}| #{idx}" } %>
+<%#= inv_skus.index(229756) %>
+<%#= inv_skus.drop(inv_skus.index(229756)) %>
+<h4>Sku range: <%= display_inv_skus %> | Sku count: <%= sku_count %></h4>
 <p><%= link_to "Edit Invoice", edit_invoice_path(@invoice) %> | <%= link_to "Return to Invoice List", invoices_path %></p><br>
 
 <!-- Advanced Search: -->
@@ -20,6 +23,7 @@
     <%= link_to "Export Items to CSV", export_invoice_item_path(@invoice, format: "csv") %> |
     <%= link_to "Export Items to Excel", export_invoice_item_path(@invoice, format: "xls") %>
   </p>
+
   <h4>Build New Item</h4>
   <p><%= link_to "New Item", new_invoice_item_path(@invoice) %></p>
   <tbody>
