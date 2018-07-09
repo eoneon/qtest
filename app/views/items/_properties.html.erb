@@ -9,7 +9,7 @@
         <% parent.public_send(obj_to_s(type)).category.item_fields.where(name: parent.public_send(obj_to_s(type)).category_names).each do |field| %>
         <%= render "items/item_fields/#{field.field_type}", parent: parent, type: type, field: field, f: builder %>
       <% end %>
-    </div><br>
+    </div>
     <% end %>
   <% end %>
 <% end %>

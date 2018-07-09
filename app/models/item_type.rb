@@ -89,7 +89,8 @@ class ItemType < ApplicationRecord
   end
 
   def xl_dim_ref
-    properties[dim_ref_key("tag")]
+    #properties[dim_ref_key("tag")]
+    ver_keys("tag").include?("painting")  ? "painting" : properties[dim_ref_key("tag")]
   end
 
   def artist_ref

@@ -37,7 +37,7 @@ module ApplicationHelper
     #when @item.edition_type && type == EditionType then filter_edition_types(type)
     # else type.all
     # end
-    type.all
+    type.all.sort
   end
 
   #scope

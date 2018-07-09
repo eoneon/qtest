@@ -20,7 +20,7 @@ module Disclaimer
   end
 
   def border_subcategory?
-    properties["category"] == "border subcategory"
+    properties["category"] == "border area"
   end
 
   def along?
@@ -76,7 +76,7 @@ module Disclaimer
 
   ###disclaimer
   def article
-    "a" if %w(damage chipping wear).exclude?(properties["defect"]) && ! plural_defect?
+    "a" if %w(damage chipping wear creasing).exclude?(properties["defect"]) && ! plural_defect?
   end
 
   def plural_defect?
@@ -103,7 +103,7 @@ module Disclaimer
       build << pad_pat_for_loop(build, v)
     end
     #build = custom.present? ? "#{build}. #{custom}" : "#{build}."
-    properties["disclaimer"] == "note" ?  build : "** #{build} **"
+    properties["disclaimer"] == "note" ?  "#{build}." : "** #{build}. **"
   end
 
   def tag_disclaimer

@@ -19,7 +19,7 @@ module Dim
 
   #item-specific so either keep here or move to item-description-specific conern or presentor
   def frame_size
-    outer_dim_arr[0].to_i * outer_dim_arr[1].to_i if outer_dim_arr.present? && outer_dim_arr.count == 2 && dim_type.outer_target == "frame"
+    outer_dim_arr[0].to_i * outer_dim_arr[1].to_i if dim_type.outer_target == "frame" && outer_dim_arr.present? && outer_dim_arr.count == 2
   end
 
   #xl_dim methods

@@ -118,7 +118,8 @@ class ItemsController < ApplicationController
   def build_skus
     sku_set.each do |new_sku|
       new_item = @item.dup
-      new_item.update(sku: new_sku, title: "untitled", invoice_id: @item.invoice_id)
+      #new_item.update(sku: new_sku, title: "untitled", invoice_id: @item.invoice_id)
+      new_item.update(sku: new_sku, invoice_id: @item.invoice_id)
       new_item.save
     end
   end

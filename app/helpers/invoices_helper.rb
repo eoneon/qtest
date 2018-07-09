@@ -66,10 +66,12 @@ module InvoicesHelper
   end
 
   def display_inv_skus
-    if sequential_range?
-      format_sku_rng([inv_skus[0], inv_skus[-1]])
-    else
-      format_skus
+    if inv_skus.first.present?
+      if sequential_range?
+        format_sku_rng([inv_skus[0], inv_skus[-1]])
+      else
+        format_skus
+      end
     end
   end
 end
