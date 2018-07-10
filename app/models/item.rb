@@ -1,5 +1,5 @@
 class Item < ApplicationRecord
-  #attr_accessor :tagline
+  attribute :dog
 
   include ActionView::Helpers::NumberHelper
   include Importable
@@ -45,6 +45,18 @@ class Item < ApplicationRecord
     self.height = properties["innerheight"].to_s if properties.present? && item_type.present? && properties["innerheight"]
     self.frame_width = properties["outerwidth"].to_s if properties.present? && dim_type.present? && properties["outerwidth"] && dim_type.outer_target == "frame"
     self.frame_height = properties["outerheight"].to_s if properties.present? && dim_type.present? && properties["outerheight"] && dim_type.outer_target == "frame"
+  end
+
+  # def export_hsh
+  #   h = {
+  #     tagline: build_d("tag"), property_room: build_pr, description: build_d("body"),
+  #     artist: artist_type.full_name, artistid: artist_type.adminid,
+  #     width:
+  #   }
+  # end
+
+  def dog
+    title
   end
 
   def init

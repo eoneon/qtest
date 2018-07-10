@@ -1,5 +1,5 @@
 <h1><%= @item.sku %> - <%= @item.title %> | <%= @item.artist %></h1>
-
+<p><%= @item.get_attrs %></p>
 <h2>Invoice: <%= link_to "#{@item.invoice.invoice} - #{@item.invoice.name}", invoice_path(@item.invoice) %></h2><br>
 <h4>
   First Sku: <%= link_to sku_nav(@item)[:first_item].sku, edit_invoice_item_path(@item.invoice, sku_nav(@item)[:first_item]) %> | Last Sku: <%= link_to sku_nav(@item)[:last_item].sku, edit_invoice_item_path(@item.invoice, sku_nav(@item)[:last_item]) %>

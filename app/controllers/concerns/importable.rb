@@ -7,8 +7,9 @@ module Importable
     def to_csv(fields = column_names, options = {})
       CSV.generate(options) do |csv|
         csv << fields
-        all.each do |field|
-          csv << field.attributes.values_at(*fields)
+        all.each do |item|
+          #item['dog'] = item.dog
+          csv << item.attributes.values_at(*fields)
         end
       end
     end
