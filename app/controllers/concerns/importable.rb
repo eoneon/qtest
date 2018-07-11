@@ -8,7 +8,8 @@ module Importable
       CSV.generate(options) do |csv|
         csv << fields
         all.each do |item|
-          #item['dog'] = item.dog
+          item["frame_width"] = item.frame_width
+          item["frame_height"] = item.frame_height
           csv << item.attributes.values_at(*fields)
         end
       end

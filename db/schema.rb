@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180705175932) do
+ActiveRecord::Schema.define(version: 20180710233118) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -125,21 +125,7 @@ ActiveRecord::Schema.define(version: 20180705175932) do
     t.bigint "disclaimer_type_id"
     t.bigint "invoice_id"
     t.integer "retail"
-    t.string "artist"
-    t.string "tagline"
-    t.string "property_room"
-    t.string "description"
     t.string "invoice_tag"
-    t.integer "artistid"
-    t.string "art_type"
-    t.string "medium"
-    t.string "material"
-    t.string "width"
-    t.string "height"
-    t.string "depth"
-    t.string "weight"
-    t.integer "frame_width"
-    t.integer "frame_height"
     t.index ["artist_type_id"], name: "index_items_on_artist_type_id"
     t.index ["cert_type_id"], name: "index_items_on_cert_type_id"
     t.index ["dim_type_id"], name: "index_items_on_dim_type_id"

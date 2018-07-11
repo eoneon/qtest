@@ -1,5 +1,20 @@
 class Item < ApplicationRecord
-  attribute :dog
+  attribute :frame_width
+  attribute :frame_height
+  attribute :width
+  attribute :height
+
+  attribute :depth
+  attribute :weight
+  attribute :width
+  attribute :height
+
+  attribute :artist
+  attribute :artistid
+
+  attribute :tagline
+  attribute :property_room
+  attribute :description
 
   include ActionView::Helpers::NumberHelper
   include Importable
@@ -32,23 +47,13 @@ class Item < ApplicationRecord
   #scope :invoice_skus, -> {where(invoice_id: self.invoice_id)}
 
   after_initialize :init
-  before_save :set_descriptions
 
-  def set_descriptions
-    self.tagline = build_d("tag") if item_type.present?
-    self.property_room = build_pr if item_type.present?
-    self.description = build_d("body") if item_type.present?
-    self.invoice_tag = build_d("inv") if item_type.present?
-    self.artist = artist_type.full_name if artist_type.present?
-    self.artistid = artist_type.adminid if artist_type.present? && artist_type.adminid.present?
-    self.width = properties["innerwidth"].to_s if properties.present? && item_type.present? && properties["innerwidth"]
-    self.height = properties["innerheight"].to_s if properties.present? && item_type.present? && properties["innerheight"]
-    self.frame_width = properties["outerwidth"].to_s if properties.present? && dim_type.present? && properties["outerwidth"] && dim_type.outer_target == "frame"
-    self.frame_height = properties["outerheight"].to_s if properties.present? && dim_type.present? && properties["outerheight"] && dim_type.outer_target == "frame"
+  def frame_width
+    properties["outerwidth"] if properties.present? && dim_type.present? && properties["outerwidth"] && dim_type.outer_target == "frame"
   end
 
-  def dog
-    title
+  def frame_height
+    properties["outerheight"] if properties.present? && dim_type.present? && properties["outerheight"] && dim_type.outer_target == "frame"
   end
 
   def init
