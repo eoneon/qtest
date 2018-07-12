@@ -26,6 +26,12 @@ class ArtistType < ApplicationRecord
     end
   end
 
+  def artistid
+    if properties
+      properties["adminid"]
+    end
+  end
+
   def dropdown
     #category_names.map {|k| properties[k]}.join(" ")
     last_first

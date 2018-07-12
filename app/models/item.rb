@@ -10,11 +10,16 @@ class Item < ApplicationRecord
   attribute :height
 
   attribute :artist
-  attribute :artistid
+  attribute :artist_id
 
   attribute :tagline
   attribute :property_room
   attribute :description
+
+  attribute :art_type
+  attribute :art_category
+  attribute :medium
+  attribute :material
 
   include ActionView::Helpers::NumberHelper
   include Importable
@@ -29,6 +34,7 @@ class Item < ApplicationRecord
   include Retail
   include Proom
   include PopKeys
+  #include CsvExport
 
   #optional: true: https://github.com/thoughtbot/shoulda-matchers/issues/870
   belongs_to :artist_type, optional: true
@@ -48,17 +54,83 @@ class Item < ApplicationRecord
 
   after_initialize :init
 
-  def frame_width
-    properties["outerwidth"] if properties.present? && dim_type.present? && properties["outerwidth"] && dim_type.outer_target == "frame"
-  end
-
-  def frame_height
-    properties["outerheight"] if properties.present? && dim_type.present? && properties["outerheight"] && dim_type.outer_target == "frame"
-  end
-
   def init
     self.title = "untitled" if title.blank?
     self.retail = 0 if retail.blank?
+  end
+  ####
+  def valid_key?(k)
+    item_type.valid_keys.include?(k) if item_type
+  end
+
+  def value_eql?(k, v)
+    valid_key?(k) && properties[k] = v
+  end
+
+  def split_value(k)
+    properties[k].split(" ")
+  end
+
+  def pat_match?(k, v)
+    split_value(k).include?(v)
+  end
+
+  def csv_art_type
+    v = valid_key?("print") && ! valid_key?("limited") ? ["print"] : item_type.valid_keys & %w(original limited sculpturetype book sports)
+    v[0].gsub("type", "") if v[0]
+  end
+
+  def format_diameter(dims, k)
+    dims["width"] = properties[k]
+    dims["height"] = properties[k]
+  end
+
+  def format_sculpture(k)
+    if valid?("handmade") && value_eql?("handmade", "hand blown glass")
+      "hand blown glass"
+    else
+      properties[k]
+    end
+  end
+
+  def format_panel(k)
+    arr_match?(split_value("panel"), %(metal aluminum)) ? "metal" : "board"
+  end
+
+  def csv_material
+    k = %w(paper canvas sericel panel sculpturemedia) & item_type.valid_keys
+    if %w(paper canvas sericel).include?(k[0])
+      k[0]
+    elsif k[0] == "panel"
+      format_panel(k[0])
+    elsif k[0] == "sculpturemedia"
+      format_sculpture(k[0])
+    end
+  end
+
+  def csv_dims
+    dims = {}
+    dim_type.category_names.each do |k|
+      case
+      when %w(width height weight depth).include?(k) then dims[k] = properties[k]
+      when k.index("diameter") then format_diameter(dims, k)
+      when k == "innerwidth" || k == "innerheight" then dims[k.gsub("inner", "")] = properties[k]
+      when framed? && ("outerwidth" || "outerheight") then dims[k.gsub("outer", "frame_" )] = properties[k]
+      end
+    end
+    dims
+  end
+
+  def framed?
+    dim_type.outer_target == "frame"
+  end
+  ####
+  def artist_name
+    artist_type.full_name if artist_type
+  end
+
+  def artist_adminid
+    artist_type.adminid if artist_type
   end
 
   def all_keys
@@ -84,6 +156,7 @@ class Item < ApplicationRecord
   def valid_type?(ver, fk)
     case
     when ver == "tag" && fk == "title" && title == "untitled" then false
+    when ver == "tag" && fk == "title" && item_type.medium_key == "sculpturemedium" then false
     when fk == "mount_type_id" && fk_to_meth(fk).mount_key == "wrapped" && item_type.valid_keys.exclude?("canvas") then false
     when ver == "tag" && fk == "mount_type_id" && fk_to_meth(fk).mount_value == "streched" then false
     when ver == "tag" && fk == "dim_type_id" && ! xl_dims then false
@@ -209,7 +282,19 @@ class Item < ApplicationRecord
     end
   end
 
-  # def tagline
-  #   build_d("tag")
-  # end
+  def tag
+    build_d("tag") if item_type
+  end
+
+  def prop
+    build_pr if item_type
+  end
+
+  def descrp
+    build_d("body") if item_type
+  end
+
+  def invoice_tag
+    build_d("inv") if item_type
+  end
 end

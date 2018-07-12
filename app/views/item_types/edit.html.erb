@@ -1,4 +1,9 @@
 <h1>ItemType#Edit</h1>
+<h4><%= @item_type.dropdown %></h4>
+<p>Type: <%#= @item_type.csv_art_type %></p>
+<p>csv_art_medium: <%#= @item_type.csv_art_medium %></p>
+<p>properties: <%#= @item_type.properties %></p>
+<p>medium_key: <%#= @item_type.medium_key %></p>
 <%= render 'item_types/form', parent: @item_type %>
 
 <%= link_to 'Show', item_type_path(@item_type) %> |

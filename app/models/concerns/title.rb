@@ -16,7 +16,7 @@ module Title
   end
 
   def title_body_args
-    v  = title == "untitled" ? "This" : title_tag_args
+    v  = title == "untitled" || item_type.medium_key == "sculpturemedium" ? "This" : title_tag_args
     "#{v} is #{format_article(first_word_in_item)}"
   end
 end

@@ -24,33 +24,58 @@ class ItemType < ApplicationRecord
   #scope :flat_items, -> {where_any_of("properties ? :key OR properties ? :key", key: "paper", key: "canvas")}
   #scope :flat_items, -> {canvas_items.or.paper_items}
 
-  # def self.flat_items
-  #   canvas_items + paper_items + panel_items + sericel_items
-  # end
+  ####
+  def valid_keys
+    properties.keep_if {|k,v| v.present?}.keys if properties
+  end
 
-  # def self.print_items
-  #   printed_items + animation_items + photo_items + etching_items
-  # end
-
-  #was using for hiding/showing edition on items: refactor dependent on js
-
+  def valid_key?(k)
+    valid_keys && valid_keys.include?(k)
+  end
 
   def art_type
     [original, limited].join("")
   end
 
+  def value_eql?(k, v)
+    valid_key?(k) && properties[k] = v
+  end
+
+  def split_value(k)
+    valid_key?(k) && properties[k].split(" ")
+  end
+
+  def pat_match?(k, v)
+    valid_key?(k) && split_value(k).include?(v)
+  end
+  ####
+
+  ###refactor or use art_keys
   def artwork_keys
     %w(original limited)
   end
 
+  def art_type_keys
+    valid_keys & %w(original limited print sculpturetype book sports)
+  end
+
   def medium_keys
-    %w(painting print mixed sketch etching photo animation)
+    %w(painting print mixed sketch etching photo animation sculpturemedium)
   end
 
   def substrate_keys
     %w(canvas paper sericel panel)
   end
+  ##
+  def substrate_key
+    valid_keys & substrate_keys
+  end
 
+  def medium_key
+    k = valid_keys & medium_keys
+    k[0]
+  end
+  ##
   def original
     "original" if valid_keys.include?("original")
   end
@@ -59,17 +84,89 @@ class ItemType < ApplicationRecord
     "limited" if valid_keys.include?("limited")
   end
 
-  #new: keep properties keys if value present
-  def valid_keys
-    properties.keep_if {|k,v| v.present?}.keys if properties
-  end
-  #=>["mixed", "panel", "original"]
-
   #ordered_kv_pairs
   def ordered_keys
     category_names.map {|k| k if valid_keys.include?(k)}.compact
   end
   #=> ["original", "monprint", "panel"]
+  def csv_art_medium
+    if pat_match?("print", "silkscreen")
+      "serigraph"
+    elsif pat_match?("print", "lithograph")
+      "lithograph"
+    #elsif valid_key?("sketch") && arr_match?(split_value("sketch"), ["pen", "ink"])
+    elsif valid_key?(medium_key) && arr_match?(split_value(medium_key), ["pen", "ink"])
+      "pen and ink"
+    elsif valid_key?("sketch") && pat_match?("sketch", "pencil")
+      "pencil"
+    elsif valid_key?("painting") &&  ["watercolor", "gauche", "sumi ink"].include?(properties["painting"])
+      "watercolor"
+    elsif valid_key?("painting") && ["oil", "acrylic", "pastel", "monoprint"].include?(properties["painting"])
+      properties["painting"]
+    # elsif value_eql?("mixed", "monoprint")
+    #   "monoprint"
+    elsif valid_key?("painting") && arr_match?(split_value("painting"), ["mixed", " and "]) #! value_eql?("mixed", "monoprint")
+      "mixed media"
+    elsif valid_key?("print") && arr_match?(split_value("print"), ["mixed", " and "])
+      "mixed media"
+    elsif valid_key?("painting") && value_eql?("painting", "painting")
+      "unknoun"
+    elsif pat_match?("print", "poster")
+      "poster"
+    else
+      properties[medium_key]
+    end
+  end
+
+  def csv_art_type
+    if art_type_keys.include?("limited") && art_type_keys.exclude?("sculpturetype")
+      "limited edition"
+    elsif pat_match?("print", "poster")
+      "poster"
+    elsif art_type_keys.include?("print") && art_type_keys.exclude?("limited")
+      "print"
+    elsif art_type_keys.include?("sculpturetype")
+      "sculpture/glass"
+    else
+      art_type_keys[0]
+    end
+  end
+
+  def csv_art_category
+    if valid_key?("print")
+      "limited edition"
+    elsif valid_key?("original")
+      "original painting"
+    elsif value_eql?("handmade", "hand blown glass")
+      "hand blown glass"
+    elsif art_type_keys.include?("sculpturetype") && ! value_eql?("handmade", "hand blown glass")
+      "sculpture"
+    else
+      art_type_keys[0]
+    end
+  end
+
+  def format_panel
+    arr_match?(split_value("panel"), %(metal aluminum)) ? "metal" : "board"
+  end
+
+  def flat_substrate
+    if %w(paper canvas sericel).include?(substrate_key[0])
+      substrate_key[0]
+    elsif substrate_key[0] == "panel"
+      format_panel
+    end
+  end
+
+  def csv_substrate
+    if %w(paper canvas sericel).include?(substrate_key)
+      substrate_key
+    elsif substrate_key == "panel"
+      format_panel("panel")
+    elsif substrate_key == "sculpturemedia"
+      format_sculpture(substrate_key)
+    end
+  end
 
   def tag_keys
     ordered_keys.delete_if {|k| (k == "paper" && properties[k] != "archival grade photography paper") || (properties[k] == "giclee" && properties["limited"].present?) }
@@ -84,7 +181,7 @@ class ItemType < ApplicationRecord
   end
 
   def dim_ref_key(ver)
-    keys = substrate_keys + medium_keys + artwork_keys
+    keys = substrate_key + medium_key + artwork_keys
     keys.map {|k| return k if ver_keys(ver).include?(k)}
   end
 

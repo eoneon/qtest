@@ -1,15 +1,58 @@
 require 'active_support/concern'
-
+#include CsvExport
 module Importable
   extend ActiveSupport::Concern
 
   class_methods do
+
+    #
+    # def framed?
+    #   dim_type.outer_target == "frame"
+    # end
+    #
+
+    #
+    # def format_sculpture(k)
+    #   if valid?("handmade") && value_eql?("handmade", "hand blown glass")
+    #     "hand blown glass"
+    #   else
+    #     properties[k]
+    #   end
+    # end
+    #
+    # def format_panel(k)
+    #   arr_match?(split_value("panel"), %(metal aluminum)) ? "metal" : "board"
+    # end
+    #
+    # def csv_material
+    #   k = %w(paper canvas sericel panel sculpturemedia) & item_type.valid_keys
+    #   if %w(paper canvas sericel).include?(k[0])
+    #     k[0]
+    #   elsif k[0] == "panel"
+    #     format_panel(k[0])
+    #   elsif k[0] == "sculpturemedia"
+    #     format_sculpture(k[0])
+    #   end
+    # end
+    #
+
+
     def to_csv(fields = column_names, options = {})
       CSV.generate(options) do |csv|
         csv << fields
         all.each do |item|
-          item["frame_width"] = item.frame_width
-          item["frame_height"] = item.frame_height
+          item["artist"] = item.artist_name
+          item["artist_id"] = item.artist_adminid
+          item["tagline"] = item.build_d("tag") if item.item_type
+          item["property_room"] = item.build_pr if item.item_type
+          item["description"] = item.build_d("body") if item.item_type
+          item["width"] = item.csv_dims["width"] if item.dim_type
+          item["height"] = item.csv_dims["height"] if item.dim_type
+          item["frame_width"] = item.csv_dims["frame_width"] if item.dim_type
+          item["frame_height"] = item.csv_dims["frame_width"] if item.dim_type
+          item["depth"] = item.csv_dims["depth"] if item.dim_type
+          item["weight"] = item.csv_dims["weight"] if item.dim_type
+          item["art_type"] = item.csv_art_type if item.item_type
           csv << item.attributes.values_at(*fields)
         end
       end

@@ -11,7 +11,7 @@
   <%= link_to "CSV", item_types_path(format: "csv") %> |
   <%= link_to "Excel", item_types_path(format: "xls") %>
 </p>
-
+<%= link_to "New item_type", new_item_type_path %>
 <h4>Import Fields</h4>
 <%= form_tag import_item_types_path, multipart: true do %>
   <%= file_field_tag :file %>
@@ -31,6 +31,3 @@
     <% end %>
   </tbody>
 </table>
-
-<br>
-<%= link_to "New item_type", new_item_type_path %>
