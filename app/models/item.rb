@@ -36,6 +36,8 @@ class Item < ApplicationRecord
   include PopKeys
   #include CsvExport
 
+  has_many :notes, as: :notable, dependent: :destroy
+
   #optional: true: https://github.com/thoughtbot/shoulda-matchers/issues/870
   belongs_to :artist_type, optional: true
   belongs_to :mount_type, optional: true

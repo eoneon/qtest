@@ -3,6 +3,10 @@ require 'active_support/concern'
 module Disclaimer
   extend ActiveSupport::Concern
 
+  def disclaimer_keys
+    valid_local_keys & disclaimer_type.category_names - ["disclaimer"]
+  end
+
   def quadrant?
     valid_local_keys.include?("quadrant")
   end
@@ -92,8 +96,7 @@ module Disclaimer
   end
 
   def format_disclaimer(k)
-    
-    [flag(k), "There", defect_form, article].compact.join(" ")
+    [flag(k), "There", defect_form, article].compact.join(" ") if disclaimer_keys == ["custom"]
   end
 
   def body_disclaimer(keys)
