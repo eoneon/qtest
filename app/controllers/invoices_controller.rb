@@ -8,10 +8,12 @@ class InvoicesController < ApplicationController
   end
 
   def new
+    @supplier = Supplier.find(params[:supplier_id])
     @invoice = Invoice.new
   end
 
   def create
+    @supplier = Supplier.find(params[:supplier_id])
     @invoice = Invoice.new(invoice_params)
 
     if @invoice.save

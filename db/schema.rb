@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180710233118) do
+ActiveRecord::Schema.define(version: 20180713010812) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -89,6 +89,8 @@ ActiveRecord::Schema.define(version: 20180710233118) do
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "supplier_id"
+    t.index ["supplier_id"], name: "index_invoices_on_supplier_id"
   end
 
   create_table "item_fields", force: :cascade do |t|
@@ -156,6 +158,12 @@ ActiveRecord::Schema.define(version: 20180710233118) do
     t.index ["category_id"], name: "index_sign_types_on_category_id"
   end
 
+  create_table "suppliers", force: :cascade do |t|
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "value_groups", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -165,4 +173,5 @@ ActiveRecord::Schema.define(version: 20180710233118) do
     t.index ["item_field_id"], name: "index_value_groups_on_item_field_id"
   end
 
+  add_foreign_key "invoices", "suppliers"
 end

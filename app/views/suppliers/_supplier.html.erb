@@ -1,0 +1,8 @@
+<div class="media">
+  <div class="media-body">
+    <tr>
+    <td><%= link_to supplier.name, supplier_path(supplier) %></td>
+    <td><%= link_to 'Edit', edit_supplier_path(supplier) %> | <%= link_to 'Delete', supplier,  method: :delete, remote: true, data: {confirm: "Are you sure?"} %></td>
+    </tr>
+ </div>
+</div>

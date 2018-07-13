@@ -1,0 +1,16 @@
+<h1>Supplier#index</h1>
+
+<% if @suppliers.empty? %>
+  <p><strong>No Supplier</strong></p>
+<% end %>
+
+<%= link_to "New Supplier", new_supplier_path %>
+
+<table class="table">
+  <thead>
+    <th>Supplier Name</th>
+  </thead>
+  <tbody>
+    <%= render @suppliers %>
+  </tbody>
+</table>

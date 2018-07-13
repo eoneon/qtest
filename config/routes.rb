@@ -12,6 +12,7 @@ Rails.application.routes.draw do
   resources :item_fields
   resources :field_values
 
+
   resources :categories do
     collection do
       post :import
@@ -34,6 +35,10 @@ Rails.application.routes.draw do
     collection do
       post :import
     end
+  end
+
+  resources :suppliers do
+    resources :invoices, except: [:index]
   end
 
   resources :invoices do
