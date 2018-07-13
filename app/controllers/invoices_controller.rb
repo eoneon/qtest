@@ -14,11 +14,11 @@ class InvoicesController < ApplicationController
 
   def create
     @supplier = Supplier.find(params[:supplier_id])
-    @invoice = Invoice.new(invoice_params)
+    @invoice = @supplier.invoices.build(invoice_params)
 
     if @invoice.save
       flash[:notice] = "Invoice was saved successfully."
-      redirect_to @invoice
+      redirect_to [@invoice.supplier, @invoice]
     else
       flash.now[:alert] = "Error creating invoice. Please try again."
       render :new
@@ -35,7 +35,7 @@ class InvoicesController < ApplicationController
 
     if @invoice.save
       flash[:notice] = "Invoice was updated successfully."
-      redirect_to @invoice
+      redirect_to [@invoice.supplier, @invoice]
     else
       flash.now[:alert] = "Error updated invoice. Please try again."
       render :edit
@@ -47,7 +47,7 @@ class InvoicesController < ApplicationController
 
     if @invoice.destroy
       flash[:notice] = "\"#{@invoice.invoice}\" was deleted successfully."
-      redirect_to action: :index
+      redirect_to @invoice.supplier
     else
       flash.now[:alert] = "There was an error deleting the invoice."
       render :show
