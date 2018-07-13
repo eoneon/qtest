@@ -75,6 +75,7 @@ class Item < ApplicationRecord
     split_value(k).include?(v)
   end
 
+
   def format_diameter(dims, k)
     dims["width"] = properties[k]
     dims["height"] = properties[k]
@@ -96,7 +97,7 @@ class Item < ApplicationRecord
   def framed?
     dim_type.outer_target == "frame"
   end
-  
+
   def artist_name
     artist_type.full_name if artist_type
   end

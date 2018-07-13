@@ -5,4 +5,8 @@ class Invoice < ApplicationRecord
   def inv_skus
     self.items.order(:sku).pluck(:sku)
   end
+
+  def supplier_name
+    supplier.name if supplier
+  end
 end

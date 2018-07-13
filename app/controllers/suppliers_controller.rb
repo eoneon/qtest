@@ -1,6 +1,6 @@
 class SuppliersController < ApplicationController
   def index
-    @suppliers = Supplier.all.order(name: 'desc')
+    @suppliers = Supplier.all.order(name: 'asc')
   end
 
   def show
