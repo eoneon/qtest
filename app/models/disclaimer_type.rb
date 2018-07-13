@@ -5,7 +5,8 @@ class DisclaimerType < ApplicationRecord
   has_many :items
 
   def required_fields
-    %w(disclaimer defect category)
+    #%w(disclaimer defect category)
+    %w(disclaimer)
   end
 
   def typ_ver_args(ver)

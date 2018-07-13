@@ -92,6 +92,7 @@ module Disclaimer
   end
 
   def format_disclaimer(k)
+    
     [flag(k), "There", defect_form, article].compact.join(" ")
   end
 

@@ -52,7 +52,9 @@ module Importable
           item["frame_height"] = item.csv_dims["frame_width"] if item.dim_type
           item["depth"] = item.csv_dims["depth"] if item.dim_type
           item["weight"] = item.csv_dims["weight"] if item.dim_type
-          item["art_type"] = item.csv_art_type if item.item_type
+          item["art_type"] = item.item_type.csv_art_type if item.item_type
+          item["art_category"] = item.item_type.csv_art_category if item.item_type
+          item["medium"] = item.item_type.csv_art_medium if item.item_type
           csv << item.attributes.values_at(*fields)
         end
       end

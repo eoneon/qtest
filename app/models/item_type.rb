@@ -181,7 +181,7 @@ class ItemType < ApplicationRecord
   end
 
   def dim_ref_key(ver)
-    keys = substrate_key + medium_key + artwork_keys
+    keys = [substrate_key] + [medium_key] + artwork_keys
     keys.map {|k| return k if ver_keys(ver).include?(k)}
   end
 
