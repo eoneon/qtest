@@ -58,7 +58,7 @@ class Item < ApplicationRecord
     self.title = "untitled" if title.blank?
     self.retail = 0 if retail.blank?
   end
-  ####
+
   def valid_key?(k)
     item_type.valid_keys.include?(k) if item_type
   end
@@ -75,38 +75,10 @@ class Item < ApplicationRecord
     split_value(k).include?(v)
   end
 
-  # def csv_art_type
-  #   v = valid_key?("print") && ! valid_key?("limited") ? ["print"] : item_type.valid_keys & %w(original limited sculpturetype book sports)
-  #   v[0].gsub("type", "") if v[0]
-  # end
-
   def format_diameter(dims, k)
     dims["width"] = properties[k]
     dims["height"] = properties[k]
   end
-
-  # def format_sculpture(k)
-  #   if valid?("handmade") && value_eql?("handmade", "hand blown glass")
-  #     "hand blown glass"
-  #   else
-  #     properties[k]
-  #   end
-  # end
-  #
-  # def format_panel(k)
-  #   arr_match?(split_value("panel"), %(metal aluminum)) ? "metal" : "board"
-  # end
-  #
-  # def csv_material
-  #   k = %w(paper canvas sericel panel sculpturemedia) & item_type.valid_keys
-  #   if %w(paper canvas sericel).include?(k[0])
-  #     k[0]
-  #   elsif k[0] == "panel"
-  #     format_panel(k[0])
-  #   elsif k[0] == "sculpturemedia"
-  #     format_sculpture(k[0])
-  #   end
-  # end
 
   def csv_dims
     dims = {}
@@ -124,7 +96,7 @@ class Item < ApplicationRecord
   def framed?
     dim_type.outer_target == "frame"
   end
-  ####
+  
   def artist_name
     artist_type.full_name if artist_type
   end
