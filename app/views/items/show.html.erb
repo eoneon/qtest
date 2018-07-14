@@ -7,3 +7,11 @@
 <p><%= render 'items/sku_form', invoice: @invoice, item: @item %></p>
 <%= link_to 'Edit', edit_item_path(@item) %> |
 <%= link_to 'Back', invoice_path(@item.invoice) %>
+
+<h3>Comments</h3>
+<div class='new-note'>
+  <%= render 'notes/form', note: Note.new, noteable: @item %>
+</div>
+<div class='js-notes'>
+  <%= render @item.notes %>
+</div>

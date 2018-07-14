@@ -47,6 +47,11 @@ Rails.application.routes.draw do
         get :create_skus, :export
       end
     end
+    resources :notes, module: :invoices
+  end
+
+  resources :items do
+    resources :notes, module: :items
   end
 
   root to: 'invoices#index'
