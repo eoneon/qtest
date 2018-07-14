@@ -4,7 +4,7 @@
      <small>
        <%= note.body %>
      </small>
-     <p><%= link_to "Delete", [note.noteable, note], method: :delete, remote: true %> | <%= link_to "Edit Note" %></p>
+     <p><%= link_to "Delete", [note.noteable, note], method: :delete, remote: true %> | <%= link_to "Edit Note", [note.noteable, note] %></p>
    </div>
   </div>
 <% end %>

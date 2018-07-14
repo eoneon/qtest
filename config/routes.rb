@@ -51,7 +51,7 @@ Rails.application.routes.draw do
   end
 
   resources :items do
-    resources :notes, module: :items
+    resources :notes
   end
 
   root to: 'invoices#index'

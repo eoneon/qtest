@@ -1,6 +1,6 @@
 <% if @note.valid? %>
-  $('.js-notes').prepend("<%= escape_javascript(render(@note)) %>");
-  $('.new-note').html("<%= escape_javascript(render partial: 'notes/form', locals: { noteable: @noteable, note: @new_note }) %>");
+  $('.js-notes').prepend('<%= j render(@note) %>');
+  $('.new-note').html("<%= escape_javascript(render partial: 'notes/form', locals: { noteable: @noteable, note: @note }) %>");
 <% else %>
   $('.flash').prepend("<div class='alert alert-danger'><button type='button' class='close' data-dismiss='alert'>&times;</button><%= flash.now[:alert] %></div>");
   $('.new-note').html("<%= escape_javascript(render partial: 'notes/form', locals: { noteable: @noteable, note: @note }) %>");

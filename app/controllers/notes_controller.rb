@@ -1,17 +1,28 @@
 class NotesController < ApplicationController
+  before_action :load_noteable
+
   def new
     @note = Note.new
   end
 
+  def index
+    @notes = @noteable.notes
+  end
+
   def create
-    @note = @noteable.notes.build(note_params)
+    @note = @noteable.notes.new(note_params)
 
     if @note.save
-      flash[:notice] = "Address was successfully saved."
-      redirect_to @noteable
+      flash[:notice] = "Note was successfully saved."
+      #redirect_to @noteable
     else
-      flash[:alert] = "There was an error saving address."
-      render :new
+      flash[:alert] = "There was an error saving Note."
+      #render :new
+    end
+
+    respond_to do |format|
+      format.html
+      format.js
     end
   end
 
@@ -35,11 +46,21 @@ class NotesController < ApplicationController
     else
       flash[:alert] = "Note couldn't be deleted. Try again."
     end
+
+    respond_to do |format|
+      format.html
+      format.js
+    end
   end
 
   private
 
   def note_params
     params.require(:note).permit!
+  end
+
+  def load_noteable
+    resource, id = request.path.split('/')[1, 2]
+    @noteable = resource.singularize.classify.constantize.find(id)
   end
 end
