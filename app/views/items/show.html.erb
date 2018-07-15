@@ -6,7 +6,7 @@
 <h4>Duplicate Sku</h4>
 <p><%= render 'items/sku_form', invoice: @invoice, item: @item %></p>
 <%= link_to 'Edit', edit_item_path(@item) %> |
-<%= link_to 'Back', invoice_path(@item.invoice) %>
+<%= link_to 'Back', edit_invoice_item_path(@item.invoice, @item) %>
 
 <h3>Notes</h3>
 <div class='new-note'>

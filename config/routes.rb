@@ -12,7 +12,6 @@ Rails.application.routes.draw do
   resources :item_fields
   resources :field_values
 
-
   resources :categories do
     collection do
       post :import
@@ -47,7 +46,7 @@ Rails.application.routes.draw do
         get :create_skus, :export
       end
     end
-    resources :notes, module: :invoices
+    resources :notes
   end
 
   resources :items do

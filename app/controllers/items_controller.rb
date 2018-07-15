@@ -23,6 +23,7 @@ class ItemsController < ApplicationController
       else
         redirect_to [@item.invoice, @item]
       end
+      #render :edit
     else
       flash.now[:alert] = "Error creating item. Please try again."
       render :new
@@ -43,6 +44,10 @@ class ItemsController < ApplicationController
       flash.now[:alert] = "Error updated item. Please try again."
     end
     render :edit
+    # respond_to do |format|
+    #   format.html
+    #   format.js
+    # end
   end
 
   def destroy

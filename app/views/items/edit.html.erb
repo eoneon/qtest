@@ -6,6 +6,7 @@
 </h4><br>
 <h4>
   Prev Sku: <%= link_to sku_nav(@item)[:prev_item].sku, edit_invoice_item_path(@item.invoice, sku_nav(@item)[:prev_item]) %> |
+  Currnt Sku: <%= link_to @item.sku, invoice_item_path(@item.invoice, @item) %> |
   Next Sku: <%= link_to sku_nav(@item)[:next_item].sku, edit_invoice_item_path(@item.invoice, sku_nav(@item)[:next_item]) %>
 </h4><br>
 

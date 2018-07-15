@@ -17,6 +17,14 @@
     <%= link_to "Export Items to Excel", export_invoice_item_path(@invoice, format: "xls") %>
   </p>
 
+  <h3>Notes</h3>
+  <div class='new-note'>
+    <%= render 'notes/form', noteable: @invoice, note: Note.new  %>
+  </div>
+  <div class='js-notes'>
+    <%= render @invoice.notes %>
+  </div>
+
   <h4>Build New Item</h4>
   <p><%= link_to "New Item", new_invoice_item_path(@invoice) %></p>
   <tbody>
