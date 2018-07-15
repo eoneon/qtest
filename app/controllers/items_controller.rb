@@ -21,9 +21,8 @@ class ItemsController < ApplicationController
       if params[:redirect_location] == ':edit'
         render :edit
       else
-        redirect_to [@item.invoice, @item]
+        render :edit
       end
-      #render :edit
     else
       flash.now[:alert] = "Error creating item. Please try again."
       render :new
@@ -66,9 +65,9 @@ class ItemsController < ApplicationController
     @item = Item.find(params[:id])
     if sku_set
       build_skus
-      @first_item = Item.where(sku: sku_set[0])
+      #@first_item = Item.where(sku: build_skus.first)
       flash[:notice] = "Skus successfully created."
-      redirect_to @first_item
+      render :edit
     else
       redirect_to @item
       flash[:alert] = "Invalid sku range."
@@ -126,8 +125,8 @@ class ItemsController < ApplicationController
       new_item = @item.dup
       #new_item.update(sku: new_sku, title: "untitled", invoice_id: @item.invoice_id)
       new_item.update(sku: new_sku, invoice_id: @item.invoice_id)
-      new_item.save
     end
+
   end
 
   def item_params

@@ -1,7 +1,19 @@
 <p id="notice"><%= notice %></p>
-
 <h1><%= @item.sku %> | <%= @item.title %> | <%= @item.artist %></h1><br>
-<h2><%= @item.tagline %></h2><br>
+<blockquote>
+  <h4>Tagline:</h4>
+  <%= @item.tag %>
+</blockquote>
+
+<blockquote>
+  <h4>Property Room:</h4>
+  <%= @item.prop %>
+</blockquote>
+
+<blockquote>
+  <h4>Description:</h4>
+  <%= @item.descrp %>
+</blockquote>
 
 <h4>Duplicate Sku</h4>
 <p><%= render 'items/sku_form', invoice: @invoice, item: @item %></p>
