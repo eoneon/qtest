@@ -11,6 +11,7 @@ class NotesController < ApplicationController
 
   def create
     @note = @noteable.notes.new(note_params)
+    @new_note = Note.new
 
     if @note.save
       flash[:notice] = "Note was successfully saved."
