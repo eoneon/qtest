@@ -41,6 +41,7 @@ module Importable
       CSV.generate(options) do |csv|
         csv << fields
         all.each do |item|
+          #item["retail"] = number_to_currency(item["retail"], precision: 2, delimiter: ',')
           item["artist"] = item.artist_name
           item["artist_id"] = item.artist_adminid
           item["tagline"] = item.build_d("tag") if item.item_type

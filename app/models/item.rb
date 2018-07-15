@@ -77,7 +77,6 @@ class Item < ApplicationRecord
     split_value(k).include?(v)
   end
 
-
   def format_diameter(dims, k)
     dims["width"] = properties[k]
     dims["height"] = properties[k]
@@ -94,6 +93,10 @@ class Item < ApplicationRecord
       end
     end
     dims
+  end
+
+  def csv_retail
+    retail_inv
   end
 
   def framed?
@@ -270,6 +273,6 @@ class Item < ApplicationRecord
   end
 
   def invoice_tag
-    build_d("inv") if item_type
+    build_d("inv") + " " + retail_proom if item_type
   end
 end

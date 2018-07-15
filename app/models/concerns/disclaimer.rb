@@ -3,10 +3,6 @@ require 'active_support/concern'
 module Disclaimer
   extend ActiveSupport::Concern
 
-  def disclaimer_keys
-    valid_local_keys & disclaimer_type.category_names - ["disclaimer"]
-  end
-
   def quadrant?
     valid_local_keys.include?("quadrant")
   end
@@ -96,18 +92,24 @@ module Disclaimer
   end
 
   def format_disclaimer(k)
-    [flag(k), "There", defect_form, article].compact.join(" ") if disclaimer_keys == ["custom"]
+    [flag(k), "There", defect_form, article].compact.join(" ")
   end
 
-  def body_disclaimer(keys)
+  def full_disclaimer(keys)
     build = ""
     keys.each do |k|
-      next if valid_local_keys.exclude?(k)
       v = respond_to?("format_" + k) ? public_send("format_" + k, k) : properties[k]
       build << pad_pat_for_loop(build, v)
     end
-    #build = custom.present? ? "#{build}. #{custom}" : "#{build}."
     properties["disclaimer"] == "note" ?  "#{build}." : "** #{build}. **"
+  end
+
+  def body_disclaimer(keys)
+    if keys == ["disclaimer", "custom"]
+      [flag("disclaimer"), properties["custom"]].compact.join(" ")
+    else
+      full_disclaimer(keys)
+    end
   end
 
   def tag_disclaimer
@@ -119,6 +121,7 @@ module Disclaimer
   end
 
   def build_disclaimer(h, typ, ver)
+    h[:v] = h[:v] & valid_local_keys
     h[:v] = ver == "body" ? public_send(ver + "_disclaimer", h[:v]) : public_send(ver + "_disclaimer")
   end
 end

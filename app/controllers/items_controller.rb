@@ -66,8 +66,9 @@ class ItemsController < ApplicationController
     @item = Item.find(params[:id])
     if sku_set
       build_skus
+      @first_item = Item.where(sku: sku_set[0])
       flash[:notice] = "Skus successfully created."
-      redirect_to @item.invoice
+      redirect_to @first_item
     else
       redirect_to @item
       flash[:alert] = "Invalid sku range."
