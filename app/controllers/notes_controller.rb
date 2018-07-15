@@ -1,8 +1,8 @@
 class NotesController < ApplicationController
   before_action :load_noteable
 
-  def new
-    @note = Note.new
+  def edit
+    @note = Note.find(params[:id])
   end
 
   def index

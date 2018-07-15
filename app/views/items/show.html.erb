@@ -1,5 +1,6 @@
 <p id="notice"><%= notice %></p>
 <h1><%= @item.sku %> | <%= @item.title %> | <%= @item.artist %></h1><br>
+<div> <%= render 'items/sku_nav' %></div>
 <blockquote>
   <h4>Tagline:</h4>
   <%= @item.tag %>

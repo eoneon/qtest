@@ -1,14 +1,8 @@
 <h1><%= @item.sku %> <%= link_to 'Delete', @item, method: :delete, class: 'btn btn-danger', data: { confirm: 'Are you sure you want to delete this sku?' } %></h1>
 <h2><%= @item.artist_name %> | <%= @item.title %> </h2><br>
 <h2>Inv: <%= link_to "#{@item.invoice.invoice} - #{@item.invoice.name}", invoice_path(@item.invoice) %></h2><br>
-<h4>
-  First Sku: <%= link_to sku_nav(@item)[:first_item].sku, edit_invoice_item_path(@item.invoice, sku_nav(@item)[:first_item]) %> | Last Sku: <%= link_to sku_nav(@item)[:last_item].sku, edit_invoice_item_path(@item.invoice, sku_nav(@item)[:last_item]) %>
-</h4><br>
-<h4>
-  Prev Sku: <%= link_to sku_nav(@item)[:prev_item].sku, edit_invoice_item_path(@item.invoice, sku_nav(@item)[:prev_item]) %>
-  <strong>{ Currnt Sku: <%= link_to @item.sku, invoice_item_path(@item.invoice, @item) %> }</strong>
-  Next Sku: <%= link_to sku_nav(@item)[:next_item].sku, edit_invoice_item_path(@item.invoice, sku_nav(@item)[:next_item]) %>
-</h4><br>
+
+<div> <%= render 'items/sku_nav' %></div>
 
 <h4>Duplicate Sku</h4>
 <p><%= render 'items/sku_form', invoice: @invoice, item: @item %></p><br>

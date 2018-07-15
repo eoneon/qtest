@@ -1,0 +1,13 @@
+<div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+  <div class="btn-group mr-2" role="group" aria-label="First group">
+    <button type="button" class="btn btn-secondary">First: <%= link_to sku_nav(@item)[:first_item].sku, edit_invoice_item_path(@item.invoice, sku_nav(@item)[:first_item]) %></button>
+  </div>
+  <div class="btn-group mr-2" role="group" aria-label="Second group">
+    <button type="button" class="btn btn-secondary">Prev: <%= link_to sku_nav(@item)[:prev_item].sku, edit_invoice_item_path(@item.invoice, sku_nav(@item)[:prev_item]) %></button>
+    <button type="button" class="btn btn-info">Go: <%= link_to @item.sku, invoice_item_path(@item.invoice, @item) %></button>
+    <button type="button" class="btn btn-secondary">Next: <%= link_to sku_nav(@item)[:next_item].sku, edit_invoice_item_path(@item.invoice, sku_nav(@item)[:next_item]) %></button>
+  </div>
+  <div class="btn-group mr-2" role="group" aria-label="Third group">
+    <button type="button" class="btn btn-secondary">Last: <%= link_to sku_nav(@item)[:last_item].sku, edit_invoice_item_path(@item.invoice, sku_nav(@item)[:last_item]) %></button>
+  </div>
+</div>
