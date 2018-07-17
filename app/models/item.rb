@@ -20,6 +20,11 @@ class Item < ApplicationRecord
   attribute :art_category
   attribute :medium
   attribute :material
+  attribute :framed
+  attribute :stretched
+  attribute :gallery_wrapped
+  attribute :embellished
+  attribute :disclaimer
 
   include ActionView::Helpers::NumberHelper
   include Importable
@@ -34,7 +39,7 @@ class Item < ApplicationRecord
   include Retail
   include Proom
   include PopKeys
-  #include CsvExport
+  include Export
 
   has_many :notes, as: :noteable, dependent: :destroy
 
@@ -61,43 +66,43 @@ class Item < ApplicationRecord
     self.retail = 0 if retail.blank?
   end
 
-  def valid_key?(k)
-    item_type.valid_keys.include?(k) if item_type
-  end
+  # def valid_key?(k)
+  #   item_type.valid_keys.include?(k) if item_type
+  # end
+  #
+  # def value_eql?(k, v)
+  #   valid_key?(k) && properties[k] = v
+  # end
+  #
+  # def split_value(k)
+  #   properties[k].split(" ")
+  # end
+  #
+  # def pat_match?(k, v)
+  #   split_value(k).include?(v)
+  # end
 
-  def value_eql?(k, v)
-    valid_key?(k) && properties[k] = v
-  end
+  # def format_diameter(dims, k)
+  #   dims["width"] = properties[k]
+  #   dims["height"] = properties[k]
+  # end
 
-  def split_value(k)
-    properties[k].split(" ")
-  end
+  # def csv_dims
+  #   dims = {}
+  #   dim_type.category_names.each do |k|
+  #     case
+  #     when %w(width height weight depth).include?(k) then dims[k] = properties[k]
+  #     when k.index("diameter") then format_diameter(dims, k)
+  #     when k == "innerwidth" || k == "innerheight" then dims[k.gsub("inner", "")] = properties[k]
+  #     when framed? && ("outerwidth" || "outerheight") then dims[k.gsub("outer", "frame_" )] = properties[k]
+  #     end
+  #   end
+  #   dims
+  # end
 
-  def pat_match?(k, v)
-    split_value(k).include?(v)
-  end
-
-  def format_diameter(dims, k)
-    dims["width"] = properties[k]
-    dims["height"] = properties[k]
-  end
-
-  def csv_dims
-    dims = {}
-    dim_type.category_names.each do |k|
-      case
-      when %w(width height weight depth).include?(k) then dims[k] = properties[k]
-      when k.index("diameter") then format_diameter(dims, k)
-      when k == "innerwidth" || k == "innerheight" then dims[k.gsub("inner", "")] = properties[k]
-      when framed? && ("outerwidth" || "outerheight") then dims[k.gsub("outer", "frame_" )] = properties[k]
-      end
-    end
-    dims
-  end
-
-  def csv_retail
-    retail_inv
-  end
+  # def csv_retail
+  #   retail_inv
+  # end
 
   def framed?
     dim_type.outer_target == "frame"
@@ -107,7 +112,7 @@ class Item < ApplicationRecord
     artist_type.full_name if artist_type
   end
 
-  def artist_adminid
+  def artist_id
     artist_type.adminid if artist_type
   end
 
@@ -258,14 +263,14 @@ class Item < ApplicationRecord
     d.insert(idx, " #{retail_proom}")
   end
 
-  def build_pr
+  def property_room
     if build_d("tag")
       pr = retail_proom ? insert_retail(build_d("tag")) : build_d("tag")
       abbrv_description(pr)
     end
   end
 
-  def tag
+  def tagline
     build_d("tag") if item_type
   end
 
@@ -273,7 +278,7 @@ class Item < ApplicationRecord
     build_pr if item_type
   end
 
-  def descrp
+  def description
     build_d("body") if item_type
   end
 

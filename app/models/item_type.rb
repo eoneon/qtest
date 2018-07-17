@@ -51,6 +51,11 @@ class ItemType < ApplicationRecord
   ####
 
   ###refactor or use art_keys
+
+  def embellished?
+    valid_keys.include?("embellish")
+  end
+
   def artwork_keys
     %w(original limited)
   end
@@ -89,7 +94,7 @@ class ItemType < ApplicationRecord
     category_names.map {|k| k if valid_keys.include?(k)}.compact
   end
   #=> ["original", "monprint", "panel"]
-  def csv_art_medium
+  def medium
     if pat_match?("print", "silkscreen")
       "serigraph"
     elsif pat_match?("print", "lithograph")
@@ -165,6 +170,17 @@ class ItemType < ApplicationRecord
       format_panel("panel")
     elsif substrate_key == "sculpturemedia"
       format_sculpture(substrate_key)
+    end
+  end
+
+  def csv_material
+    k = %w(paper canvas sericel panel sculpturemedia) & valid_keys
+    if %w(paper canvas sericel).include?(k[0])
+      k[0]
+    elsif k[0] == "panel"
+      format_panel(k[0])
+    elsif k[0] == "sculpturemedia"
+      format_sculpture(k[0])
     end
   end
 

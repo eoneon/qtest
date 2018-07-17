@@ -4,37 +4,6 @@ module Importable
   extend ActiveSupport::Concern
 
   class_methods do
-
-    #
-    # def framed?
-    #   dim_type.outer_target == "frame"
-    # end
-    #
-
-    #
-    # def format_sculpture(k)
-    #   if valid?("handmade") && value_eql?("handmade", "hand blown glass")
-    #     "hand blown glass"
-    #   else
-    #     properties[k]
-    #   end
-    # end
-    #
-    # def format_panel(k)
-    #   arr_match?(split_value("panel"), %(metal aluminum)) ? "metal" : "board"
-    # end
-    #
-    # def csv_material
-    #   k = %w(paper canvas sericel panel sculpturemedia) & item_type.valid_keys
-    #   if %w(paper canvas sericel).include?(k[0])
-    #     k[0]
-    #   elsif k[0] == "panel"
-    #     format_panel(k[0])
-    #   elsif k[0] == "sculpturemedia"
-    #     format_sculpture(k[0])
-    #   end
-    # end
-    #
     def item_keys
       %(artist artist_id tagline property_room description width height frame_width frame_height depth weight art_type art_category medium)
     end
@@ -45,19 +14,25 @@ module Importable
         all.each do |item|
           #item["retail"] = number_to_currency(item["retail"], precision: 2, delimiter: ',')
           item["artist"] = item.public_send("artist")
-          item["artist_id"] = item.artist_adminid
-          item["tagline"] = item.build_d("tag") if item.item_type
-          item["property_room"] = item.build_pr if item.item_type
-          item["description"] = item.build_d("body") if item.item_type
-          item["width"] = item.csv_dims["width"] if item.dim_type
-          item["height"] = item.csv_dims["height"] if item.dim_type
-          item["frame_width"] = item.csv_dims["frame_width"] if item.dim_type
-          item["frame_height"] = item.csv_dims["frame_width"] if item.dim_type
-          item["depth"] = item.csv_dims["depth"] if item.dim_type
-          item["weight"] = item.csv_dims["weight"] if item.dim_type
-          item["art_type"] = item.item_type.csv_art_type if item.item_type
-          item["art_category"] = item.item_type.csv_art_category if item.item_type
-          item["medium"] = item.item_type.csv_art_medium if item.item_type
+          item["artist_id"] = item.artist_id
+          item["tagline"] = item.tagline if item.item_type
+          item["property_room"] = item.property_room if item.item_type
+          item["description"] = item.description if item.item_type
+          item["width"] = item.width if item.dim_type
+          item["height"] = item.height if item.dim_type
+          item["frame_width"] = item.frame_width if item.dim_type
+          item["frame_height"] = item.frame_height if item.dim_type
+          item["depth"] = item.depth if item.dim_type
+          item["weight"] = item.weight if item.dim_type
+          item["art_type"] = item.art_type if item.item_type
+          item["art_category"] = item.art_category if item.item_type
+          item["medium"] = item.medium if item.item_type
+          item["material"] = item.material if item.item_type
+          item["framed"] = item.framed if item.item_type
+          item["stretched"] = item.stretched if item.item_type
+          item["gallery_wrapped"] = item.gallery_wrapped if item.item_type
+          item["embellished"] = item.embellished if item.item_type
+          item["disclaimer"] = item.disclaimer
           csv << item.attributes.values_at(*fields)
         end
       end

@@ -76,7 +76,7 @@ class ItemsController < ApplicationController
 
     respond_to do |format|
       format.html
-      format.csv { send_data @items.to_csv(['sku', 'artist', 'artist_id', 'title', 'width', 'height', 'frame_width', 'frame_height', 'depth', 'weight', 'retail', 'tagline', 'property_room', 'description', 'art_type', 'art_category', 'material', 'medium', 'frame', 'gallery_wrapped', 'stretched', 'embellish']), filename: "#{@invoice.invoice} #{@invoice.name}.csv" }
+      format.csv { send_data @items.to_csv(['sku', 'artist', 'artist_id', 'title', 'retail', 'tagline', 'property_room', 'description', 'art_type', 'art_category', 'material', 'medium', 'width', 'height', 'frame_width', 'frame_height', 'depth', 'weight', 'framed', 'gallery_wrapped', 'stretched', 'embellished', 'disclaimer']), filename: "#{@invoice.invoice} #{@invoice.name}.csv" }
       format.xls { send_data @items.to_csv(['sku', 'artist', 'artistid', 'title', 'tagline', 'retail', 'property_room', 'description', 'width', 'height', 'frame_width', 'frame_height'], col_sep: "\t") }
     end
   end
