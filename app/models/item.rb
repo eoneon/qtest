@@ -253,10 +253,15 @@ class Item < ApplicationRecord
     ver == "body" ? h[:build] : cap(h[:build])
   end
 
+  def insert_retail(d)
+    idx = d.index(".")
+    d.insert(idx, " #{retail_proom}")
+  end
+
   def build_pr
     if build_d("tag")
-      build = retail_proom ? build_d("tag") + " " + retail_proom : build_d("tag")
-      abbrv_description(build)
+      pr = retail_proom ? insert_retail(build_d("tag")) : build_d("tag")
+      abbrv_description(pr)
     end
   end
 
@@ -273,6 +278,8 @@ class Item < ApplicationRecord
   end
 
   def invoice_tag
-    build_d("inv") + " " + retail_proom if item_type
+    if build_d("inv")
+      retail_proom ? insert_retail(build_d("inv")) : build_d("inv")
+    end
   end
 end

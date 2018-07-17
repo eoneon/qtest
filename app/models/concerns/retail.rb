@@ -11,6 +11,6 @@ module Retail
   end
 
   def retail_proom
-    "List #{retail_inv}" if retail > 0
+    "List #{retail_inv}" if retail && retail > 0
   end
 end
