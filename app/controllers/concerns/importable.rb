@@ -5,34 +5,14 @@ module Importable
 
   class_methods do
     def item_keys
-      %(artist artist_id tagline property_room description width height frame_width frame_height depth weight art_type art_category medium)
+      %(artist artist_id tagline property_room description width height frame_width frame_height depth weight art_type art_category medium material framed stretched gallery_wrapped embellished disclaimer)
     end
 
     def to_csv(fields = column_names, options = {})
       CSV.generate(options) do |csv|
         csv << fields
         all.each do |item|
-          #item["retail"] = number_to_currency(item["retail"], precision: 2, delimiter: ',')
-          item["artist"] = item.public_send("artist")
-          item["artist_id"] = item.artist_id
-          item["tagline"] = item.tagline if item.item_type
-          item["property_room"] = item.property_room if item.item_type
-          item["description"] = item.description if item.item_type
-          item["width"] = item.width if item.dim_type
-          item["height"] = item.height if item.dim_type
-          item["frame_width"] = item.frame_width if item.dim_type
-          item["frame_height"] = item.frame_height if item.dim_type
-          item["depth"] = item.depth if item.dim_type
-          item["weight"] = item.weight if item.dim_type
-          item["art_type"] = item.art_type if item.item_type
-          item["art_category"] = item.art_category if item.item_type
-          item["medium"] = item.medium if item.item_type
-          item["material"] = item.material if item.item_type
-          item["framed"] = item.framed if item.item_type
-          item["stretched"] = item.stretched if item.item_type
-          item["gallery_wrapped"] = item.gallery_wrapped if item.item_type
-          item["embellished"] = item.embellished if item.item_type
-          item["disclaimer"] = item.disclaimer
+          fields.map {|k| item[k] = item.public_send(k) if item_keys.include?(k)}
           csv << item.attributes.values_at(*fields)
         end
       end

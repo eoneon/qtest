@@ -78,7 +78,7 @@ module Export
   end
 
   def disclaimer
-    "yes" if valid_local_keys.include?("disclaimer") && properties["disclaimer"] == "alert" 
+    "yes" if valid_local_keys.include?("disclaimer") && properties["disclaimer"] == "alert"
   end
 
   def embellished
