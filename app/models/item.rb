@@ -103,7 +103,7 @@ class Item < ApplicationRecord
     dim_type.outer_target == "frame"
   end
 
-  def artist_name
+  def artist
     artist_type.full_name if artist_type
   end
 

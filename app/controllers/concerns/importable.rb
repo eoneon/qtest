@@ -35,14 +35,16 @@ module Importable
     #   end
     # end
     #
-
+    def item_keys
+      %(artist artist_id tagline property_room description width height frame_width frame_height depth weight art_type art_category medium)
+    end
 
     def to_csv(fields = column_names, options = {})
       CSV.generate(options) do |csv|
         csv << fields
         all.each do |item|
           #item["retail"] = number_to_currency(item["retail"], precision: 2, delimiter: ',')
-          item["artist"] = item.artist_name
+          item["artist"] = item.public_send("artist")
           item["artist_id"] = item.artist_adminid
           item["tagline"] = item.build_d("tag") if item.item_type
           item["property_room"] = item.build_pr if item.item_type
