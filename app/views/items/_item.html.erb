@@ -1,0 +1,10 @@
+<%= content_tag :div, class: 'media', id: "item-#{item.id}" do %>
+  <div class="media">
+   <div class="media-body">
+     <p><%= item.invoice_tag %></p>
+     <small>
+        <%= link_to 'show', invoice_item_path(item.invoice, item), class: 'btn btn-info btn-xs' %> | <%= link_to 'Delete', item, method: :delete, class: 'btn btn-danger btn-xs', data: { confirm: 'Are you sure you want to delete this sku?' } %>
+     </small>
+   </div>
+  </div>
+<% end %>

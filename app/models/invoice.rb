@@ -3,8 +3,12 @@ class Invoice < ApplicationRecord
   has_many :items, dependent: :destroy
   has_many :notes, as: :noteable, dependent: :destroy
 
-  def inv_skus
-    self.items.order(:sku).pluck(:sku)
+  def ordered_skus
+    items.order(:sku)
+  end
+
+  def sku_pos(item)
+    ordered_skus.index(item) + 1
   end
 
   def supplier_name

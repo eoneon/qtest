@@ -1,6 +1,7 @@
 module InvoicesHelper
   def inv_skus
-    @invoice.inv_skus
+    #@invoice.inv_skus
+    @invoice.ordered_skus.pluck(:sku)
   end
 
   def sku_count

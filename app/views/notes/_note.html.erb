@@ -1,12 +1,10 @@
 <%= content_tag :div, class: 'media', id: "note-#{note.id}" do %>
   <div class="media">
    <div class="media-body">
+     <p><%= note.body %></p>
      <small>
-       <%= note.body %>
+       <p><%= link_to "Delete", [note.noteable, note], method: :delete, remote: true %> | <%= link_to "Edit note", edit_polymorphic_path([note.noteable, note]) %></p>
      </small>
-     <p><%#= link_to "Delete", [note.noteable, note], method: :delete, remote: true %> | <%#= link_to "Edit note", [note.noteable, note] %></p>
-     <p><%= link_to "Delete", [note.noteable, note], method: :delete, remote: true %> | <%= link_to "Edit note", edit_polymorphic_path([note.noteable, note]) %></p>
-
    </div>
   </div>
 <% end %>

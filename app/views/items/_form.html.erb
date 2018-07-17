@@ -1,4 +1,4 @@
-<%= form_for [@invoice, @item], :html => {:id => 'item_form'} do |f| %>
+<%= form_for [@invoice, @item], :remote => true, :html => { :id => 'item_form'} do |f| %>
   <%= render "items/hidden", f: f %>
   <script type="text/javascript">
     function submitform(){

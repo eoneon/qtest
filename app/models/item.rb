@@ -254,7 +254,7 @@ class Item < ApplicationRecord
   end
 
   def insert_retail(d)
-    idx = d.index(".")
+    idx = d.index(".") + 1
     d.insert(idx, " #{retail_proom}")
   end
 

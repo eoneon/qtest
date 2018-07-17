@@ -1,6 +1,6 @@
 class ItemsController < ApplicationController
   def index
-    @items = Item.all
+    @items = Item.all.order(:sku)
   end
 
   def show
@@ -18,11 +18,7 @@ class ItemsController < ApplicationController
 
     if @item.save
       flash[:notice] = "Item was saved successfully."
-      if params[:redirect_location] == ':edit'
-        render :edit
-      else
-        render :edit
-      end
+      render :edit
     else
       flash.now[:alert] = "Error creating item. Please try again."
       render :new
@@ -42,11 +38,11 @@ class ItemsController < ApplicationController
     else
       flash.now[:alert] = "Error updated item. Please try again."
     end
-    render :edit
-    # respond_to do |format|
-    #   format.html
-    #   format.js
-    # end
+
+    respond_to do |format|
+      format.html
+      format.js
+    end
   end
 
   def destroy
