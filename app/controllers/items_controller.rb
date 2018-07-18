@@ -35,14 +35,14 @@ class ItemsController < ApplicationController
 
     if @item.save
       flash[:notice] = "Item was updated successfully."
+      render :edit
     else
       flash.now[:alert] = "Error updated item. Please try again."
     end
-
-    respond_to do |format|
-      format.html
-      format.js
-    end
+    # respond_to do |format|
+    #   format.html
+    #   format.js
+    # end
   end
 
   def destroy

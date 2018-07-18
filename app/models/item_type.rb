@@ -7,7 +7,7 @@ class ItemType < ApplicationRecord
 
   #scope :paper_items, -> {where(category: Category.paper_subsrtate)}
   #scope :canvas_items, -> {where(category: Category.canvas_subsrtate)}
-  #scope :orignal_items, -> {where("properties -> original = :value", value: 'original')}
+  scope :limited_items, -> {where("properties ? :key", key: "limited")}
   scope :original_items, -> {where("properties ? :key", key: "original")}
   scope :printed_items, -> {where("properties ? :key", key: "print")}
   scope :animation_items, -> {where("properties ? :key", key: "animation")}
@@ -23,8 +23,13 @@ class ItemType < ApplicationRecord
   #scope :flat_items, -> {where("properties ? :key OR properties ? :key OR properties ? :key OR properties ? :key OR properties ? :key", key: "paper", key: "canvas", key: "panel", key: "sericel")}
   #scope :flat_items, -> {where_any_of("properties ? :key OR properties ? :key", key: "paper", key: "canvas")}
   #scope :flat_items, -> {canvas_items.or.paper_items}
+  #scope :orignal_items, -> {where("properties -> original = :value", value: 'original')}
 
   ####
+  def self.originals
+    ItemType.original_items.canvas_items + ItemType.original_items.paper_items + ItemType.original_items.panel_items + ItemType.limited_items.canvas_items + ItemType.limited_items.paper_items + ItemType.limited_items.canvas_items + ItemType.limited_items.panel_items
+  end
+
   def valid_keys
     properties.keep_if {|k,v| v.present?}.keys if properties
   end

@@ -32,12 +32,14 @@ module ApplicationHelper
   #scopes
   def value_list(type)
     # case
-    # when @item.mount_type && type == ItemType then filter_item_types(type)
-    # when @item.mount_type && type == DimType then filter_dim_types(type)
-    #when @item.edition_type && type == EditionType then filter_edition_types(type)
+    # when type == ArtistType then ArtistType.last_name
+    # # case
+    # # when @item.mount_type && type == ItemType then filter_item_types(type)
+    # # when @item.mount_type && type == DimType then filter_dim_types(type)
+    # #when @item.edition_type && type == EditionType then filter_edition_types(type)
     # else type.all
     # end
-    type.all.sort
+    type.all
   end
 
   #scope

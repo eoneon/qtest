@@ -1,8 +1,25 @@
 class ArtistType < ApplicationRecord
   include SharedMethods
 
+  #store_accessor :properties, :lastname, :firstname
+
   belongs_to :category
   has_many :items
+
+  #scope :last_names, -> {order("properties ? :key", key: "lastname")}
+  def self.last_name
+    #https://stackoverflow.com/questions/46076232/how-to-pluck-hstore-key-with-activerecord?rq=1
+    #ArtistType.pluck(:properties, :id).map {|name, id| [[name['lastname'], name['firstname']].compact.join(", "), id]}.sort
+    #ArtistType.all.order(:properties['lastname']).pluck(:id)
+    #ArtistType.all.order(:properties['lastname']).pluck(:properties['lastname'])
+    #ArtistType.all.sort
+    #winner!
+    ArtistType.order("properties -> 'lastname'").pluck(:id)
+  end
+
+  # def ordered
+  #
+  # end
 
   def full_name
     if properties

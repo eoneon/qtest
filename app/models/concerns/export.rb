@@ -20,7 +20,7 @@ module Export
   end
 
   def medium
-    item_type.medium
+    item_type.medium 
   end
 
   def art_type

@@ -263,7 +263,7 @@ class Item < ApplicationRecord
     d.insert(idx, " #{retail_proom}")
   end
 
-  def property_room
+  def build_pr
     if build_d("tag")
       pr = retail_proom ? insert_retail(build_d("tag")) : build_d("tag")
       abbrv_description(pr)
@@ -274,7 +274,7 @@ class Item < ApplicationRecord
     build_d("tag") if item_type
   end
 
-  def prop
+  def property_room
     build_pr if item_type
   end
 
