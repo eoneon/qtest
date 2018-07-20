@@ -133,11 +133,6 @@ class CertType < ApplicationRecord
     route_to_target_method(h = {ver: ver}) if required_keys?
   end
 
-  #revisit
-  # def key_valid_and_included?(k)
-  #   key_value(k) && authentication_list.include?(properties[k])
-  # end
-
   def dropdown
     typ_ver_args("inv").gsub("with ", "")
   end

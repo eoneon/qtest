@@ -20,11 +20,10 @@ class ArtistTypesController < ApplicationController
 
     if @artist_type.save
       flash[:notice] = "ArtistType was saved successfully."
-      redirect_to @artist_type
     else
       flash.now[:alert] = "Error creating ArtistType. Please try again."
-      render :edit
     end
+    render :edit
   end
 
   def update
@@ -44,7 +43,7 @@ class ArtistTypesController < ApplicationController
     @artist_type = ArtistType.find(params[:id])
 
     if @artist_type.destroy
-      flash[:notice] = "\"#{@artist_type.name}\" was deleted successfully."
+      flash[:notice] = "\"#{@artist_type.try(:name)}\" was deleted successfully."
       redirect_to action: :index
     else
       flash.now[:alert] = "There was an error deleting the artist_type."

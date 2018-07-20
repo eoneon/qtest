@@ -1,46 +1,28 @@
 class ArtistType < ApplicationRecord
   include SharedMethods
 
-  #store_accessor :properties, :lastname, :firstname
-
   belongs_to :category
   has_many :items
 
-  #scope :last_names, -> {order("properties ? :key", key: "lastname")}
   def self.last_name
     #https://stackoverflow.com/questions/46076232/how-to-pluck-hstore-key-with-activerecord?rq=1
-    #ArtistType.pluck(:properties, :id).map {|name, id| [[name['lastname'], name['firstname']].compact.join(", "), id]}.sort
-    #ArtistType.all.order(:properties['lastname']).pluck(:id)
-    #ArtistType.all.order(:properties['lastname']).pluck(:properties['lastname'])
-    #ArtistType.all.sort
-    #winner!
-    ArtistType.order("properties -> 'lastname'") #.pluck(:id)
+    ArtistType.order("properties -> 'lastname'")
   end
 
-  # def ordered
-  #
-  # end
+  def valid_key?(k)
+    properties && category_names.include?(k)
+  end
 
   def full_name
-    if properties
-      first = properties["firstname"] if properties["firstname"].present?
-      last = properties["lastname"] if properties["lastname"].present?
-      [first, last].compact.join(" ")
-    end
+    category_names.map {|k| properties[k] if valid_key?(k) && k != "dob"}.join(" ")
   end
 
   def display_name
-    if properties
-      category_names.map {|k| properties[k]}.join(" ")
-    end
+    category_names.map {|k| properties[k] if valid_key?(k)}.join(" ")
   end
 
   def last_first
-    if properties
-      first = properties["firstname"] if properties["firstname"].present?
-      last = properties["lastname"] if properties["lastname"].present?
-      [last, first].compact.join(", ")
-    end
+    full_name.split.reverse.join(", ")
   end
 
   def artistid
@@ -50,7 +32,6 @@ class ArtistType < ApplicationRecord
   end
 
   def dropdown
-    #category_names.map {|k| properties[k]}.join(" ")
     last_first
   end
 

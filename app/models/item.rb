@@ -66,50 +66,16 @@ class Item < ApplicationRecord
     self.retail = 0 if retail.blank?
   end
 
-  # def valid_key?(k)
-  #   item_type.valid_keys.include?(k) if item_type
-  # end
-  #
-  # def value_eql?(k, v)
-  #   valid_key?(k) && properties[k] = v
-  # end
-  #
-  # def split_value(k)
-  #   properties[k].split(" ")
-  # end
-  #
-  # def pat_match?(k, v)
-  #   split_value(k).include?(v)
-  # end
-
-  # def format_diameter(dims, k)
-  #   dims["width"] = properties[k]
-  #   dims["height"] = properties[k]
-  # end
-
-  # def csv_dims
-  #   dims = {}
-  #   dim_type.category_names.each do |k|
-  #     case
-  #     when %w(width height weight depth).include?(k) then dims[k] = properties[k]
-  #     when k.index("diameter") then format_diameter(dims, k)
-  #     when k == "innerwidth" || k == "innerheight" then dims[k.gsub("inner", "")] = properties[k]
-  #     when framed? && ("outerwidth" || "outerheight") then dims[k.gsub("outer", "frame_" )] = properties[k]
-  #     end
-  #   end
-  #   dims
-  # end
-
-  # def csv_retail
-  #   retail_inv
-  # end
-
   def framed?
     dim_type.outer_target == "frame"
   end
 
   def artist
     artist_type.full_name if artist_type
+  end
+
+  def truncated_artist
+    artist.truncate(15)
   end
 
   def artist_id
@@ -139,6 +105,7 @@ class Item < ApplicationRecord
   def valid_type?(ver, fk)
     case
     when ver == "tag" && fk == "title" && title == "untitled" then false
+    when ver == "inv" && (fk == "artist_type_id" || fk == "title") then false
     when ver == "tag" && fk == "title" && item_type.medium_key == "sculpturemedium" then false
     when fk == "mount_type_id" && fk_to_meth(fk).mount_key == "wrapped" && item_type.valid_keys.exclude?("canvas") then false
     when ver == "tag" && fk == "mount_type_id" && fk_to_meth(fk).mount_value == "streched" then false
@@ -264,9 +231,16 @@ class Item < ApplicationRecord
   end
 
   def build_pr
-    if build_d("tag")
+    if item_type
       pr = retail_proom ? insert_retail(build_d("tag")) : build_d("tag")
       abbrv_description(pr)
+    end
+  end
+
+  def build_inv
+    if item_type
+      d = build_d("inv")
+      abbrv_description(d)
     end
   end
 
@@ -283,8 +257,6 @@ class Item < ApplicationRecord
   end
 
   def invoice_tag
-    if build_d("inv")
-      retail_proom ? insert_retail(build_d("inv")) : build_d("inv")
-    end
+    build_inv if item_type
   end
 end

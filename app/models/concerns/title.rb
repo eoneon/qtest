@@ -11,12 +11,16 @@ module Title
     "\"#{title}\"" #title_inv_args unless title == "untitled"
   end
 
-  def title_inv_args
-    title_tag_args
+  def item_header
+    %w(sku artist title raw_retail).map {|meth| public_send(meth)}.join(" | ")
   end
 
   def title_body_args
     v  = title == "untitled" || item_type.medium_key == "sculpturemedium" ? "This" : title_tag_args
     "#{v} is #{format_article(first_word_in_item)}"
+  end
+
+  def truncated_title
+    "\"#{title.truncate(20)}\""
   end
 end

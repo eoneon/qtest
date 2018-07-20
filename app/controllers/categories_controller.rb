@@ -8,7 +8,7 @@ class CategoriesController < ApplicationController
   end
 
   def new
-    @category = Category.new #(sub_category_ids: params[:sub_category_ids])
+    @category = Category.new
   end
 
   def edit

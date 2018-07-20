@@ -5,8 +5,7 @@ class SignType < ApplicationRecord
   has_many :items
 
   def valid_keys
-    properties.map {|k,v| k if v.present?}.compact if properties #.present?
-    #properties.keep_if {|k,v| k if v.present?} if properties.present?
+    properties.map {|k,v| k if v.present?}.compact if properties 
   end
 
   def required_keys?

@@ -27,12 +27,10 @@ module Disclaimer
     quadrant? && properties["quadrant"] == "along"
   end
 
-  ###custom
   def custom
     properties["custom"] if properties["custom"].present?
   end
 
-  ###caveat
   def caveat?
     valid_local_keys.include?("caveat")
   end
@@ -49,12 +47,10 @@ module Disclaimer
     public_send(k + "_" + properties[k], k)
   end
 
-  ###quadrant
   def format_quadrant(k)
     along? ? "#{properties[k]} the" : properties[k]
   end
 
-  ###category
   def format_category(k)
     category = ! caveat? ? "#{properties[k]}." : properties[k]
     case
@@ -64,7 +60,6 @@ module Disclaimer
     end
   end
 
-  ###defect
   def format_defect(k)
     case
     when along? then properties[k]
@@ -74,7 +69,6 @@ module Disclaimer
     end
   end
 
-  ###disclaimer
   def article
     "a" if %w(damage chipping wear creasing).exclude?(properties["defect"]) && ! plural_defect?
   end

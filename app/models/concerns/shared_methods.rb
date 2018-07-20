@@ -3,30 +3,25 @@ require 'active_support/concern'
 module SharedMethods
   extend ActiveSupport::Concern
 
-  def test_arr1
-    "123456".split(",")
-    "123456".gsub(/\D/, "").to_i.size
-    # a.flatten
-    # skus = "222100 - 222105"
-    # skus = skus.gsub(/\D/, "").size
-    #sku_range = (skus[0..5].to_i..skus[6..-1].to_i)
-    #sku_range.map {|i| i}
-  end
-
-  def test_hash
-    hsh = {dogs: []}
-  end
-
-  def hsh
-    str = "peter/Max, \"snoop dog\" framed original oil painting on canvas (40\" x 40\"), hand signed with Certificate of Authenticity."
-    h = {build: str}
-  end
-
-  def test_hash
-    dog = {fuji: "love", denali: ["self"]}
-    dog[:denali] << "cat"
-    dog = {fuji: "heart"}
-  end
+  # def test_arr1
+  #   "123456".split(",")
+  #   "123456".gsub(/\D/, "").to_i.size
+  # end
+  #
+  # def test_hash
+  #   hsh = {dogs: []}
+  # end
+  #
+  # def hsh
+  #   str = "peter/Max, \"snoop dog\" framed original oil painting on canvas (40\" x 40\"), hand signed with Certificate of Authenticity."
+  #   h = {build: str}
+  # end
+  #
+  # def test_hash
+  #   dog = {fuji: "love", denali: ["self"]}
+  #   dog[:denali] << "cat"
+  #   dog = {fuji: "heart"}
+  # end
 
   def category_names
     category.name.split("_") if category
