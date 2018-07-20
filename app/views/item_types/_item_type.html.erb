@@ -1,5 +1,6 @@
 <tr>
     <td><%= item_type.id %></td>
     <td><%= item_type.description %></td>
+    <td><%= item_type.properties %></td>
     <td><%= link_to 'Show', item_type_path(item_type) %> | <%= link_to 'Edit', edit_item_type_path(item_type) %> | <%= link_to 'Delete', item_type, method: :delete, data: { confirm: 'Are you sure?' } %></td>
 </tr>

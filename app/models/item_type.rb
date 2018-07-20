@@ -5,29 +5,58 @@ class ItemType < ApplicationRecord
   belongs_to :category
   has_many :items
 
-  #scope :paper_items, -> {where(category: Category.paper_subsrtate)}
-  #scope :canvas_items, -> {where(category: Category.canvas_subsrtate)}
-  scope :limited_items, -> {where("properties ? :key", key: "limited")}
-  scope :original_items, -> {where("properties ? :key", key: "original")}
-  scope :printed_items, -> {where("properties ? :key", key: "print")}
-  scope :animation_items, -> {where("properties ? :key", key: "animation")}
-  scope :photo_items, -> {where("properties ? :key", key: "photo")}
-  scope :etching_items, -> {where("properties ? :key", key: "etching")}
-  scope :sculpture_items, -> {where("properties ? :key", key: "sculpturetype")}
-  scope :book_items, -> {where("properties ? :key", key: "booktype")}
-  scope :sport_items, -> {where("properties ? :key", key: "sportitem")}
-  scope :canvas_items, -> {where("properties ? :key", key: "canvas")}
-  scope :paper_items, -> {where("properties ? :key", key: "paper")}
-  scope :panel_items, -> {where("properties ? :key", key: "panel")}
-  scope :sericel_items, -> {where("properties ? :key", key: "sericel")}
-  #scope :flat_items, -> {where("properties ? :key OR properties ? :key OR properties ? :key OR properties ? :key OR properties ? :key", key: "paper", key: "canvas", key: "panel", key: "sericel")}
-  #scope :flat_items, -> {where_any_of("properties ? :key OR properties ? :key", key: "paper", key: "canvas")}
-  #scope :flat_items, -> {canvas_items.or.paper_items}
-  #scope :orignal_items, -> {where("properties -> original = :value", value: 'original')}
+  scope :original, -> {where("properties ? :key", key: "original")}
+  scope :original_canvas, -> {where("properties ?& ARRAY[:keys]", keys: %w(original canvas))}
+  scope :original_paper, -> {where("properties ?& ARRAY[:keys]", keys: %w(original paper))}
+  scope :original_panel, -> {where("properties ?& ARRAY[:keys]", keys: %w(original panel))}
 
-  ####
+  scope :limited, -> {where("properties -> :key LIKE :value", key: "limited", value: "%edition%")}
+  scope :unlimited, -> {where("properties @> hstore(:key, :value)", key: "limited", value: "")}
+  scope :flat, -> {where("properties ?| ARRAY[:keys]", keys: ["canvas", "paper","panel","sericel"])}
+
+  scope :canvas, -> {where("properties ? :key", key: "canvas")}
+  scope :paper, -> {where("properties ? :key", key: "paper")}
+  scope :panel, -> {where("properties ? :key", key: "panel")}
+  scope :sericel, -> {where("properties ? :key", key: "sericel")}
+
+  scope :sculpture, -> {where("properties ? :key", key: "sculpturetype")}
+  scope :handblown_sculpture, -> {where("properties @> hstore(:key, :value)", key: "handmade", value: "hand blown")}
+  scope :handmade_sculpture, -> {where("properties @> hstore(:key, :value)", key: "handmade", value: "hand made")}
+
+  scope :book, -> {where("properties ? :key", key: "booktype")}
+
+  #scope :animation_items, -> {where("properties ? :key", key: "animation")}
+  #scope :photo_items, -> {where("properties ? :key", key: "photo")}
+  #scope :etching_items, -> {where("properties ? :key", key: "etching")}
+  #scope :book_items, -> {where("properties ? :key", key: "booktype")}
+  #scope :sport_items, -> {where("properties ? :key", key: "sportitem")}
+
   def self.originals
-    ItemType.original_items.canvas_items + ItemType.original_items.paper_items + ItemType.original_items.panel_items + ItemType.limited_items.canvas_items + ItemType.limited_items.paper_items + ItemType.limited_items.canvas_items + ItemType.limited_items.panel_items
+    ItemType.original_canvas + ItemType.original_paper + ItemType.original_panel
+  end
+
+  def self.limiteds
+    ItemType.limited.canvas + ItemType.limited.paper + ItemType.limited.panel + ItemType.limited.sericel
+  end
+
+  def self.unlimiteds
+    ItemType.unlimited.canvas + ItemType.unlimited.paper + ItemType.unlimited.panel + ItemType.unlimited.sericel
+  end
+
+  def self.flat_art
+    ItemType.originals + ItemType.limiteds + ItemType.unlimiteds
+  end
+
+  def self.other_sculptures
+    ItemType.sculpture - ItemType.handblown_sculpture - ItemType.handmade_sculpture
+  end
+
+  def self.sculptures
+    ItemType.handblown_sculpture + ItemType.handmade_sculpture + ItemType.other_sculptures
+  end
+
+  def self.sorted_item_types
+    ItemType.flat_art + self.sculptures
   end
 
   def valid_keys

@@ -1,4 +1,4 @@
-<%= form_for [@invoice, @item], :html => { :id => 'item_form'} do |f| %>
+<%= form_for [@invoice, @item], :html => { :class => 'form', :id => 'item_form'} do |f| %>
   <%= render "items/hidden", f: f %>
   <script type="text/javascript">
     function submitform(){
@@ -13,18 +13,18 @@
     }
   </script>
 
-  <div class="form-row">
-    <div class="col">
+  <div class="fieldset form-row">
+    <div class="col-1">
       <%= f.label :sku %>
       <%= f.text_field :sku, class: 'form-control' %>
     </div>
 
-    <div class="col">
+    <div class="col-4">
       <%= f.label :title %>
       <%= f.text_field :title, class: 'form-control' %>
     </div>
 
-    <div class="col">
+    <div class="col-2">
       <%= f.label :retail %>
       <%= f.text_field :retail, class: 'form-control' %>
     </div>

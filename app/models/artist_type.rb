@@ -14,7 +14,7 @@ class ArtistType < ApplicationRecord
     #ArtistType.all.order(:properties['lastname']).pluck(:properties['lastname'])
     #ArtistType.all.sort
     #winner!
-    ArtistType.order("properties -> 'lastname'").pluck(:id)
+    ArtistType.order("properties -> 'lastname'") #.pluck(:id)
   end
 
   # def ordered

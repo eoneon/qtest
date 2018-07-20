@@ -1,4 +1,4 @@
-<div class="field">
+<div class="col-auto">
   <%= f.label field.name %><br>
   <%= f.select field.name, options_for_select(field.field_values.pluck(:name), parent.properties.try(:[], field.name)), { class: 'form-control', :include_blank => true }  %>
 </div>

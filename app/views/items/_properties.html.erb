@@ -1,9 +1,13 @@
 <%= f.fields_for :properties, OpenStruct.new(parent.properties) do |builder| %>
+  <!-- <fieldset class="form-row"> -->
   <% properties_list(parent).each do |type| %>
     <div class="form-row">
-      <%= f.label obj_to_s(type) %><br>
-      <%= f.collection_select obj_to_fk(type), value_list(type), :id, :dropdown, {class: 'form-control', :include_blank => true}, onchange: 'submitform()' %>
-    </div><br>
+      <div class="col-2">
+        <%= f.label obj_to_s(type) %><br>
+        <%= f.collection_select obj_to_fk(type), value_list(type), :id, :dropdown, {class: 'form-control', :include_blank => true}, onchange: 'submitform()' %>
+      </div>
+    </div>
+    <br>
     <div class="form-row">
       <% if parent.public_send(obj_to_fk(type)).present? %>
         <% parent.public_send(obj_to_s(type)).category.item_fields.where(name: parent.public_send(obj_to_s(type)).category_names).each do |field| %>
@@ -12,4 +16,5 @@
     </div>
     <% end %>
   <% end %>
+  <!-- </fieldset> -->
 <% end %>

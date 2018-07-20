@@ -6,6 +6,7 @@
 <% end %>
 
 <h4>Export Fields</h4>
+
 <p>
   Download:
   <%= link_to "CSV", item_types_path(format: "csv") %> |
@@ -17,7 +18,11 @@
   <%= file_field_tag :file %>
   <%= submit_tag "Import" %>
 <% end %>
-<td><%= ItemType.canvas_items.map {|i| i.category.name} %></td>
+
+<p>flat: <%#= ItemType.other_sculptures.map {|item| item.dropdown} %></p>
+<p>Limited: <%#= ItemType.limited_items.map {|item| item.dropdown} %></p>
+<p>Not Limited: <%#= ItemType.not_limited.inspect %></p>
+<p>Not Limited: <%#= ItemType.not_limited.map {|item| item.dropdown} %></p>
 <table class="table table-striped">
   <thead>
     <tr>
