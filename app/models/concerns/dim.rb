@@ -47,4 +47,8 @@ module Dim
   def build_dim(h, typ, ver)
     h[:v] = pop_type("dim", h[:v])
   end
+
+  def inv_dim
+    pop_type("dim", dim_type.inv_dim) if dim_type
+  end
 end

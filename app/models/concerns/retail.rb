@@ -2,6 +2,7 @@ require 'active_support/concern'
 
 module Retail
   extend ActiveSupport::Concern
+  
   def raw_retail
     number_to_currency(retail, precision: 2, delimiter: ',')
   end

@@ -12,7 +12,7 @@ module Title
   end
 
   def item_header
-    %w(sku artist title raw_retail).map {|meth| public_send(meth)}.join(" | ")
+    %w(sku artist inv_title raw_retail).map {|meth| public_send(meth)}.join(" | ")
   end
 
   def title_body_args
@@ -22,5 +22,9 @@ module Title
 
   def truncated_title
     "\"#{title.truncate(20)}\""
+  end
+
+  def inv_title
+    title == "untitled" || title.blank? ? "Untitled" : title_tag_args
   end
 end

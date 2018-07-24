@@ -4,9 +4,9 @@ class DimType < ApplicationRecord
   belongs_to :category
   has_many :items
 
-  scope :framed_dims, -> {where('name LIKE ?', "%frame%")}
-  scope :canvas_dims, -> {where(name: "image")}
-  scope :border_dims, -> {where('name LIKE ?', "%border%")}
+  # scope :framed_dims, -> {where('name LIKE ?', "%frame%")}
+  # scope :canvas_dims, -> {where(name: "image")}
+  # scope :border_dims, -> {where('name LIKE ?', "%border%")}
 
   def self.paper_dims
     canvas_dims + border_dims
@@ -96,10 +96,10 @@ class DimType < ApplicationRecord
   def format_inv_targets(t)
     case t
     when "frame" then "frm:"
-    when "border" then "brdr:"
+    when "border" then "bdr:"
     when "image" then "img:"
     when "cel" then "cel:"
-    when "image-diameter" then "img-d:"
+    when "image-diameter" then "img-dia:"
     when "diameter" then "dia:"
     else "#{t[0]}:"
     end
@@ -136,7 +136,8 @@ class DimType < ApplicationRecord
   #=> "width (width) x height (height); weight (weight)"
 
   def inv_dim
-    "(#{[inv_3d, inv_2d].compact.join(" ")})"
+    #"#{[inv_3d, inv_2d].compact.join(" ")}"
+    [inv_3d, inv_2d].compact.join(" ")
   end
 
   def tag_dim

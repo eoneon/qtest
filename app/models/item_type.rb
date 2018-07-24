@@ -11,6 +11,7 @@ class ItemType < ApplicationRecord
   scope :original_panel, -> {where("properties ?& ARRAY[:keys]", keys: %w(original panel))}
 
   scope :limited, -> {where("properties -> :key LIKE :value", key: "limited", value: "%edition%")}
+  scope :embellish, -> {where("properties -> :key LIKE :value", key: "embellish", value: "%embellish%")}
   scope :unlimited, -> {where("properties @> hstore(:key, :value)", key: "limited", value: "")}
   scope :flat, -> {where("properties ?| ARRAY[:keys]", keys: ["canvas", "paper","panel","sericel"])}
 
@@ -36,7 +37,7 @@ class ItemType < ApplicationRecord
   end
 
   def self.limiteds
-    ItemType.limited.canvas + ItemType.limited.paper + ItemType.limited.panel + ItemType.limited.sericel
+    ItemType.limited.canvas.embellish + ItemType.limited.paper + ItemType.limited.panel + ItemType.limited.sericel
   end
 
   def self.unlimiteds
@@ -82,9 +83,6 @@ class ItemType < ApplicationRecord
   def pat_match?(k, v)
     valid_key?(k) && split_value(k).include?(v)
   end
-  ####
-
-  ###refactor or use art_keys
 
   def embellished?
     valid_keys.include?("embellish")

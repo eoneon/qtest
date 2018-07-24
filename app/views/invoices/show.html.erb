@@ -31,6 +31,7 @@
       <th>Artist</th>
       <th>Title</th>
       <th>Description</th>
+      <th>Dimensions</th>
       <th>Retail</th>
     </thead>
     <tbody class='js-items'>
@@ -39,8 +40,9 @@
           <td><%= @invoice.sku_pos(item) %></td>
           <td><%= link_to item.sku, edit_invoice_item_path(item.invoice, item) %></td>
           <td><%= item.artist %></td>
-          <td><%= item.truncated_title %></td>
+          <td><%= item.inv_title %></td>
           <td><%= render item %></td>
+          <td><%= item.inv_dim %></td>
           <td><%= item.raw_retail %></td>
           <td><%= link_to 'Delete', item, method: :delete, class: 'btn btn-danger btn-xs', data: { confirm: 'Are you sure you want to delete this sku?' } %></td>
         </tr>

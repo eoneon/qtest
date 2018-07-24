@@ -3,9 +3,9 @@ require 'active_support/concern'
 module Proom
   extend ActiveSupport::Concern
 
-  def abbrv_description(build)
+  def abbrv_description(build, i)
     sub_list.each do |sub_arr|
-      return build.squish if build.squish.size <= 128
+      return build.squish if build.squish.size <= i
       build = build.gsub(sub_arr[0], sub_arr[-1]).squish
     end
     build
@@ -13,7 +13,7 @@ module Proom
 
   def sub_list
     [
-      [" List", ""], [" Limited Edition", " Ltd Ed "],
+      [" List", ""], ["Limited Edition", "Ltd Ed "],
       ["Certificate of Authenticity", "Certificate"], ["Certificate", "Cert"],
       ["Letter of Authenticity", "LOA"],
       [" with ", " w/"], [" and ", " & "], [" Numbered ", " No. "],

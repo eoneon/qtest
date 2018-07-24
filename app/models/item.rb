@@ -59,7 +59,8 @@ class Item < ApplicationRecord
   #validates :sku, presence: true, numericality: true, uniqueness: true, length: { is: 6 }
   #scope :invoice_skus, -> {where(invoice_id: self.invoice_id)}
 
-  after_initialize :init
+  #after_initialize :init
+  before_save :init
 
   def init
     self.title = "untitled" if title.blank?
@@ -105,7 +106,7 @@ class Item < ApplicationRecord
   def valid_type?(ver, fk)
     case
     when ver == "tag" && fk == "title" && title == "untitled" then false
-    when ver == "inv" && (fk == "artist_type_id" || fk == "title") then false
+    when ver == "inv" && (fk == "artist_type_id" || fk == "title" || fk == "dim_type_id") then false
     when ver == "tag" && fk == "title" && item_type.medium_key == "sculpturemedium" then false
     when fk == "mount_type_id" && fk_to_meth(fk).mount_key == "wrapped" && item_type.valid_keys.exclude?("canvas") then false
     when ver == "tag" && fk == "mount_type_id" && fk_to_meth(fk).mount_value == "streched" then false
@@ -233,14 +234,14 @@ class Item < ApplicationRecord
   def build_pr
     if item_type
       pr = retail_proom ? insert_retail(build_d("tag")) : build_d("tag")
-      abbrv_description(pr)
+      abbrv_description(pr, 128)
     end
   end
 
   def build_inv
     if item_type
       d = build_d("inv")
-      abbrv_description(d)
+      abbrv_description(d, 40)
     end
   end
 
