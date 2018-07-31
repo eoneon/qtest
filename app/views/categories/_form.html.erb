@@ -11,13 +11,14 @@
   <div class="row">
     <div class="col-md-12">
       <h4>Associated Fields:</h4>
-      <div class="field">
+      <div>
         <%= hidden_field_tag "category[item_field_ids][]", nil %>
-        <%# if parent.categories.present? %>
+        <%#= ItemField.where(name: parent.category_names, kind: parent.kind).pluck(:name) %>
           <% ItemField.where(name: parent.category_names, kind: parent.kind).each do |item_field| %>
-            <br>
-            <%= check_box_tag "category[item_field_ids][]", item_field.id, parent.item_field_ids.include?(item_field.id), id: dom_id(item_field) %>
-            <%= label_tag dom_id(item_field), item_field.name %>
+            <div class="custom-control custom-checkbox custom-control-inline">
+              <%= check_box_tag "category[item_field_ids][]", item_field.id, parent.item_field_ids.include?(item_field.id), id: dom_id(item_field) %>
+              <%= label_tag dom_id(item_field), item_field.name, class: "custom-control-label" %>
+            </div>
           <% end %>
         <%# end %>
       </div>

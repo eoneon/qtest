@@ -24,7 +24,7 @@ module Punctuation
   end
 
   def item_period(h, ver)
-    ver != "body" && ! intersection?(ver_types("tag"), "any?", ["edition", "sign", "cert"]) || ver == "body" && ! intersection?(ver_types("tag"), "any?", ["edition", "sign"])
+    ver != "body" && ! intersection?(ver_types("tag"), "any?", ["edition", "sign", "cert"]) || ver == "body" && ! intersection?(ver_types("tag"), "any?", ["edition", "sign"]) || ver == "body" && artist_id == 7707
   end
 
   def punct_type(h, typ, ver)

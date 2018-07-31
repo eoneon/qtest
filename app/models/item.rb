@@ -35,6 +35,7 @@ class Item < ApplicationRecord
   include Edition
   include Dim
   include Disclaimer
+  include Sign
   include Title
   include Retail
   include Proom
@@ -53,6 +54,7 @@ class Item < ApplicationRecord
   belongs_to :dim_type, optional: true
   belongs_to :disclaimer_type, optional: true
   belongs_to :invoice, optional: true
+  belongs_to :flag, optional: true
 
   attr_accessor :skus
 
@@ -65,6 +67,14 @@ class Item < ApplicationRecord
   def init
     self.title = "untitled" if title.blank?
     self.retail = 0 if retail.blank?
+  end
+
+  def toggle_flag
+    if flag.nil?
+      "pending"
+    else
+      flag.first.flag
+    end
   end
 
   def framed?
@@ -207,8 +217,9 @@ class Item < ApplicationRecord
     push_conditions(h, typ, ver) ? push_assign(h) : insert_rel_to_pat(public_send("assign_" + typ, h))
   end
 
+  #check edit
   def build_type(h, typ, ver)
-    local_keys.include?(typ + "_type_id") ? public_send("build_" + typ, h, typ, ver) : h[:v]
+    local_keys.include?(typ + "_type_id") || typ == "sign" ? public_send("build_" + typ, h, typ, ver) : h[:v]
   end
 
   def typ_args(typ, ver)
@@ -238,6 +249,15 @@ class Item < ApplicationRecord
     end
   end
 
+  def ringo_clause
+    h = {tag: " (Protege of Andy Warhol's Apprentice - Steve Kaufman)", body: " - Protege of Andy Warhol's Apprentice - Steve Kaufman"}
+  end
+
+  def insert_artist_tag
+    idx = idx_after_pat(build_d("tag"), 0, artist_type.display_name)
+    build_d("tag").insert(idx, ringo_clause[:tag])
+  end
+
   def build_inv
     if item_type
       d = build_d("inv")
@@ -246,7 +266,9 @@ class Item < ApplicationRecord
   end
 
   def tagline
-    build_d("tag") if item_type
+    if item_type
+      build_d("tag") #artist_id && artist_id == 7707 ? insert_artist_tag : build_d("tag")
+    end
   end
 
   def property_room
@@ -254,7 +276,9 @@ class Item < ApplicationRecord
   end
 
   def description
-    build_d("body") if item_type
+    if item_type
+      build_d("body")
+    end
   end
 
   def invoice_tag

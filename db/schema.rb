@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180713163610) do
+ActiveRecord::Schema.define(version: 20180725001250) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -84,6 +84,12 @@ ActiveRecord::Schema.define(version: 20180713163610) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "flags", force: :cascade do |t|
+    t.integer "flag"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "invoices", force: :cascade do |t|
     t.integer "invoice"
     t.string "name"
@@ -128,11 +134,13 @@ ActiveRecord::Schema.define(version: 20180713163610) do
     t.bigint "invoice_id"
     t.integer "retail"
     t.string "invoice_tag"
+    t.bigint "flag_id"
     t.index ["artist_type_id"], name: "index_items_on_artist_type_id"
     t.index ["cert_type_id"], name: "index_items_on_cert_type_id"
     t.index ["dim_type_id"], name: "index_items_on_dim_type_id"
     t.index ["disclaimer_type_id"], name: "index_items_on_disclaimer_type_id"
     t.index ["edition_type_id"], name: "index_items_on_edition_type_id"
+    t.index ["flag_id"], name: "index_items_on_flag_id"
     t.index ["invoice_id"], name: "index_items_on_invoice_id"
     t.index ["item_type_id"], name: "index_items_on_item_type_id"
     t.index ["mount_type_id"], name: "index_items_on_mount_type_id"

@@ -40,7 +40,7 @@ module Disclaimer
   end
 
   def caveat_concealed(k)
-    "that may be concealed when framed" if properties[k] == "concealed"
+    "that may be concealed when framed." if properties[k] == "concealed"
   end
 
   def format_caveat(k)
@@ -52,11 +52,11 @@ module Disclaimer
   end
 
   def format_category(k)
-    category = ! caveat? ? "#{properties[k]}." : properties[k]
+    category = caveat? ? properties[k] : "#{properties[k]}."
     case
     when general_damage? then "to the #{category}"
     when quadrant? || subcategory? then "of the #{category}"
-    else properties[k]
+    else category
     end
   end
 
@@ -81,12 +81,12 @@ module Disclaimer
     plural_defect? || general_damage? ? "are" : "is"
   end
 
-  def flag(k)
+  def flagg(k)
     "Please note:" if %w(alert warning).include?(properties[k])
   end
 
   def format_disclaimer(k)
-    [flag(k), "There", defect_form, article].compact.join(" ")
+    [flagg(k), "There", defect_form, article].compact.join(" ")
   end
 
   def full_disclaimer(keys)
@@ -100,7 +100,7 @@ module Disclaimer
 
   def body_disclaimer(keys)
     if keys == ["disclaimer", "custom"]
-      [flag("disclaimer"), properties["custom"]].compact.join(" ")
+      [flagg("disclaimer"), properties["custom"]].compact.join(" ")
     else
       full_disclaimer(keys)
     end

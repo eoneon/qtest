@@ -1,6 +1,6 @@
 <h1><%= @item.item_header %>   <%= link_to 'Delete', @item, method: :delete, class: 'btn btn-danger', data: { confirm: 'Are you sure you want to delete this sku?' } %></h1>
 <h2>Inv: <%= link_to "#{@item.invoice.invoice} - #{@item.invoice.name}", invoice_path(@item.invoice) %></h2><br>
-
+<p><%= @item.toggle_flag %></p>
 <div> <%= render 'items/sku_nav' %></div>
 
 <h4>Duplicate Sku</h4>
@@ -8,7 +8,7 @@
 
 <blockquote>
   <h4>Tagline:</h4>
-  <%= @item.tagline %>
+  
 </blockquote>
 
 <blockquote>

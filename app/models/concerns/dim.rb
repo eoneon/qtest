@@ -45,7 +45,8 @@ module Dim
   end
 
   def build_dim(h, typ, ver)
-    h[:v] = pop_type("dim", h[:v])
+    v = pop_type("dim", h[:v])
+    h[:v] = artist_id == 7707 && ver == "body" ? "Due to the nature of the canvas, these pieces will need to be mounted for framing. " + v : v
   end
 
   def inv_dim

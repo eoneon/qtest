@@ -217,7 +217,7 @@ class ItemType < ApplicationRecord
   end
 
   def tag_keys
-    ordered_keys.delete_if {|k| (k == "paper" && properties[k] != "archival grade photography paper") || (properties[k] == "giclee" && properties["limited"].present?) }
+    ordered_keys.delete_if {|k| (k == "paper" && properties[k] != "archival grade photography paper" && properties[k] != "rice paper") || (properties[k] == "giclee" && properties["limited"].present?) }
   end
 
   def ver_keys(ver)
